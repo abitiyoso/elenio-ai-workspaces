@@ -1,0 +1,21 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://schemas.example.invalid/agent-studio/agent-completion-event-v1",
+  "title":"Agent Studio → Flowcase Completed Event v1 (proposed)",
+  "type":"object","additionalProperties":false,
+  "required":["event_id","run_id","case_id","workflow_node_id","status","agent_key","agent_version_hash","source_manifest","risk_flags","emitted_at"],
+  "properties":{
+    "event_id":{"type":"string","minLength":1},
+    "run_id":{"type":"string","minLength":1},
+    "case_id":{"type":"string","minLength":1},
+    "workflow_node_id":{"type":"string","minLength":1},
+    "status":{"type":"string","enum":["completed_draft","needs_review","failed","cancelled"]},
+    "agent_key":{"type":"string"},
+    "agent_version_hash":{"type":"string"},
+    "artifact_draft_ref":{"type":["string","null"]},
+    "source_manifest":{"type":"array","items":{"type":"object","required":["source_id","source_version","anchor"],"properties":{"source_id":{"type":"string"},"source_version":{"type":"string"},"anchor":{"type":"string"}}}},
+    "risk_flags":{"type":"array","items":{"type":"string"}},
+    "schema_validation":{"type":"string","enum":["passed","failed","not_run"]},
+    "emitted_at":{"type":"string","format":"date-time"}
+  }
+}

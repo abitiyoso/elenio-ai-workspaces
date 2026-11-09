@@ -1,0 +1,93 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: kms
+      POSTGRES_USER: kms
+      POSTGRES_PASSWORD: kms
+    ports: ["5432:5432"]
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/migrations/000001_foundation.up.sql:/docker-entrypoint-initdb.d/001-foundation.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kms -d kms"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.3
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+    ports: ["9200:9200"]
+    volumes: ["elasticsearch_data:/usr/share/elasticsearch/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9200 >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.46
+    command: ["mini", "-dir=/data"]
+    environment:
+      AWS_ACCESS_KEY_ID: ${OBJECT_STORAGE_ACCESS_KEY:-localkms}
+      AWS_SECRET_ACCESS_KEY: ${OBJECT_STORAGE_SECRET_KEY:-localkms-secret}
+      S3_BUCKET: ${OBJECT_STORAGE_BUCKET:-kms-local}
+    volumes: ["object_storage_data:/data"]
+  kms-api:
+    build: ./backend
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment:
+      APP_ENV: development
+      DATABASE_URL: postgres://kms:kms@postgres:5432/kms?sslmode=disable
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      OBJECT_STORAGE_ENDPOINT: http://seaweedfs:8333
+      OBJECT_STORAGE_ACCESS_KEY: ${OBJECT_STORAGE_ACCESS_KEY:-localkms}
+      OBJECT_STORAGE_SECRET_KEY: ${OBJECT_STORAGE_SECRET_KEY:-localkms-secret}
+      OBJECT_STORAGE_BUCKET: ${OBJECT_STORAGE_BUCKET:-kms-local}
+      DOCLING_BASE_URL: ${DOCLING_BASE_URL:-http://docling:5001}
+      DOCLING_API_KEY: ${DOCLING_API_KEY:-}
+      MIGRATIONS_DIR: /migrations
+    ports: ["8080:8080"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      elasticsearch: { condition: service_healthy }
+      seaweedfs: { condition: service_started }
+  kms-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.worker
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment:
+      APP_ENV: development
+      DATABASE_URL: postgres://kms:kms@postgres:5432/kms?sslmode=disable
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      OBJECT_STORAGE_ENDPOINT: http://seaweedfs:8333
+      OBJECT_STORAGE_ACCESS_KEY: ${OBJECT_STORAGE_ACCESS_KEY:-localkms}
+      OBJECT_STORAGE_SECRET_KEY: ${OBJECT_STORAGE_SECRET_KEY:-localkms-secret}
+      OBJECT_STORAGE_BUCKET: ${OBJECT_STORAGE_BUCKET:-kms-local}
+      DOCLING_BASE_URL: ${DOCLING_BASE_URL:-http://docling:5001}
+      DOCLING_API_KEY: ${DOCLING_API_KEY:-}
+      MIGRATIONS_DIR: /migrations
+    depends_on:
+      postgres: { condition: service_healthy }
+      elasticsearch: { condition: service_healthy }
+      seaweedfs: { condition: service_started }
+  kms-web:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    volumes: ["./frontend:/app", "frontend_node_modules:/app/node_modules"]
+    ports: ["5173:5173"]
+    depends_on: [kms-api]
+
+volumes:
+  postgres_data:
+  elasticsearch_data:
+  object_storage_data:
+  frontend_node_modules:

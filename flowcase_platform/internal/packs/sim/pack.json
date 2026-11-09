@@ -1,0 +1,28 @@
+{
+  "key": "sim-tender",
+  "name": "SIM B2B Tender",
+  "description": "SIM B2B Solution Workspace PRD v3.1 gates G0-G5 and six specialist agents. Policy bindings are provisional pending business sign-off; the orchestrator is a coordinator, not a seventh specialist.",
+  "templates": ["sim_tender_v1.json"],
+  "evolutions": ["sim_tender_v2.json", "sim_tender_v3.json", "sim_tender_v4.json", "sim_tender_v5_draft.json"],
+  "catalog": {
+    "policies": [
+      {"ref": "sim.bid-disposition", "name": "G0 — Bid qualification", "provisional": true},
+      {"ref": "sim.requirement-baseline", "name": "G1 — Requirement baseline", "provisional": true},
+      {"ref": "sim.solution-baseline", "name": "G2 — Solution baseline", "provisional": true},
+      {"ref": "sim.delivery-cost", "name": "G3 — Delivery & cost feasibility", "provisional": true},
+      {"ref": "sim.proposal-quality", "name": "G4 — Proposal quality", "provisional": true},
+      {"ref": "sim.release", "name": "G5 — Release authorization", "provisional": true}
+    ],
+    "agents": [
+      {"ref": "sim.intake", "name": "Intake Agent", "skill_version": "unpinned"},
+      {"ref": "sim.solution-matching", "name": "Solution Matching Agent", "skill_version": "unpinned"},
+      {"ref": "sim.standard-project", "name": "Standard Project Agent", "skill_version": "unpinned"},
+      {"ref": "sim.design", "name": "Design Agent", "skill_version": "unpinned"},
+      {"ref": "sim.cost-challenge", "name": "Cost Challenge Agent", "skill_version": "unpinned"},
+      {"ref": "sim.proposal", "name": "Proposal Agent", "skill_version": "unpinned"}
+    ],
+    "connectors": [],
+    "assignee_roles": ["security-domain-sme"],
+    "artifact_types": ["requirement-register", "capability-fit-gap", "hld", "wbs", "cost-review", "proposal-draft", "security-assessment"]
+  }
+}

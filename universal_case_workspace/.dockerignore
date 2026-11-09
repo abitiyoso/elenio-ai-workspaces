@@ -1,0 +1,8 @@
+web/node_modules
+web/dist
+previews
+prototype_source
+*.png
+.env
+.claude
+.DS_Store

@@ -1,0 +1,13 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://schemas.example.invalid/ai-workspace/agent-action-request-v1",
+  "title":"UCW Intent to Invoke a Registered Agent (proposed)","type":"object","additionalProperties":false,
+  "required":["case_id","pack_key","pack_version","action_key","artifact_refs","idempotency_key"],
+  "properties":{
+    "case_id":{"type":"string"},"pack_key":{"type":"string"},"pack_version":{"type":"string"},
+    "action_key":{"type":"string"},"artifact_refs":{"type":"array","items":{"type":"string"}},
+    "idempotency_key":{"type":"string","minLength":8},
+    "correlation_id":{"type":"string"},"requested_output_schema":{"type":"string"}
+  },
+  "description":"The BFF maps this authenticated intent to a pinned published Agent Studio execution contract. Browser must not supply tenant, model credentials, agent execution URL or approval permissions."
+}

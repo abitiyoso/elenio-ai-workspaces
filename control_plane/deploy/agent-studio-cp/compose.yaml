@@ -1,0 +1,98 @@
+# Agent Studio instance wired to the Control Plane (AGENT_STUDIO_HUMAN_AUTH=control_plane_jwt), loopback only.
+# Separate from the `agent-studio` project: own database volume, vault and access map.
+name: agent-studio-cp
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: agent_studio
+      POSTGRES_USER: agent_studio_owner
+      POSTGRES_PASSWORD_FILE: /run/secrets/db-owner-password
+    ports: ["127.0.0.1:${AS_DB_PORT:-55441}:5432"]
+    volumes: [db_data:/var/lib/postgresql/data]
+    secrets: [{ source: db_owner_password, target: db-owner-password }]
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U agent_studio_owner -d agent_studio"], interval: 5s, timeout: 3s, retries: 20 }
+
+  migrate:
+    image: postgres:17-alpine
+    depends_on: { db: { condition: service_healthy } }
+    environment:
+      PGHOST: db
+      PGPORT: "5432"
+      PGUSER: agent_studio_owner
+      PGDATABASE: agent_studio
+      AGENT_STUDIO_DB_OWNER_PASSWORD_FILE: /run/secrets/db-owner-password
+      AGENT_STUDIO_APP_DB_PASSWORD_FILE: /run/secrets/db-app-password
+    volumes:
+      - ./agent-studio-src/deploy/run-migrations.sh:/deploy/run-migrations.sh:ro
+      - ./agent-studio-src/migrations:/migrations:ro
+    user: "0:0"
+    secrets:
+      - { source: db_owner_password, target: db-owner-password }
+      - { source: db_app_password, target: db-app-password }
+    entrypoint: ["/bin/sh", "/deploy/run-migrations.sh"]
+    restart: "no"
+
+  app:
+    build: { context: ./agent-studio-src, dockerfile: Dockerfile.cp }
+    image: agent-studio-cp:${AS_RELEASE:-latest}
+    network_mode: host
+    depends_on: { migrate: { condition: service_completed_successfully } }
+    environment:
+      AGENT_STUDIO_DATABASE_URL: postgres://agent_studio_app@127.0.0.1:${AS_DB_PORT:-55441}/agent_studio?sslmode=disable
+      AGENT_STUDIO_DATABASE_PASSWORD_FILE: /run/secrets/db-app-password
+      AGENT_STUDIO_HTTP_ADDR: 127.0.0.1:${AS_PORT:-8290}
+      AGENT_STUDIO_ENV: development     # allows the http JWKS URL on the tailnet; identity is the verified CP token
+      AGENT_STUDIO_HUMAN_AUTH: control_plane_jwt
+      AGENT_STUDIO_CP_ISSUER: ${CP_PUBLIC_URL:?set in .env}
+      AGENT_STUDIO_CP_AUDIENCE: agent-studio
+      AGENT_STUDIO_CP_TENANT_KEY: acme-demo
+      AGENT_STUDIO_CP_JWKS_URL: ${CP_PUBLIC_URL}/.well-known/jwks.json
+      AGENT_STUDIO_ACCESS_MAP_FILE: /run/secrets/access-map.json
+      # Development-only: these Control Plane user ids may approve their own submissions (walkthrough account `demo`).
+      AGENT_STUDIO_SELF_APPROVAL_EXEMPT_SUBJECTS: ${SELF_APPROVAL_EXEMPT_SUBJECTS:-}
+      AGENT_STUDIO_WEB_DIR: /app/web
+      AGENT_STUDIO_VAULT_MASTER_KEY_FILE: /run/secrets/vault-master-key
+      AGENT_STUDIO_VAULT_DIR: /var/lib/agent-studio/vault
+      AGENT_STUDIO_PROVIDER_HTTPS_HOSTS: ${AS_PROVIDER_HOSTS:-9router.kibicode.my.id}
+      AGENT_STUDIO_WORKER_CONCURRENCY: "2"
+      # Runtime wiring: Flowcase starts runs with a service token and receives signed callbacks; KMS retrieval runs
+      # on behalf of the case owner (X-KMS-Delegated-User, KMS scope retrieval:delegate).
+      AGENT_STUDIO_SERVICE_TOKENS_FILE: /run/secrets/service-tokens.json
+      AGENT_STUDIO_FLOWCASE_CALLBACK_URL: http://127.0.0.1:${FC_API_PORT:-8280}/api/v1/agent-callbacks/agent-studio
+      AGENT_STUDIO_FLOWCASE_CALLBACK_SECRET_FILE: /run/secrets/flowcase-callback-secret
+      AGENT_STUDIO_KMS_BASE_URL: http://127.0.0.1:${KMS_API_PORT:-8380}
+      AGENT_STUDIO_KMS_SERVICE_TOKEN_FILE: /run/secrets/kms-service-token
+      AGENT_STUDIO_KMS_USER_HEADER: X-KMS-Delegated-User
+      AGENT_STUDIO_RELEASE_ENVIRONMENT: production
+      AGENT_STUDIO_RUN_UID: ${AS_UID:?set in .env}
+      AGENT_STUDIO_RUN_GID: ${AS_GID:?set in .env}
+    secrets:
+      - { source: access_map, target: access-map.json }
+      - { source: db_app_password, target: db-app-password }
+      - { source: vault_master_key, target: vault-master-key }
+      - { source: service_tokens, target: service-tokens.json }
+      - { source: flowcase_callback_secret, target: flowcase-callback-secret }
+      - { source: kms_service_token, target: kms-service-token }
+    volumes:
+      - { type: bind, source: "${AS_VAULT_DIR:?set in .env}", target: /var/lib/agent-studio/vault }
+    user: "${AS_UID}:${AS_GID}"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 100
+    restart: unless-stopped
+
+secrets:
+  access_map: { file: "${AS_SECRETS_DIR:?set in .env}/access-map.json" }
+  db_owner_password: { file: "${AS_SECRETS_DIR}/db-owner-password" }
+  db_app_password: { file: "${AS_SECRETS_DIR}/db-app-password" }
+  vault_master_key: { file: "${AS_SECRETS_DIR}/vault-master-key" }
+  service_tokens: { file: "${AS_SECRETS_DIR}/service-tokens.json" }
+  flowcase_callback_secret: { file: "${AS_SECRETS_DIR}/flowcase-callback-secret" }
+  kms_service_token: { file: "${AS_SECRETS_DIR}/kms-service-token" }
+
+volumes:
+  db_data:

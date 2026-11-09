@@ -1,0 +1,199 @@
+/* Additions on top of the ported prototype styles (flowcase.css). Same tokens, no new palette. */
+
+/* Nav uses router links instead of buttons. */
+.nav a{border:0;width:100%;color:#a7bbd8;display:flex;align-items:center;gap:11px;background:transparent;text-align:left;border-radius:11px;padding:11px 13px;transition:.16s ease;text-decoration:none}
+.nav a:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav a.active{background:#264d94;color:white;box-shadow:inset 3px 0 0 #7eb0ff}
+.nav a span{flex:1;font-size:12px;font-weight:600}
+.nav a:focus-visible,a.btn:focus-visible,a.top-btn:focus-visible,.panelhead a:focus-visible,.skip-link:focus-visible{outline:3px solid #8eb5ff;outline-offset:2px}
+.navcap-gap{margin-top:25px}
+.brandmark .ico{stroke:#fff}
+.brand-dot{color:#7caeff}
+a.btn{text-decoration:none}
+a.top-btn{color:#62758d}
+.panelhead a{text-decoration:none}
+
+/* Skip link for keyboard users. */
+.skip-link{position:absolute;left:12px;top:-60px;z-index:200;background:var(--cobalt);color:#fff;padding:10px 14px;border-radius:10px;font-weight:700;text-decoration:none}
+.skip-link:focus{top:12px}
+.main-content:focus{outline:none}
+
+/* Development identity warning: deliberately loud, server-driven (auth_mode=dev_mock). */
+.devbanner{background:var(--amber-bg);color:#7a4d0f;border-bottom:1px solid #f1d9a8;padding:9px 34px;font-size:11.5px}
+.devbanner strong{color:#6a400a}
+
+/* Loading / empty / error states. */
+.state{display:flex;align-items:center;gap:14px;padding:18px;border-radius:14px;border:1px dashed #d6e1f2;background:#fbfcff;color:#5d708c;font-size:11.5px}
+.state strong{display:block;color:#263f60;font-size:12.5px}
+.state p{margin:4px 0 0;color:#7d8ea7;font-size:11px;line-height:1.6}
+.state code{font-size:10.5px;background:#eef3fb;border-radius:5px;padding:1px 5px}
+.state .btn{margin-left:auto}
+.state-icon{height:38px;width:38px;flex-shrink:0;border-radius:12px;display:grid;place-items:center;background:var(--blue-soft);color:var(--cobalt)}
+.state-error{border-style:solid;border-color:#f3d7da;background:var(--red-bg)}
+.state-error .state-icon{background:#fde3e8;color:var(--red)}
+.spinner{width:18px;height:18px;border-radius:50%;border:2px solid #d5e2f7;border-top-color:var(--cobalt);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.session-wait{max-width:560px;margin:40px auto;text-align:left}
+.session-wait h1{font-size:22px;letter-spacing:-.6px;margin:16px 0 8px}
+.session-wait p{color:var(--muted);font-size:12px;line-height:1.7;margin:0 0 18px}
+
+.integration-msg{margin:14px 0 0 !important;font-size:10.5px !important;color:#7d8ea7 !important}
+.notice-gap{margin-top:14px}
+.topsearch:disabled{opacity:.7}
+.queue-item .pill{margin-left:auto}
+
+/* Mobile drawer: hidden drawer is removed from the tab order and accessibility tree. */
+@media(max-width:810px){
+  .sidebar{visibility:hidden;transition:transform .18s,visibility 0s linear .18s}
+  .sidebar.open{visibility:visible;transition:transform .18s}
+  .devbanner{padding:9px 17px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,*:before,*:after{transition:none !important;animation:none !important}
+}
+
+/* --- Phase 1: library, designer, audit --------------------------------------------------- */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+a.workflow-card{color:inherit;text-decoration:none}
+.workflow-card:focus-visible{outline:3px solid #8eb5ff;outline-offset:2px}
+.workflow-card code,.tbl code,.task-row code,.check code{font-size:10px;background:#f1f5fb;border-radius:5px;padding:1px 5px;color:#4b5f7c}
+.pill-stack{display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+.link-text{color:#2d65d1;font-weight:790;font-size:11px;display:inline-flex;gap:4px;align-items:center}
+.danger-link{color:var(--red);margin-left:10px}
+.version-select{width:auto;min-height:36px;max-width:210px}
+.designer-name .pill{margin-left:8px;vertical-align:middle}
+.conflict{margin:0 0 15px}
+.validation-box .sev{display:inline-block;min-width:52px;font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--amber)}
+.validation-box .sev.error{color:var(--red)}
+.validation-box code{font-size:10px}
+.validation-box .link{font-size:10px;padding:0}
+
+/* Layered process graph with measured SVG connectors. */
+.flow-graph{position:relative;display:flex;flex-direction:column;gap:42px;align-items:center;min-width:max-content;padding:4px 8px}
+.flow-row{display:flex;gap:18px;justify-content:center;position:relative;z-index:1}
+.flow-graph .flow-node{width:196px;min-height:96px;cursor:pointer;font:inherit;color:inherit}
+.flow-graph .flow-node:focus-visible{outline:3px solid #8eb5ff;outline-offset:2px}
+.flow-node.has-error{border-color:#e59aa8;background:#fffafb}
+.flow-node.has-warning{border-color:#f0d29a}
+.flow-node .node-id{font-size:9.5px;color:#9caac0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.node-issue{align-self:flex-start;font-size:9.5px;font-weight:800;border-radius:6px;padding:2px 6px;background:var(--amber-bg);color:var(--amber)}
+.node-issue.error{background:var(--red-bg);color:var(--red)}
+.flow-edges{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:0}
+.flow-edge{fill:none;stroke:#a9bfe6;stroke-width:1.6}
+.flow-edge.back{stroke:var(--red);stroke-dasharray:5 4}
+.flow-arrow{fill:#a9bfe6}
+
+/* Inspector */
+.inspector .field.code,textarea.field.code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;min-height:150px}
+.field[readonly],.field:disabled{background:#f8fafd;color:#5a6d88}
+.field-error{color:var(--red);font-size:10.5px;margin:5px 0 0}
+.next-list{border:0;padding:0;margin:0;max-height:190px;overflow:auto}
+.next-list .label{margin-top:16px}
+.check{display:flex;gap:8px;align-items:center;font-size:11px;color:#3f5472;padding:4px 0}
+.issue-list{list-style:none;margin:0 0 6px;padding:0;display:flex;flex-direction:column;gap:6px}
+.issue-list li{font-size:10.5px;border-radius:9px;padding:8px 10px;background:var(--amber-bg);color:#7a4d0f}
+.issue-list li.error{background:var(--red-bg);color:#8e3446}
+.issue-list strong{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.3px}
+
+/* Audit */
+.audit-list{list-style:none;margin:0;padding:0}
+.load-more{display:flex;justify-content:center}
+.modalbody .label:first-child{margin-top:4px}
+
+/* --- Phase 2: cases, tasks, approvals ------------------------------------------------------ */
+.devbanner{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.persona-switch{display:flex;align-items:center;gap:8px;font-weight:700;white-space:nowrap}
+.persona-switch select{border:1px solid #e8cf9c;background:#fffaf0;border-radius:8px;padding:4px 8px;color:#6a400a;font:inherit}
+.progress{width:110px;height:7px;border-radius:99px;background:#e9eef7;overflow:hidden}
+.progress span{display:block;height:100%;background:var(--cobalt);border-radius:99px}
+.case-summary{display:grid;grid-template-columns:minmax(260px,.8fr) minmax(0,1.4fr);gap:16px;margin-bottom:16px}
+.case-detail{grid-template-columns:minmax(0,1.45fr) minmax(300px,.8fr)}
+.subhead{font-size:13px;margin:0 0 6px}
+.timeline{list-style:none;margin:0;padding:0}
+.tline .pill{margin-left:6px;vertical-align:middle}
+.note-form{display:flex;gap:8px;margin-bottom:8px}
+.note-form .field{min-height:34px}
+.flow-node.state-done{border-color:#bfe3d1;background:#f6fcf9}
+.flow-node.state-active{border:2px solid #f0b34a;padding:12px 12px 11px;box-shadow:0 0 0 4px rgba(240,179,74,.12)}
+.flow-node.state-failed{border-color:#e59aa8;background:#fffafb}
+.node-state{align-self:flex-start;font-size:9.5px;font-weight:800;border-radius:6px;padding:2px 6px;background:var(--green-bg);color:var(--green)}
+.node-state.active{background:var(--amber-bg);color:var(--amber)}
+.node-state.failed{background:var(--red-bg);color:var(--red)}
+.rework{margin-left:8px;vertical-align:middle}
+.rework-note{font-style:italic;color:#7a4d0f !important}
+.form-check{margin-top:14px}
+button.approval-row{width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.approval-row.selected{border-color:#9fbbf0;box-shadow:0 0 0 3px rgba(47,112,250,.08)}
+.approval-row:focus-visible{outline:3px solid #8eb5ff;outline-offset:2px}
+.decision-card textarea.field{min-height:96px}
+.decision-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.provisional{margin-left:8px;vertical-align:middle}
+@media(max-width:1120px){.case-summary,.case-detail{grid-template-columns:1fr}}
+
+/* --- Phase 3: artifacts ---------------------------------------------------------------------- */
+.artifact{padding:11px 0;border-bottom:1px solid #eff2f7}
+.artifact:last-of-type{border-bottom:0}
+.artifact-head{display:flex;align-items:center;gap:8px}
+.artifact-head .link{margin-left:auto}
+.artifact .sub .pill,.covered .pill{margin:2px 4px 0 0}
+.covered{display:flex;flex-wrap:wrap;justify-content:flex-end}
+.bindings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.bindings .keyval strong{text-align:right}
+@media(max-width:810px){.bindings{grid-template-columns:1fr}}
+
+/* "Back to AI Workspace" link: shown only when the app is mounted under the Control Plane (/apps/<key>/). */
+.cp-back { display: flex; align-items: center; gap: 8px; margin: 0 6px 18px; padding: 8px 12px; border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 10px; background: rgba(255, 255, 255, .06); color: #dce7f8; font-size: 12px; font-weight: 600; line-height: 1.2; text-decoration: none; }
+.cp-back:hover { background: rgba(40, 100, 236, .38); border-color: rgba(168, 197, 255, .5); color: #fff; }
+.cp-back:focus-visible { outline: 2px solid #a8c5ff; outline-offset: 2px; }
+.cp-back span[aria-hidden] { font-size: 14px; }
+
+/* Case brief on approval cards: what the approver is deciding on. */
+.case-brief { margin: 12px 0 4px; }
+.case-brief-title { margin: 14px 0 6px; font-size: 13px; font-weight: 700; letter-spacing: .02em; text-transform: uppercase; color: var(--muted, #7f8fa7); }
+.case-brief-text { margin: 0 0 10px; white-space: pre-wrap; line-height: 1.5; }
+.case-brief-list { margin: 0; padding-left: 18px; font-weight: 500; }
+.case-brief-list li { margin: 2px 0; }
+.case-brief-rfp { margin: 8px 0; }
+.case-brief-rfp summary { cursor: pointer; font-weight: 600; }
+
+/* Readable artifact content (components/ArtifactView). */
+.gate-artifact { margin: 10px 0 14px; border: 1px solid var(--edge, #e4eaf4); border-radius: 12px; padding: 10px 14px; background: #fbfcfe; }
+.gate-artifact > summary, .artifact-content > summary { cursor: pointer; font-weight: 600; }
+.artifact-content { margin: 8px 0; }
+.artifact-view { margin-top: 10px; }
+.artifact-facts { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.artifact-section { margin: 12px 0; }
+.artifact-section h4 { margin: 0 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: .03em; color: var(--muted, #7f8fa7); display: flex; gap: 8px; align-items: center; }
+.artifact-items { margin: 0; padding-left: 20px; }
+.artifact-item { margin: 0 0 10px; padding: 8px 10px; border: 1px solid var(--edge, #e4eaf4); border-radius: 10px; background: #fff; }
+.artifact-item-head { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; margin-bottom: 4px; line-height: 1.45; }
+.artifact-item .keyval { padding: 2px 0; }
+.artifact-list { margin: 0; padding-left: 18px; }
+.artifact-text { white-space: pre-wrap; }
+.artifact-raw { margin-top: 10px; }
+.artifact-raw summary { cursor: pointer; font-size: 12px; color: var(--muted, #7f8fa7); }
+.artifact-json { max-height: 320px; overflow: auto; font-size: 11.5px; background: #f4f6fb; padding: 8px; border-radius: 8px; white-space: pre-wrap; word-break: break-word; }
+.source-pill { max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: bottom; }
+.artifact-sources li { margin: 3px 0; }
+
+/* Author draft review: agent drafts wait for the case owner (pages/DraftReview, Tasks). */
+.draft-review { margin-bottom: 18px; border: 1px solid #c9d9fb; box-shadow: 0 0 0 3px rgba(40, 100, 236, .06), var(--shadow); }
+.draft-card { margin: 12px 0 4px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: #fbfcfe; }
+.draft-card-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.draft-card-head .tiny { margin-left: auto; }
+.draft-actions { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: start; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.draft-revision .label { margin-top: 0; }
+.draft-revision textarea.field { min-height: 84px; }
+.draft-revision-foot { display: flex; justify-content: space-between; gap: 12px; margin: 4px 0 8px; }
+.draft-revision-foot .hint { margin: 0; }
+.draft-revising { display: flex; align-items: center; gap: 8px; margin: 10px 0; padding: 9px 12px; border-radius: 10px; background: var(--blue-soft); color: var(--ink2); font-weight: 600; }
+.draft-history { margin-top: 12px; }
+.draft-history summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--muted); }
+.draft-history ol { margin: 8px 0 0; padding-left: 18px; }
+.draft-history li { margin: 4px 0; line-height: 1.45; }
+.drafts-to-review { margin-bottom: 18px; }
+.drafts-to-review .panelhead { padding-bottom: 0; }
+@media (max-width: 720px) { .draft-actions { grid-template-columns: 1fr; } }

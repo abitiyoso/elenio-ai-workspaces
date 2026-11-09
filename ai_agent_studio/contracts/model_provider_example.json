@@ -1,0 +1,27 @@
+{
+  "provider": {
+    "name": "Enterprise LLM Gateway",
+    "adapter_type": "openai_compatible",
+    "base_url": "https://llm-gateway.example.internal/v1",
+    "secret_ref": "vault://workspace/llm-provider-key",
+    "tenant_scope": "tenant-id",
+    "status": "pending_test"
+  },
+  "model_deployment": {
+    "provider_ref": "registered-provider-id",
+    "provider_model_id": "exact-model-id-from-provider",
+    "max_output_tokens": 2048,
+    "timeout_ms": 60000,
+    "capabilities": {
+      "tool_calling": true,
+      "json_schema": true,
+      "streaming": true
+    },
+    "approval_state": "pending"
+  },
+  "agent_model_binding": {
+    "agent_version_id": "draft-version-uuid",
+    "model_deployment_id": "model-uuid"
+  },
+  "disclaimer": "Illustrative metadata only; no real keys or confirmed working provider"
+}

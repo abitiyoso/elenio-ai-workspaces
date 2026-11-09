@@ -1,0 +1,116 @@
+# Flowcase instance wired to the Control Plane: AUTH_MODE=trusted_jwt against the Control Plane JWKS, UI built
+# for /apps/flowcase/, everything bound to loopback (reached only through the Control Plane route).
+# api/worker/web use the host network so they can reach Agent Studio (127.0.0.1:8290) and receive its callbacks;
+# PostgreSQL is published on loopback only.
+# Separate from the standalone `flowcase` project on :5180, which keeps its development identity.
+name: flowcase-cp
+
+x-env: &env
+  APP_ENV: development            # allows the http JWKS URL on the tailnet (no TLS); not a mock identity
+  LOG_LEVEL: info
+  DATABASE_URL: postgres://flowcase:${POSTGRES_PASSWORD:?set in .env}@${FC_DB_HOST:-127.0.0.1:55442}/flowcase?sslmode=disable
+  AUTH_MODE: trusted_jwt
+  AUTH_ISSUER: ${CP_PUBLIC_URL:?set in .env}
+  AUTH_AUDIENCE: flowcase
+  AUTH_JWKS_URL: ${CP_PUBLIC_URL}/.well-known/jwks.json
+  AUTH_TENANT_CLAIM: tenant_id
+  AUTH_MAX_TOKEN_TTL: 15m
+  KMS_MODE: stub
+  AGENT_RUNTIME_MODE: ${FC_AGENT_RUNTIME_MODE:-agent_studio}
+  AGENT_STUDIO_BASE_URL: http://127.0.0.1:${AS_PORT:-8290}
+  AGENT_STUDIO_SERVICE_TOKEN_FILE: /run/secrets/agent_studio_service_token
+  CONNECTORS_MODE: stub
+  AGENT_CALLBACK_SECRET: ${AGENT_CALLBACK_SECRET:?set in .env}
+  PACKS_CONFIG: /app/config/packs.json
+  # Development-only: these Control Plane user ids may approve their own submissions (walkthrough account `demo`).
+  SELF_APPROVAL_EXEMPT_SUBJECTS: ${SELF_APPROVAL_EXEMPT_SUBJECTS:-}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: flowcase
+      POSTGRES_USER: flowcase
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes: [postgres_data:/var/lib/postgresql/data]
+    ports: ["127.0.0.1:${FC_DB_PORT:-55442}:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flowcase -d flowcase"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  migrate:
+    build: ./flowcase-src
+    image: flowcase-cp-backend:${FC_RELEASE:-latest}
+    command: ["/app/migrate", "up"]
+    environment:
+      <<: *env
+      DATABASE_URL: postgres://flowcase:${POSTGRES_PASSWORD}@postgres:5432/flowcase?sslmode=disable
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  # One-off, first deploy only (`docker compose run --rm bootstrap-packs`): imports the SIM/PoC packs with
+  # Flowcase's own development importer, after which deploy.sh renames the tenant to the Control Plane tenant
+  # key and disables the importer identity. Never part of `up`.
+  bootstrap-packs:
+    image: flowcase-cp-backend:${FC_RELEASE:-latest}
+    profiles: ["bootstrap"]
+    command: ["/app/migrate", "seed-dev"]
+    environment:
+      <<: *env
+      AGENT_RUNTIME_MODE: stub          # importing packs needs no agent runtime
+      AUTH_MODE: dev_mock
+      DEV_AUTH_ACKNOWLEDGE: i-understand-this-is-not-secure
+      DEV_AUTH_USER_ID: 00000000-0000-4000-8000-000000000101
+      DEV_AUTH_TENANT_ID: 00000000-0000-4000-8000-000000000001
+      DEV_AUTH_DISPLAY_NAME: Pack Importer
+      DEV_AUTH_ROLES: workspace_member,case_owner,workflow_designer,workflow_publisher
+      DATABASE_URL: postgres://flowcase:${POSTGRES_PASSWORD}@postgres:5432/flowcase?sslmode=disable
+      DEV_AUTH_PERSONAS: '[{"key":"approver","user_id":"00000000-0000-4000-8000-000000000102","name":"Pack Approver","roles":["workspace_member","domain_approver"]}]'
+    volumes: ["./flowcase-src/config:/app/config:ro"]
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  api:
+    image: flowcase-cp-backend:${FC_RELEASE:-latest}
+    command: ["/app/api"]
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      <<: *env
+      HTTP_ADDRESS: 127.0.0.1:${FC_API_PORT:-8280}
+      METRICS_ADDRESS: 127.0.0.1:${FC_METRICS_PORT:-9280}
+    volumes:
+      - ./flowcase-src/config:/app/config:ro
+      - ${FC_SECRETS_DIR:?set in .env}/agent-studio-service-token:/run/secrets/agent_studio_service_token:ro
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  worker:
+    image: flowcase-cp-backend:${FC_RELEASE:-latest}
+    command: ["/app/worker"]
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      <<: *env
+      WORKER_HEALTH_ADDRESS: 127.0.0.1:${FC_WORKER_PORT:-9281}
+    volumes:
+      - ./flowcase-src/config:/app/config:ro
+      - ${FC_SECRETS_DIR}/agent-studio-service-token:/run/secrets/agent_studio_service_token:ro
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  web:
+    build:
+      context: ./flowcase-src/web
+      args: { FLOWCASE_BASE_PATH: /apps/flowcase/ }
+    image: flowcase-cp-web:${FC_RELEASE:-latest}
+    restart: unless-stopped
+    network_mode: host
+    volumes: ["./nginx.cp.conf:/etc/nginx/conf.d/default.conf:ro"]
+    depends_on: [api]
+
+volumes:
+  postgres_data:

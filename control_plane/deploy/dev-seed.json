@@ -1,0 +1,217 @@
+{
+ "disclaimer": "Illustrative development data derived from samples/. Fictional people; no credentials. Subjects match deploy/keycloak/realm-workspace.json. Refused in production.",
+ "workspaces": [
+  {
+   "key": "sim-b2b",
+   "name": "SIM B2B Solutions",
+   "description": "Tender and solution workspace (illustrative domain pack)"
+  },
+  {
+   "key": "engineering",
+   "name": "Platform Engineering",
+   "description": "Platform services and AI engineering"
+  },
+  {
+   "key": "legal-ops",
+   "name": "Legal Operations",
+   "description": "Example future contract-review domain"
+  }
+ ],
+ "users": [
+  {
+   "subject": "7f3c1a52-0d1e-4c71-9a0b-5b1e2f3a4c01",
+   "name": "Rafi Pratama",
+   "email": "rafi@example.invalid",
+   "tenant_roles": [
+    "platform_admin"
+   ],
+   "memberships": {
+    "sim-b2b": [
+     "workspace_admin"
+    ],
+    "engineering": []
+   }
+  },
+  {
+   "subject": "7f3c1a52-0d1e-4c71-9a0b-5b1e2f3a4c02",
+   "name": "Nadia Kusuma",
+   "email": "nadia@example.invalid",
+   "tenant_roles": [
+    "platform_admin"
+   ],
+   "memberships": {
+    "engineering": []
+   }
+  },
+  {
+   "subject": "7f3c1a52-0d1e-4c71-9a0b-5b1e2f3a4c03",
+   "name": "Maya Putri",
+   "email": "maya@example.invalid",
+   "tenant_roles": [],
+   "memberships": {
+    "sim-b2b": [
+     "knowledge_contributor",
+     "case_worker"
+    ],
+    "legal-ops": [
+     "knowledge_contributor"
+    ]
+   }
+  },
+  {
+   "subject": "7f3c1a52-0d1e-4c71-9a0b-5b1e2f3a4c04",
+   "name": "Dimas Wijaya",
+   "email": "dimas@example.invalid",
+   "tenant_roles": [],
+   "memberships": {
+    "sim-b2b": [
+     "case_reviewer",
+     "case_worker"
+    ]
+   }
+  },
+  {
+   "subject": "7f3c1a52-0d1e-4c71-9a0b-5b1e2f3a4c05",
+   "name": "Sari Amelia",
+   "email": "sari@example.invalid",
+   "tenant_roles": [],
+   "memberships": {
+    "sim-b2b": [
+     "agent_author",
+     "knowledge_contributor"
+    ],
+    "engineering": [
+     "agent_author"
+    ]
+   }
+  },
+  {
+   "subject": "7f3c1a52-0d1e-4c71-9a0b-5b1e2f3a4c06",
+   "name": "Demo All Access",
+   "email": "demo@example.invalid",
+   "tenant_roles": [
+    "platform_admin"
+   ],
+   "memberships": {
+    "sim-b2b": [
+     "workspace_admin",
+     "knowledge_contributor",
+     "case_worker",
+     "case_reviewer",
+     "agent_author"
+    ],
+    "engineering": [
+     "workspace_admin",
+     "knowledge_contributor",
+     "case_worker",
+     "case_reviewer",
+     "agent_author"
+    ],
+    "legal-ops": [
+     "workspace_admin",
+     "knowledge_contributor",
+     "case_worker",
+     "case_reviewer",
+     "agent_author"
+    ]
+   }
+  }
+ ],
+ "apps": [
+  {
+   "schema_version": "workspace.app.v1",
+   "app_key": "kms",
+   "display_name": "Knowledge Hub",
+   "description": "Governed documents, source evidence and searchable enterprise knowledge.",
+   "category": "platform",
+   "icon": "book-open",
+   "owner_team": "Knowledge Engineering",
+   "deployment_mode": "same_origin_route",
+   "route_base": "/apps/kms/",
+   "environment": "dev",
+   "version": "1.0.0",
+   "status": "published",
+   "required_entitlements": [
+    "kms:open"
+   ],
+   "workspace_allowlist": [
+    "sim-b2b",
+    "engineering",
+    "legal-ops"
+   ],
+   "health_route": "/readyz",
+   "requires_domain_authorization": true
+  },
+  {
+   "schema_version": "workspace.app.v1",
+   "app_key": "flowcase",
+   "display_name": "Flowcase",
+   "description": "Reusable case, workflow, human task, gate and approval service.",
+   "category": "platform",
+   "icon": "workflow",
+   "owner_team": "Process Platform",
+   "deployment_mode": "same_origin_route",
+   "route_base": "/apps/flowcase/",
+   "environment": "dev",
+   "version": "1.0.0",
+   "status": "published",
+   "required_entitlements": [
+    "flowcase:open"
+   ],
+   "workspace_allowlist": [
+    "sim-b2b",
+    "engineering",
+    "legal-ops"
+   ],
+   "health_route": "/readyz",
+   "requires_domain_authorization": true
+  },
+  {
+   "schema_version": "workspace.app.v1",
+   "app_key": "agent-studio",
+   "display_name": "Agent Studio",
+   "description": "Agent, skill, model and tool governance powered by Go/Eino ADK.",
+   "category": "platform",
+   "icon": "bot",
+   "owner_team": "AI Ops",
+   "deployment_mode": "same_origin_route",
+   "route_base": "/apps/agent-studio/",
+   "environment": "dev",
+   "version": "1.1.0",
+   "status": "published",
+   "required_entitlements": [
+    "agent-studio:open"
+   ],
+   "workspace_allowlist": [
+    "sim-b2b",
+    "engineering"
+   ],
+   "health_route": "/readyz",
+   "requires_domain_authorization": true
+  },
+  {
+   "schema_version": "workspace.app.v1",
+   "app_key": "case-workspace",
+   "display_name": "Universal Case Workspace",
+   "description": "Case workbench over Flowcase cases and tasks, intake chat with the Case Intake Assistant (Agent Studio), and author draft review; Flowcase data is fetched as you via Control Plane token exchange.",
+   "category": "experience",
+   "icon": "panels-top-left",
+   "owner_team": "Workspace Experience",
+   "deployment_mode": "same_origin_route",
+   "route_base": "/apps/case-workspace/",
+   "environment": "dev",
+   "version": "0.2.0",
+   "status": "published",
+   "required_entitlements": [
+    "case-workspace:open"
+   ],
+   "workspace_allowlist": [
+    "sim-b2b",
+    "engineering",
+    "legal-ops"
+   ],
+   "health_route": "/readyz",
+   "requires_domain_authorization": true
+  }
+ ]
+}

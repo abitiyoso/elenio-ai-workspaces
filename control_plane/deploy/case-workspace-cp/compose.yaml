@@ -1,0 +1,58 @@
+# Universal Case Workspace wired to the Control Plane: inbound CP tokens (aud=case-workspace) verified against the
+# CP JWKS, Flowcase called as the user via the CP token exchange, Agent Studio called with UCW's own service token,
+# documents uploaded into the intake chat converted (with OCR) by the VM's shared docling-serve on 127.0.0.1:5001.
+# The app uses the host network (like flowcase-cp) and listens on loopback only; it is reached through the CP route
+# /apps/case-workspace/. PostgreSQL (UCW's own small database) is published on loopback only.
+name: case-workspace-cp
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: case_workspace
+      POSTGRES_USER: case_workspace
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+    volumes: [postgres_data:/var/lib/postgresql/data]
+    ports: ["127.0.0.1:${UCW_DB_PORT:-55443}:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U case_workspace -d case_workspace"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  app:
+    build: { context: ./case-workspace-src, dockerfile: Dockerfile.cp }
+    image: case-workspace-cp:${UCW_RELEASE:-latest}
+    restart: unless-stopped
+    network_mode: host
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      UCW_ENV: development            # allows the http CP issuer/JWKS on the tailnet (no TLS); identity is still the verified CP token
+      UCW_ADDR: 127.0.0.1:${UCW_PORT:-8480}
+      UCW_DATABASE_URL: postgres://case_workspace:${POSTGRES_PASSWORD}@127.0.0.1:${UCW_DB_PORT:-55443}/case_workspace?sslmode=disable
+      UCW_CP_ISSUER: ${CP_PUBLIC_URL:?set in .env}
+      UCW_CP_JWKS_URL: ${CP_PUBLIC_URL}/.well-known/jwks.json
+      UCW_CP_AUDIENCE: case-workspace
+      UCW_TENANT_KEY: acme-demo
+      UCW_CP_INTERNAL_URL: ${CP_INTERNAL_URL:?set in .env}
+      UCW_CP_CLIENT_ID: case-workspace
+      UCW_CP_CLIENT_SECRET_FILE: /run/secrets/token_exchange_client_secret
+      UCW_FLOWCASE_URL: http://127.0.0.1:${FC_API_PORT:-8280}
+      UCW_FLOWCASE_UI_PATH: /apps/flowcase
+      UCW_AGENT_STUDIO_URL: http://127.0.0.1:${AS_PORT:-8290}
+      UCW_AGENT_STUDIO_TOKEN_FILE: /run/secrets/agent_studio_service_token
+      UCW_DOCLING_URL: http://127.0.0.1:${DOCLING_PORT:-5001}
+      UCW_DOCLING_API_KEY_FILE: /run/secrets/docling_api_key
+    volumes:
+      - ${UCW_SECRETS_DIR:?set in .env}/token-exchange-client-secret:/run/secrets/token_exchange_client_secret:ro
+      - ${UCW_SECRETS_DIR}/agent-studio-service-token:/run/secrets/agent_studio_service_token:ro
+      - ${UCW_SECRETS_DIR}/docling-api-key:/run/secrets/docling_api_key:ro
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 100
+
+volumes:
+  postgres_data:

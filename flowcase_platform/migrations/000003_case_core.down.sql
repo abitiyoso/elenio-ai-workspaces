@@ -1,0 +1,9 @@
+DROP TABLE IF EXISTS inbox_dedup;
+DROP TABLE IF EXISTS outbox_events;
+DROP TABLE IF EXISTS audit_events;
+DROP FUNCTION IF EXISTS flowcase_audit_append_only();
+DROP TABLE IF EXISTS node_executions;
+DROP TABLE IF EXISTS execution_tokens;
+DROP TABLE IF EXISTS case_members;
+DROP TABLE IF EXISTS cases;
+DROP FUNCTION IF EXISTS flowcase_guard_case_pin();

@@ -1,0 +1,16 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://schemas.example.invalid/ai-workspace/case-workspace-context-v1",
+  "title":"UCW Case Context Response (proposed)","type":"object","additionalProperties":false,
+  "required":["case_id","pack_key","pack_version","workflow_instance_id","workflow_definition_version","title","status","effective_permissions","etag"],
+  "properties":{
+    "case_id":{"type":"string","minLength":1},"pack_key":{"type":"string"},"pack_version":{"type":"string"},
+    "workflow_instance_id":{"type":"string"},"workflow_definition_version":{"type":"string"},
+    "title":{"type":"string"},"status":{"type":"string"},
+    "owner":{"type":"string"},"current_stage":{"type":"string"},
+    "tenant_id":{"type":"string","description":"Derived from authenticated principal; never accepted as authorization from user input."},
+    "workspace_id":{"type":"string"},
+    "effective_permissions":{"type":"array","uniqueItems":true,"items":{"type":"string"}},
+    "etag":{"type":"string"},"partial_errors":{"type":"array","items":{"type":"object","required":["provider","code"],"properties":{"provider":{"type":"string"},"code":{"type":"string"}}}}
+  }
+}

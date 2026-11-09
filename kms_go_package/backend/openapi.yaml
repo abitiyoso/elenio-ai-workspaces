@@ -1,0 +1,646 @@
+openapi: 3.1.0
+info:
+  title: Knowledge Workspace API
+  version: 4.0.0
+  description: >-
+    Versioned governance API. Human identity comes from the verified host
+    session; retrieval agents use short-lived, audience-bound service credentials.
+servers:
+  - url: http://localhost:8080
+security:
+  - hostSession: []
+paths:
+  /healthz:
+    get:
+      security: []
+      summary: Liveness check
+      responses:
+        '200': { description: Process is alive }
+  /readyz:
+    get:
+      security: []
+      summary: Dependency readiness
+      responses:
+        '200': { description: Required dependencies are ready }
+        '503': { description: A required dependency is unavailable }
+  /metrics:
+    get:
+      security: []
+      summary: Prometheus metrics (HTTP traffic, ingestion and outbox backlog, pending reviews)
+      description: >-
+        Enabled without credentials only when APP_ENV=development. Elsewhere set METRICS_TOKEN and send it
+        as a bearer token; without it the endpoint returns 404. Never expose it publicly.
+      responses:
+        '200': { description: Prometheus text exposition format }
+        '404': { description: Metrics are disabled or the bearer token is wrong }
+  /api/v1/ops/status:
+    get:
+      summary: Tenant-scoped integration and queue health for the Settings screen
+      description: Reports states and counts only; no endpoints, secrets or document content.
+      responses:
+        '200':
+          description: Operational status
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [dependencies, search_index, embedding, ingestion, outbox, pending_reviews]
+                properties:
+                  environment: { type: string }
+                  auth_mode: { type: string, enum: [mock, trusted] }
+                  schema_version: { type: integer }
+                  checked_at: { type: string, format: date-time }
+                  pending_reviews: { type: integer }
+                  dependencies:
+                    type: object
+                    properties:
+                      postgres: { type: string, enum: [ok, unavailable] }
+                      elasticsearch: { type: string, enum: [ok, unavailable] }
+                      object_storage: { type: string, enum: [ok, unavailable] }
+                      docling: { type: string, enum: [ok, unavailable, not_configured] }
+                      embeddings: { type: string, enum: [configured, disabled] }
+                  search_index:
+                    type: object
+                    properties:
+                      name: { type: string }
+                      alias_targets: { type: array, items: { type: string } }
+                      indexed_chunks: { type: [integer, 'null'] }
+                      expected_chunks: { type: integer }
+                      in_sync: { type: [boolean, 'null'] }
+                  embedding:
+                    type: object
+                    properties:
+                      enabled: { type: boolean }
+                      model_id: { type: string }
+                      dimensions: { type: integer }
+                  ingestion: { $ref: '#/components/schemas/QueueCounts' }
+                  outbox: { $ref: '#/components/schemas/QueueCounts' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '503': { description: Status could not be read from PostgreSQL }
+  /api/v1/session:
+    get:
+      summary: Return the authenticated host identity
+      responses:
+        '200':
+          description: Verified identity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id: { type: string }
+                  tenant_id: { type: string, format: uuid }
+                  roles: { type: array, items: { type: string } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /api/v1/collections:
+    get:
+      summary: List collections accessible to the caller
+      responses:
+        '200':
+          description: Accessible collections
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [collections]
+                properties:
+                  collections: { type: array, items: { $ref: '#/components/schemas/Collection' } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      summary: Create a collection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                description: { type: string }
+                classification: { type: string }
+      responses:
+        '201': { description: Created; body contains collection }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { description: A collection with this name already exists in the tenant }
+  /api/v1/collections/{collectionID}/members:
+    post:
+      summary: Grant a principal a collection membership
+      parameters:
+        - $ref: '#/components/parameters/CollectionID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MembershipGrant'
+      responses:
+        '201': { description: Membership granted }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/v1/collections/{collectionID}/cases:
+    post:
+      summary: Create a case scope within a collection
+      parameters:
+        - $ref: '#/components/parameters/CollectionID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+      responses:
+        '201': { description: Created; body contains case }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/v1/cases/{caseID}/members:
+    post:
+      summary: Grant a principal a case membership
+      parameters:
+        - name: caseID
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MembershipGrant'
+      responses:
+        '201': { description: Membership granted }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/v1/documents:
+    get:
+      summary: List documents visible to the caller
+      responses:
+        '200':
+          description: Visible documents
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  documents: { type: array, items: { $ref: '#/components/schemas/Document' } }
+    post:
+      summary: Upload a PDF and enqueue asynchronous ingestion
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, collection_id, title]
+              properties:
+                file: { type: string, format: binary }
+                collection_id: { type: string, format: uuid }
+                case_id: { type: string, format: uuid }
+                title: { type: string }
+      responses:
+        '202':
+          description: Upload accepted and job queued
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [document, job]
+                properties:
+                  document: { $ref: '#/components/schemas/Document' }
+                  job: { $ref: '#/components/schemas/Job' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '413': { description: File exceeds configured upload limit }
+        '503': { description: Object storage unavailable }
+  /api/v1/documents/{documentID}/versions:
+    parameters:
+      - name: documentID
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      summary: List immutable versions and caller capabilities
+      responses:
+        '200':
+          description: Immutable version list and actions granted for this caller and scope
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [versions]
+                properties:
+                  versions: { type: array, items: { $ref: '#/components/schemas/Version' } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      summary: Upload a new immutable document version
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties: { file: { type: string, format: binary } }
+      responses:
+        '202': { description: Version accepted; response contains document and job }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/v1/documents/{documentID}/submit-review:
+    post:
+      summary: Submit a specific version for independent review
+      parameters:
+        - { name: documentID, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [version_id]
+              properties:
+                version_id: { type: string, format: uuid }
+                note: { type: string, maxLength: 2000 }
+      responses:
+        '201': { description: Review created; response contains review and status submitted }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/v1/reviews:
+    get:
+      summary: List pending reviews within the caller's reviewer or steward scope
+      responses:
+        '200':
+          description: Actionable pending reviews; each item has review capability only for an independent reviewer
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [reviews]
+                properties:
+                  reviews: { type: array, items: { $ref: '#/components/schemas/Review' } }
+  /api/v1/reviews/{reviewID}/approve:
+    post:
+      summary: Approve a version with mandatory rationale
+      parameters:
+        - { name: reviewID, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [rationale]
+              properties:
+                rationale: { type: string, minLength: 1, maxLength: 2000 }
+      responses:
+        '200': { description: Approval recorded }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/v1/reviews/{reviewID}/reject:
+    post:
+      summary: Reject a version with mandatory rationale
+      parameters:
+        - { name: reviewID, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [rationale], properties: { rationale: { type: string, minLength: 1, maxLength: 2000 } } }
+      responses:
+        '200': { description: Rejection recorded }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/v1/documents/{documentID}/versions/{versionID}/publish:
+    post:
+      summary: Publish an approved collection version with rationale
+      parameters:
+        - { name: documentID, in: path, required: true, schema: { type: string, format: uuid } }
+        - { name: versionID, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [rationale], properties: { rationale: { type: string, minLength: 1, maxLength: 2000 } } }
+      responses:
+        '200': { description: Publication recorded; ES metadata refresh is durable via outbox }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/v1/documents/{documentID}/versions/{versionID}/revoke:
+    post:
+      summary: Revoke a published version immediately and queue index cleanup
+      parameters:
+        - { name: documentID, in: path, required: true, schema: { type: string, format: uuid } }
+        - { name: versionID, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [rationale], properties: { rationale: { type: string, minLength: 1, maxLength: 2000 } } }
+      responses:
+        '200': { description: Revoked; search is blocked by PostgreSQL before cleanup completes }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/v1/documents/{documentID}/versions/{versionID}/validity:
+    patch:
+      summary: Set version expiry with mandatory rationale
+      parameters:
+        - { name: documentID, in: path, required: true, schema: { type: string, format: uuid } }
+        - { name: versionID, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [rationale]
+              properties: { expires_at: { type: [string, 'null'], format: date-time }, rationale: { type: string, minLength: 1, maxLength: 2000 } }
+      responses:
+        '200': { description: Expiry updated }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/v1/documents/{documentID}:
+    delete:
+      summary: Tombstone a document and queue durable object and index cleanup
+      parameters:
+        - { name: documentID, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [rationale], properties: { rationale: { type: string, minLength: 1, maxLength: 2000 } } }
+      responses:
+        '202': { description: Tombstoned and cleanup queued; audit history survives }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/v1/activity:
+    get:
+      summary: Read append-only audit activity for a collection
+      parameters:
+        - { name: collection_id, in: query, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Activity list; envelope contains activity }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /api/v1/ingestion/jobs/{jobID}:
+    get:
+      summary: Get ingestion job state
+      parameters:
+        - name: jobID
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Job status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  job: { $ref: '#/components/schemas/Job' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v1/ingestion/jobs/{jobID}/retry:
+    post:
+      summary: Retry a failed ingestion job
+      parameters:
+        - name: jobID
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '202': { description: Job queued; response status is queued }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v1/documents/{documentID}/versions/{versionID}/preview:
+    get:
+      summary: Retrieve the original PDF for an authorized document version
+      parameters:
+        - name: documentID
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: versionID
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Original PDF bytes
+          content:
+            application/pdf: { schema: { type: string, format: binary } }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /api/v1/search:
+    post:
+      summary: Search authorized document chunks and return citations
+      description: >-
+        Every candidate is re-authorized against PostgreSQL before snippets or
+        citation metadata are returned. Semantic and hybrid requests return
+        503 when an embedding provider is not configured.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query, mode]
+              properties:
+                query: { type: string }
+                mode: { type: string, enum: [keyword, semantic, hybrid] }
+                collection_ids: { type: array, items: { type: string, format: uuid } }
+                case_id: { type: string, format: uuid }
+                top_k: { type: integer, minimum: 1, maximum: 50 }
+      responses:
+        '200':
+          description: Ranked, authorized results with provenance
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results: { type: array, items: { $ref: '#/components/schemas/SearchResult' } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '503':
+          description: Embedding provider unavailable for semantic/hybrid mode
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+  /api/v1/retrieval/query:
+    post:
+      security:
+        - retrievalService: []
+      summary: Bounded agent retrieval with explicit service scope
+      description: >-
+        Requires a non-development service credential with audience kms-retrieval,
+        retrieval:query scope, expiry, and explicit collection/case grants. Only
+        approved, published and unexpired versions are returned. A separately
+        verified host user session in the same tenant is also required; the
+        returned scope is the intersection of the user membership and service grants.
+        A client that also holds retrieval:delegate may instead name the user with
+        X-KMS-Delegated-User; that principal must be active in tenant_principals of the
+        service tenant, and its memberships and roles are used.
+      parameters:
+        - name: X-KMS-Delegated-User
+          in: header
+          required: false
+          description: >-
+            Delegated principal (Control Plane user UUID). Requires the retrieval:delegate
+            scope; exactly one value. Replaces the forwarded user session.
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query]
+              properties:
+                query: { type: string, minLength: 1, maxLength: 2000 }
+                mode: { type: string, enum: [keyword, semantic, hybrid] }
+                collection_ids: { type: array, items: { type: string, format: uuid } }
+                case_id: { type: string, format: uuid }
+                top_k: { type: integer, minimum: 1, maximum: 50 }
+      responses:
+        '200': { description: Authorized retrieval results }
+        '401':
+          description: >-
+            Invalid, expired, revoked or wrong-audience service credential
+            (invalid_service_credential), or no acceptable user (delegated_user_required),
+            including a delegated user header without retrieval:delegate.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '503':
+          description: Delegated user directory or audit storage unavailable (delegated_user_unavailable, audit_unavailable)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+components:
+  securitySchemes:
+    hostSession:
+      type: http
+      scheme: bearer
+      bearerFormat: Host session
+      description: Host-verified session interpreted by the configured AuthAdapter.
+    retrievalService:
+      type: http
+      scheme: bearer
+      bearerFormat: Opaque service credential
+      description: Hashed at rest; audience-bound to kms-retrieval and never accepted as a human session.
+  parameters:
+    CollectionID:
+      name: collectionID
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+  responses:
+    Unauthorized:
+      description: No verified host session
+      content:
+        application/json: { schema: { $ref: '#/components/schemas/ErrorEnvelope' } }
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json: { schema: { $ref: '#/components/schemas/ErrorEnvelope' } }
+    Forbidden:
+      description: Caller is not authorized for this resource
+      content:
+        application/json: { schema: { $ref: '#/components/schemas/ErrorEnvelope' } }
+    NotFound:
+      description: Resource not found
+      content:
+        application/json: { schema: { $ref: '#/components/schemas/ErrorEnvelope' } }
+  schemas:
+    QueueCounts:
+      type: object
+      properties:
+        queued: { type: integer }
+        processing: { type: integer }
+        failed: { type: integer }
+        completed: { type: integer }
+        oldest_pending_seconds: { type: number }
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            retryable: { type: boolean }
+    Collection:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        tenant_id: { type: string, format: uuid }
+        name: { type: string }
+        description: { type: string }
+        classification: { type: string }
+    MembershipGrant:
+      type: object
+      required: [principal_id, role]
+      properties:
+        principal_id: { type: string }
+        role: { type: string, enum: [reader, contributor, steward] }
+    Document:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        collection_id: { type: string, format: uuid }
+        case_id: { type: string, format: uuid }
+        title: { type: string }
+        status: { type: string }
+    Job:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        document_id: { type: string, format: uuid }
+        version_id: { type: string, format: uuid }
+        status: { type: string, enum: [queued, processing, completed, failed] }
+        attempts: { type: integer }
+        error: { type: string }
+    Version:
+      type: object
+      required: [id, version_number, review_status, trust_status, publication_status, is_current, capabilities]
+      properties:
+        id: { type: string, format: uuid }
+        version_number: { type: integer, minimum: 1 }
+        checksum_sha256: { type: string }
+        created_by: { type: string, format: uuid }
+        parser_status: { type: string }
+        index_status: { type: string }
+        review_status: { type: string, enum: [draft, pending, approved, rejected] }
+        trust_status: { type: string, enum: [approved, unverified, customer_source] }
+        publication_status: { type: string, enum: [draft, ready_for_review, published, expired, archived, revoked] }
+        is_current: { type: boolean }
+        capabilities:
+          type: array
+          items: { type: string, enum: [upload_version, submit_review, review, publish, revoke, set_expiry, delete_document] }
+        valid_from: { type: string, format: date-time }
+        expires_at: { type: string, format: date-time }
+    Review:
+      type: object
+      required: [id, document_id, version_id, submitted_by, submitted_at, status, capabilities]
+      properties:
+        id: { type: string, format: uuid }
+        document_id: { type: string, format: uuid }
+        version_id: { type: string, format: uuid }
+        document_title: { type: string }
+        version_number: { type: integer }
+        submitted_by: { type: string, format: uuid }
+        submission_note: { type: string }
+        submitted_at: { type: string, format: date-time }
+        status: { type: string, enum: [pending, approved, rejected, withdrawn] }
+        capabilities: { type: array, items: { type: string, enum: [review] } }
+    SearchResult:
+      type: object
+      required: [chunk_id, document_id, version_id, title, snippet, citation, trust_status]
+      properties:
+        chunk_id: { type: string }
+        document_id: { type: string, format: uuid }
+        version_id: { type: string, format: uuid }
+        title: { type: string }
+        snippet: { type: string }
+        heading_path: { type: array, items: { type: string } }
+        page_start: { type: integer }
+        page_end: { type: integer }
+        source_anchor: { type: string }
+        citation: { type: string }
+        trust_status: { type: string, enum: [approved, unverified, customer_source] }
+        publication_status: { type: string, enum: [draft, processing, ready_for_review, published, expired, archived, revoked] }
+        relevance_score: { type: number }
+        matched_reason: { type: string }

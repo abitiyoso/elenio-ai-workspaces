@@ -1,0 +1,20 @@
+{
+  "disclaimer":"Demo role templates. Subject domain ACLs and approval authority remain inside each mini-app.",
+  "policy_version":"demo-v1",
+  "default_effect":"deny",
+  "explicit_deny_precedence":true,
+  "role_templates":{
+    "platform_admin":["platform:admin","catalog:view","kms:open","flowcase:open","agent-studio:open","registry:manage","memberships:manage","audit:view"],
+    "workspace_admin":["catalog:view","workspace:manage","memberships:manage"],
+    "knowledge_contributor":["catalog:view","kms:open","kms:contribute"],
+    "case_worker":["catalog:view","flowcase:open"],
+    "case_reviewer":["catalog:view","flowcase:open","review-inbox:view"],
+    "agent_author":["catalog:view","agent-studio:open","agent:author"],
+    "agent_ops":["catalog:view","agent-studio:open","agent:release-request"],
+    "workspace_viewer":["catalog:view"]
+  },
+  "separation_of_duties":[
+    {"rule":"platform_admin_without_domain_grant","description":"Platform admin access to app shell never grants Flowcase gate approval or KMS source access."},
+    {"rule":"agent_author_cannot_self_publish","description":"Agent author role alone cannot approve production skill or model release."}
+  ]
+}

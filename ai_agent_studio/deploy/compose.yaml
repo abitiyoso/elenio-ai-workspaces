@@ -1,0 +1,113 @@
+name: agent-studio
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: agent_studio
+      POSTGRES_USER: agent_studio_owner
+      POSTGRES_PASSWORD_FILE: /run/secrets/db-owner-password
+    ports:
+      - "127.0.0.1:${AGENT_STUDIO_DB_PORT:-55432}:5432"
+    volumes:
+      - agent_studio_db_data:/var/lib/postgresql/data
+    secrets:
+      - source: db_owner_password
+        target: db-owner-password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agent_studio_owner -d agent_studio"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  migrate:
+    image: postgres:17-alpine
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGPORT: "5432"
+      PGUSER: agent_studio_owner
+      PGDATABASE: agent_studio
+      AGENT_STUDIO_DB_OWNER_PASSWORD_FILE: /run/secrets/db-owner-password
+      AGENT_STUDIO_APP_DB_PASSWORD_FILE: /run/secrets/db-app-password
+    volumes:
+      - ./run-migrations.sh:/deploy/run-migrations.sh:ro
+      - ../migrations:/migrations:ro
+    user: "0:0"
+    secrets:
+      - source: db_owner_password
+        target: db-owner-password
+      - source: db_app_password
+        target: db-app-password
+    entrypoint: ["/bin/sh", "/deploy/run-migrations.sh"]
+    restart: "no"
+
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    network_mode: host
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      AGENT_STUDIO_DATABASE_URL: postgres://agent_studio_app@127.0.0.1:${AGENT_STUDIO_DB_PORT:-55432}/agent_studio?sslmode=disable
+      AGENT_STUDIO_DATABASE_PASSWORD_FILE: /run/secrets/db-app-password
+      AGENT_STUDIO_HTTP_ADDR: ${AGENT_STUDIO_HTTP_ADDR:-127.0.0.1:8190}
+      # Non-loopback binds are accepted only with the development identity.
+      AGENT_STUDIO_ENV: ${AGENT_STUDIO_ENV:-production}
+      AGENT_STUDIO_DEV_LOGIN: ${AGENT_STUDIO_DEV_LOGIN:-}
+      AGENT_STUDIO_ACCESS_MAP_FILE: /run/secrets/access-map.json
+      AGENT_STUDIO_WEB_DIR: /app/web
+      AGENT_STUDIO_VAULT_MASTER_KEY_FILE: /run/secrets/vault-master-key
+      AGENT_STUDIO_VAULT_DIR: /var/lib/agent-studio/vault
+      AGENT_STUDIO_PROVIDER_HTTPS_HOSTS: ${AGENT_STUDIO_PROVIDER_HTTPS_HOSTS:-9router.kibicode.my.id}
+      # Runtime worker (Eino). The dev mock model is enabled only when AGENT_STUDIO_ENV=development.
+      AGENT_STUDIO_WORKER_CONCURRENCY: ${AGENT_STUDIO_WORKER_CONCURRENCY:-2}
+      AGENT_STUDIO_RELEASE_ENVIRONMENT: ${AGENT_STUDIO_RELEASE_ENVIRONMENT:-production}
+      AGENT_STUDIO_TRACE_RETENTION_DAYS: ${AGENT_STUDIO_TRACE_RETENTION_DAYS:-30}
+      # Flowcase/KMS integrations stay unset until their owners issue credentials;
+      # see deploy/README.md for the secret mounts they need.
+      AGENT_STUDIO_RUN_UID: ${AGENT_STUDIO_RUN_UID:?set AGENT_STUDIO_RUN_UID to the VM service user's numeric UID}
+      AGENT_STUDIO_RUN_GID: ${AGENT_STUDIO_RUN_GID:?set AGENT_STUDIO_RUN_GID to the VM service user's numeric GID}
+    secrets:
+      - source: access_map
+        target: access-map.json
+      - source: db_app_password
+        target: db-app-password
+      - source: vault_master_key
+        target: vault-master-key
+    volumes:
+      - type: bind
+        source: ${AGENT_STUDIO_VAULT_DIR:?set AGENT_STUDIO_VAULT_DIR to the private vault directory on the VM}
+        target: /var/lib/agent-studio/vault
+    user: "${AGENT_STUDIO_RUN_UID:?set AGENT_STUDIO_RUN_UID}:${AGENT_STUDIO_RUN_GID:?set AGENT_STUDIO_RUN_GID}"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 100
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://$${AGENT_STUDIO_HTTP_ADDR}/health/ready"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 15s
+    restart: unless-stopped
+
+secrets:
+  access_map:
+    file: ${AGENT_STUDIO_ACCESS_MAP_FILE:?set AGENT_STUDIO_ACCESS_MAP_FILE to the private access-map file on the VM}
+  db_owner_password:
+    file: ${AGENT_STUDIO_DB_OWNER_PASSWORD_FILE:?set AGENT_STUDIO_DB_OWNER_PASSWORD_FILE to the private DB owner password file}
+  db_app_password:
+    file: ${AGENT_STUDIO_DB_PASSWORD_FILE:?set AGENT_STUDIO_DB_PASSWORD_FILE to the private runtime DB password file}
+  vault_master_key:
+    file: ${AGENT_STUDIO_VAULT_MASTER_KEY_FILE:?set AGENT_STUDIO_VAULT_MASTER_KEY_FILE to the private 32-byte vault key file}
+
+volumes:
+  agent_studio_db_data:
+    name: agent_studio_db_data

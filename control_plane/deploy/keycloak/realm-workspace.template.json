@@ -1,0 +1,111 @@
+{
+ "realm": "workspace",
+ "displayName": "AI Workspace (development)",
+ "enabled": true,
+ "sslRequired": "__SSL_REQUIRED__",
+ "registrationAllowed": false,
+ "resetPasswordAllowed": false,
+ "rememberMe": false,
+ "loginWithEmailAllowed": true,
+ "bruteForceProtected": true,
+ "failureFactor": 10,
+ "accessTokenLifespan": 300,
+ "ssoSessionIdleTimeout": 1800,
+ "ssoSessionMaxLifespan": 28800,
+ "revokeRefreshToken": true,
+ "refreshTokenMaxReuse": 0,
+ "clients": [
+  {
+   "clientId": "control-plane",
+   "name": "AI Workspace Control Plane BFF",
+   "enabled": true,
+   "protocol": "openid-connect",
+   "publicClient": false,
+   "clientAuthenticatorType": "client-secret",
+   "secret": "__CLIENT_SECRET__",
+   "standardFlowEnabled": true,
+   "implicitFlowEnabled": false,
+   "directAccessGrantsEnabled": false,
+   "serviceAccountsEnabled": false,
+   "frontchannelLogout": false,
+   "consentRequired": false,
+   "redirectUris": [
+    "__PUBLIC_BASE_URL__/auth/callback"
+   ],
+   "webOrigins": [],
+   "attributes": {
+    "pkce.code.challenge.method": "S256",
+    "post.logout.redirect.uris": "__PUBLIC_BASE_URL__/signed-out",
+    "oauth2.device.authorization.grant.enabled": "false",
+    "use.refresh.tokens": "true"
+   },
+   "defaultClientScopes": [
+    "profile",
+    "email",
+    "roles",
+    "web-origins",
+    "acr",
+    "basic"
+   ],
+   "optionalClientScopes": [
+    "offline_access"
+   ]
+  }
+ ],
+ "users": [
+  {
+   "id": "7f3c1a52-0d1e-4c71-9a0b-5b1e2f3a4c01",
+   "username": "rafi",
+   "email": "rafi@example.invalid",
+   "emailVerified": true,
+   "firstName": "Rafi",
+   "lastName": "Pratama",
+   "enabled": true
+  },
+  {
+   "id": "7f3c1a52-0d1e-4c71-9a0b-5b1e2f3a4c02",
+   "username": "nadia",
+   "email": "nadia@example.invalid",
+   "emailVerified": true,
+   "firstName": "Nadia",
+   "lastName": "Kusuma",
+   "enabled": true
+  },
+  {
+   "id": "7f3c1a52-0d1e-4c71-9a0b-5b1e2f3a4c03",
+   "username": "maya",
+   "email": "maya@example.invalid",
+   "emailVerified": true,
+   "firstName": "Maya",
+   "lastName": "Putri",
+   "enabled": true
+  },
+  {
+   "id": "7f3c1a52-0d1e-4c71-9a0b-5b1e2f3a4c04",
+   "username": "dimas",
+   "email": "dimas@example.invalid",
+   "emailVerified": true,
+   "firstName": "Dimas",
+   "lastName": "Wijaya",
+   "enabled": true
+  },
+  {
+   "id": "7f3c1a52-0d1e-4c71-9a0b-5b1e2f3a4c05",
+   "username": "sari",
+   "email": "sari@example.invalid",
+   "emailVerified": true,
+   "firstName": "Sari",
+   "lastName": "Amelia",
+   "enabled": true
+  },
+  {
+   "id": "7f3c1a52-0d1e-4c71-9a0b-5b1e2f3a4c06",
+   "username": "demo",
+   "email": "demo@example.invalid",
+   "emailVerified": true,
+   "firstName": "Demo",
+   "lastName": "All Access",
+   "enabled": true
+  }
+ ]
+}

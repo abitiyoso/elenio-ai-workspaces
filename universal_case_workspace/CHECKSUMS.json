@@ -1,0 +1,156 @@
+{
+  "name": "Universal Case Workspace Implementation Package",
+  "version": "1.0.0",
+  "files": [
+    {
+      "path": "CODEX_MASTER_PROMPT.md",
+      "sha256": "8ad40c49e2983fed86f000c88d257ff9d7ff4d5f95b7dc4fa2762bf959204a8a",
+      "bytes": 9912
+    },
+    {
+      "path": "INTEGRATION_AND_SECURITY_GUIDE.md",
+      "sha256": "fc5e3c66b5325c7ccb9bace4ec5c87e12514628d9d58025c2add48da6972eb7d",
+      "bytes": 4889
+    },
+    {
+      "path": "QA_RESULTS.md",
+      "sha256": "5bfc0955bc54698b8ddf20278d85e9f7ad53a65a4a77ac6c96e48d7d1264eba5",
+      "bytes": 2384
+    },
+    {
+      "path": "README_START_HERE.md",
+      "sha256": "06be676cb7aa5320814d31ead2a8fa4411ed68229e4bbe1666b3617015489e25",
+      "bytes": 3640
+    },
+    {
+      "path": "UI_DESIGN_NOTES.md",
+      "sha256": "4dbdea96dd410f6e9d1daaaa9a811fd4834d0bcf6624987df9a0211c222c36fb",
+      "bytes": 2377
+    },
+    {
+      "path": "UNIVERSAL_CASE_WORKSPACE_TECHNICAL_PRD.md",
+      "sha256": "bda4ffc87333948b078ec34dc145675baffdeb913433b2229d8f2e62717d9b4b",
+      "bytes": 26095
+    },
+    {
+      "path": "Universal_Case_Workspace_Prototype.html",
+      "sha256": "7b4ae1977be0fd3a1d9c6ee80afd6fbaf8e6cac521e58f14a9ba5fab4363afc6",
+      "bytes": 78094
+    },
+    {
+      "path": "contracts/agent_action_request.schema.json",
+      "sha256": "3ef0b8203c7cc4219de8b2f5993aed1399eefc94df01eb2b37727446aac5c65f",
+      "bytes": 910
+    },
+    {
+      "path": "contracts/artifact_record.schema.json",
+      "sha256": "a6c7b6f5fbf2f443ba873b3469d8cc8d020930ca316797417603d13417539952",
+      "bytes": 1130
+    },
+    {
+      "path": "contracts/case_workspace_context.schema.json",
+      "sha256": "1d518b3656896bfb20586b5c7207064d5f6fd96be1308c456200f551e094c2f8",
+      "bytes": 1197
+    },
+    {
+      "path": "contracts/workspace_definition.schema.json",
+      "sha256": "a6e2c74248196cb47559a08d3bcb525588bb43029cf6c3d6fe8f8e8482139c7b",
+      "bytes": 3714
+    },
+    {
+      "path": "contracts/workspace_events.schema.json",
+      "sha256": "7e78f263e05946adfae3a4fe5a1d17e9645ed5cdcfc7a5dba090753c97c9d949",
+      "bytes": 745
+    },
+    {
+      "path": "domain-packs/contract-review.v1.json",
+      "sha256": "d4bc3ea639246db8df50f91162a1f6ffcf9a334161573053b96d309829f07c5e",
+      "bytes": 3045
+    },
+    {
+      "path": "domain-packs/poc-assessment.v1.json",
+      "sha256": "dfb3fc34a773409c7cda8c8c358782a666dffd26d66666bb74657606e8fd6ad3",
+      "bytes": 2923
+    },
+    {
+      "path": "domain-packs/sim-tender.v1.json",
+      "sha256": "21f1a27a1624071abce041b34eb255594ba693b44861b1ca3166a362ae638b5a",
+      "bytes": 3434
+    },
+    {
+      "path": "previews/UCW_Contract_Workspace.png",
+      "sha256": "f5ef4a7934a293cde7892245ca000759b744ced6f27d1e3dfbd784bb3f2f2a86",
+      "bytes": 199084
+    },
+    {
+      "path": "previews/UCW_Domain_Packs.png",
+      "sha256": "42ab8bb0506035f1ae1814d15c338fe051d4b41785c129500cc0aeef535bbb44",
+      "bytes": 199937
+    },
+    {
+      "path": "previews/UCW_Mobile_Overview.png",
+      "sha256": "48e4b3a14a8f1eeabb5955fc32ce795624caf31e232645390519f763a3d13b58",
+      "bytes": 252041
+    },
+    {
+      "path": "previews/UCW_Mobile_Workspace.png",
+      "sha256": "54ab085a2ec29178c8d497bdc92ba60fd85b79ddac6c8c0e78004a091e6bcf57",
+      "bytes": 137106
+    },
+    {
+      "path": "previews/UCW_Overview_Desktop.png",
+      "sha256": "d7b5c171be39f272aa0b0b6936cc243675837a25c94d9057c9f4230a496fabbe",
+      "bytes": 384344
+    },
+    {
+      "path": "previews/UCW_PoC_Workspace.png",
+      "sha256": "948c8e9072a1c931735375dcfad4b14d30a63dfebdcd7da0918b22e71399eadb",
+      "bytes": 202075
+    },
+    {
+      "path": "previews/UCW_Preview_16x9.png",
+      "sha256": "a68522a40dc5edbc7a37f2074326272d27a98e188eb7946c45f92e8a9824681a",
+      "bytes": 305492
+    },
+    {
+      "path": "previews/UCW_SIM_Workspace.png",
+      "sha256": "f9c6cd563307a9e221a4bad0bb3d4d1d42398484022c0eed9c7d76d1599b9390",
+      "bytes": 224276
+    },
+    {
+      "path": "prototype_source/base_template.html",
+      "sha256": "5f08d49955a16bf45c7b207493cae8ef871774691a60116f30e7d7aa8dc2cb90",
+      "bytes": 22067
+    },
+    {
+      "path": "prototype_source/prototype.js",
+      "sha256": "c10de5bd175c55158081ca092302aa3e9b71de0e13408ec9b4ce943ea059b935",
+      "bytes": 37837
+    },
+    {
+      "path": "samples/control_plane_miniapp_registration.json",
+      "sha256": "5a5b803e1594db069bf600ad62eae46d761a54741581dbba703c87db1565b55a",
+      "bytes": 818
+    },
+    {
+      "path": "samples/demo_cases.json",
+      "sha256": "f86916540cbcea5a4132f4d3ebcb1e4963b9385c72126d3958efbb80f05e2da5",
+      "bytes": 8381
+    },
+    {
+      "path": "scripts/build_prototype.py",
+      "sha256": "a24488b77203f33b4d87aaad8a8eec6730e34fb627c4e1d1d14b0745329e2a17",
+      "bytes": 934
+    },
+    {
+      "path": "tests/test_ui_smoke.py",
+      "sha256": "fe8002eb049c5cdd915e722484cb90245a54badb5505d1114395d98c5819ae43",
+      "bytes": 5978
+    },
+    {
+      "path": "tests/validate_packs.py",
+      "sha256": "d5881fb7560c1fab9536cc4434acf90489beb7edb6784902a696fa8b35fc6925",
+      "bytes": 2804
+    }
+  ]
+}

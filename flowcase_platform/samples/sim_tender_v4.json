@@ -1,0 +1,289 @@
+{
+  "schema_version": "1.0",
+  "key": "sim-tender",
+  "name": "SIM B2B Tender Lifecycle",
+  "version": 4,
+  "status": "published",
+  "description": "PRD SIM v3.1 reference workflow; domain gates G0-G5 through reusable node types and SIM-specific policies. v4: opportunity and customer IDs are optional and hidden from forms until a CRM source of truth exists; agent drafts still wait for the case owner's review.",
+  "tenant_scope": "organization",
+  "input_schema": {
+    "type": "object",
+    "required": [
+      "deadline"
+    ],
+    "properties": {
+      "opportunity_id": {
+        "type": "string",
+        "x-hidden": true,
+        "description": "Reserved for a future CRM link; optional and not shown in forms."
+      },
+      "customer_id": {
+        "type": "string",
+        "x-hidden": true,
+        "description": "Reserved for a future CRM link; optional and not shown in forms."
+      },
+      "deadline": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "kms_source_ids": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "case_summary": {
+        "type": "string",
+        "title": "Case brief",
+        "description": "Free-text brief for the agents: scope, situation, what is being asked. Sent as part of every agent's case summary.",
+        "maxLength": 4000
+      },
+      "customer_name": {
+        "type": "string",
+        "title": "Customer name",
+        "maxLength": 200
+      },
+      "rfp_excerpt": {
+        "type": "string",
+        "title": "RFP excerpt",
+        "description": "Relevant RFP text. Treated by agents as untrusted reference material.",
+        "maxLength": 20000
+      },
+      "constraints": {
+        "type": "array",
+        "title": "Constraints",
+        "description": "One constraint per item (at most 50 are sent, 500 characters each).",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        }
+      }
+    }
+  },
+  "nodes": [
+    {
+      "id": "start",
+      "type": "start",
+      "name": "Case created",
+      "next": [
+        "g0"
+      ]
+    },
+    {
+      "id": "g0",
+      "type": "human_approval",
+      "name": "G0 — Bid qualification",
+      "config": {
+        "policy_ref": "sim.bid-disposition",
+        "blocking": true
+      },
+      "next": [
+        "intake"
+      ]
+    },
+    {
+      "id": "intake",
+      "type": "agent_task",
+      "name": "Intake Agent — RFP analysis",
+      "config": {
+        "agent_ref": "sim.intake",
+        "output_artifact_type": "requirement-register",
+        "context_sources": [
+          "case-files",
+          "kms-approved"
+        ],
+        "author_review": true
+      },
+      "next": [
+        "g1"
+      ]
+    },
+    {
+      "id": "g1",
+      "type": "human_approval",
+      "name": "G1 — Requirement baseline",
+      "config": {
+        "policy_ref": "sim.requirement-baseline",
+        "blocking": true
+      },
+      "next": [
+        "solution_parallel"
+      ]
+    },
+    {
+      "id": "solution_parallel",
+      "type": "parallel_split",
+      "name": "Solution workstreams",
+      "next": [
+        "matching",
+        "design"
+      ]
+    },
+    {
+      "id": "matching",
+      "type": "agent_task",
+      "name": "Solution Matching Agent",
+      "config": {
+        "agent_ref": "sim.solution-matching",
+        "output_artifact_type": "capability-fit-gap",
+        "author_review": true
+      },
+      "next": [
+        "solution_join"
+      ]
+    },
+    {
+      "id": "design",
+      "type": "agent_task",
+      "name": "Design Agent",
+      "config": {
+        "agent_ref": "sim.design",
+        "output_artifact_type": "hld",
+        "author_review": true
+      },
+      "next": [
+        "solution_join"
+      ]
+    },
+    {
+      "id": "solution_join",
+      "type": "parallel_join",
+      "name": "Solution reviews complete",
+      "config": {
+        "join": "all",
+        "split_ref": "solution_parallel"
+      },
+      "next": [
+        "g2"
+      ]
+    },
+    {
+      "id": "g2",
+      "type": "human_approval",
+      "name": "G2 — Solution baseline",
+      "config": {
+        "policy_ref": "sim.solution-baseline",
+        "blocking": true
+      },
+      "next": [
+        "feasibility_parallel"
+      ]
+    },
+    {
+      "id": "feasibility_parallel",
+      "type": "parallel_split",
+      "name": "Feasibility workstreams",
+      "next": [
+        "project",
+        "cost"
+      ]
+    },
+    {
+      "id": "project",
+      "type": "agent_task",
+      "name": "Standard Project Agent",
+      "config": {
+        "agent_ref": "sim.standard-project",
+        "output_artifact_type": "wbs",
+        "author_review": true
+      },
+      "next": [
+        "feasibility_join"
+      ]
+    },
+    {
+      "id": "cost",
+      "type": "agent_task",
+      "name": "Cost Challenge Agent",
+      "config": {
+        "agent_ref": "sim.cost-challenge",
+        "output_artifact_type": "cost-review",
+        "author_review": true
+      },
+      "next": [
+        "feasibility_join"
+      ]
+    },
+    {
+      "id": "feasibility_join",
+      "type": "parallel_join",
+      "name": "Feasibility reviews complete",
+      "config": {
+        "join": "all",
+        "split_ref": "feasibility_parallel"
+      },
+      "next": [
+        "g3"
+      ]
+    },
+    {
+      "id": "g3",
+      "type": "human_approval",
+      "name": "G3 — Delivery & cost feasibility",
+      "config": {
+        "policy_ref": "sim.delivery-cost",
+        "blocking": true
+      },
+      "next": [
+        "proposal"
+      ]
+    },
+    {
+      "id": "proposal",
+      "type": "agent_task",
+      "name": "Proposal Agent",
+      "config": {
+        "agent_ref": "sim.proposal",
+        "output_artifact_type": "proposal-draft",
+        "author_review": true
+      },
+      "next": [
+        "g4"
+      ]
+    },
+    {
+      "id": "g4",
+      "type": "human_approval",
+      "name": "G4 — Proposal quality",
+      "config": {
+        "policy_ref": "sim.proposal-quality",
+        "blocking": true
+      },
+      "next": [
+        "g5"
+      ]
+    },
+    {
+      "id": "g5",
+      "type": "human_approval",
+      "name": "G5 — Release authorization",
+      "config": {
+        "policy_ref": "sim.release",
+        "blocking": true,
+        "artifact_snapshot_required": true
+      },
+      "next": [
+        "end"
+      ]
+    },
+    {
+      "id": "end",
+      "type": "end",
+      "name": "Approved package ready",
+      "next": []
+    }
+  ],
+  "policy_refs": [
+    "sim.bid-disposition",
+    "sim.requirement-baseline",
+    "sim.solution-baseline",
+    "sim.delivery-cost",
+    "sim.proposal-quality",
+    "sim.release"
+  ],
+  "metadata": {
+    "origin": "SIM B2B Solution Workspace PRD v3.1; implementation example, not ratified organization policy",
+    "change_note": "Opportunity and customer IDs become optional and hidden (x-hidden) until a CRM is connected. Same steps, gates, policies and author draft review as v3; v1-v3 cases stay pinned."
+  }
+}

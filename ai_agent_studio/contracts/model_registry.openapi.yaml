@@ -1,0 +1,1097 @@
+openapi: 3.1.0
+info:
+  title: Agent Studio Model Registry API
+  version: 0.1.0
+  description: |
+    Phase 1 registry endpoints. The deployed AuthAdapter trusts identity headers
+    only from Tailscale Serve while the service listens on loopback, then maps an
+    explicit Tailscale login to a tenant and exact action permissions. Requests
+    must not supply tenant or actor identity. Publish, approval, model-binding,
+    and published-tool binding operations remain denied until the required
+    authority is explicitly granted.
+servers:
+  - url: /api/v1
+paths:
+  /model-providers:
+    get:
+      summary: List providers in the verified tenant
+      responses:
+        '200':
+          description: Provider metadata; vault references are omitted.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Provider'
+        '401': { description: Host identity is missing or invalid. }
+        '403': { description: The principal cannot read provider metadata. }
+        default:
+          description: Route, method, or server configuration error.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+    post:
+      summary: Register provider metadata
+      description: Does not accept credentials and does not probe the endpoint.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProviderInput'
+      responses:
+        '201':
+          description: Provider created with status pending_test.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Provider'
+        '400': { description: Invalid input. }
+        '401': { description: Host identity is missing or invalid. }
+        '403': { description: The principal cannot register providers. }
+        default:
+          description: Route, method, or server configuration error.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+  /model-deployments:
+    get:
+      summary: List model deployments in the verified tenant
+      responses:
+        '200':
+          description: Model deployment metadata.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Deployment'
+        '401': { description: Host identity is missing or invalid. }
+        '403': { description: The principal cannot read deployment metadata. }
+        default:
+          description: Route, method, or server configuration error.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+  /model-providers/{providerId}/credentials:
+    parameters:
+      - { name: providerId, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      summary: Read provider credential configuration status
+      description: Returns configured status only; secret material and vault references are never returned.
+      responses:
+        '200':
+          description: Credential status.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CredentialStatus' }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: model_provider.credential.read permission is absent. }
+        '404': { description: Provider does not exist in the verified tenant. }
+    put:
+      summary: Store or rotate a provider credential
+      description: Credential bytes are write-only and encrypted by the backend vault. Responses never return secret material or vault references. Replacing a credential resets provider/deployment health and revokes previous approvals.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CredentialInput' }
+      responses:
+        '200':
+          description: Credential stored and old reference cleanup completed.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CredentialStatus' }
+        '202':
+          description: Credential stored; cleanup of the prior encrypted record is pending.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CredentialStatus' }
+        '400': { description: Credential is empty or exceeds the request limit. }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: The principal cannot write provider credentials. }
+        '404': { description: Provider does not exist in the verified tenant. }
+        '503': { description: The encrypted backend vault is unavailable. }
+    delete:
+      summary: Remove a provider credential
+      responses:
+        '200':
+          description: Credential reference removed and provider disabled.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CredentialStatus' }
+        '202':
+          description: Credential reference removed; encrypted-record cleanup is pending.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CredentialStatus' }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: The principal cannot delete provider credentials. }
+        '404': { description: Provider does not exist in the verified tenant. }
+        '503': { description: The encrypted backend vault is unavailable. }
+  /model-providers/{providerId}/probe:
+    parameters:
+      - { name: providerId, in: path, required: true, schema: { type: string, format: uuid } }
+    post:
+      summary: Probe provider connectivity or requested capabilities
+      description: Requires model_provider.probe permission, a configured secret, the exact HTTPS authority allowlist, safe public DNS results, and the OpenAI-compatible adapter. Connectivity mode only lists models. Capabilities mode sends small inference requests and requires explicit token-cost acknowledgement. No request is sent until this endpoint is explicitly invoked.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProviderProbeInput' }
+      responses:
+        '200':
+          description: Probe completed; evidence scope is the provider endpoint and capability probes may incur token charges.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProviderProbeResult' }
+        '400': { description: Deployment, mode, or requested capability is invalid. }
+        '428': { description: Capabilities mode requires confirm_token_cost true. }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: The principal or endpoint egress policy denied the probe. }
+        '404': { description: Provider deployment does not exist in the verified tenant. }
+        '503': { description: Credential vault or provider adapter is unavailable; no request was sent. }
+        '502': { description: Provider capability check failed. }
+  /model-deployments/{deploymentId}/approvals:
+    parameters:
+      - { name: deploymentId, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: environment, in: query, required: true, schema: { type: string, enum: [development, staging, production] } }
+    get:
+      summary: Read model approval state for a tenant environment
+      responses:
+        '200':
+          description: Approval records for the deployment and environment.
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/ModelApproval' } }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: Approval read permission is not granted in the initial access map. }
+    post:
+      summary: Record a model approval decision
+      description: The initial access map grants no approval/revocation action. An approval also requires a current successful provider capability check.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [state]
+              properties:
+                state: { type: string, enum: [approved, rejected, revoked] }
+                reason: { type: string, maxLength: 1000 }
+      responses:
+        '200':
+          description: Approval state recorded.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ModelApproval' }
+        '400': { description: Environment, state, or reason is invalid. }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: Approval or revocation authority is not configured. }
+        '404': { description: Model deployment does not exist in the verified tenant. }
+        '409': { description: A current successful provider capability check is required before approval. }
+  /agent-versions/{versionId}/model-binding:
+    parameters:
+      - { name: versionId, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      summary: Read the model binding for a draft agent version
+      responses:
+        '200':
+          description: Tenant-scoped model binding.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AgentModelBinding' }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: Model binding read permission is not granted in the initial access map. }
+        '404': { description: Agent version has no model binding. }
+    put:
+      summary: Set or replace a draft agent model binding
+      description: A deployment must be approved for the selected environment. The initial access map grants no model binding action.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AgentModelBindingInput' }
+      responses:
+        '200':
+          description: Model binding updated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AgentModelBinding' }
+        '400': { description: Model deployment, fallback, or environment is invalid. }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: Model binding write permission is not configured. }
+        '404': { description: Agent version does not exist or is not a draft. }
+        '409': { description: Model deployment is not approved for the tenant environment. }
+    delete:
+      summary: Remove a draft agent model binding
+      responses:
+        '204': { description: Binding removed. }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: Model binding delete permission is not configured. }
+        '404': { description: Draft agent model binding does not exist. }
+    post:
+      summary: Register a model deployment
+      description: Capability values are declarations only and are not verified by a provider probe.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentInput'
+      responses:
+        '201':
+          description: Deployment created with status pending_test.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+        '400': { description: Invalid input. }
+        '401': { description: Host identity is missing or invalid. }
+        '403': { description: The principal cannot register deployments. }
+        default:
+          description: Route, method, or server configuration error.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+  /agents:
+    get:
+      summary: List tenant agents
+      description: Results are ordered newest first. Limit is 1-100; offset is zero or greater.
+      parameters:
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: offset, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+      responses:
+        '200':
+          description: Tenant-scoped page of agent identities.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, total, limit, offset]
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/Agent' } }
+                  total: { type: integer, minimum: 0 }
+                  limit: { type: integer, minimum: 1 }
+                  offset: { type: integer, minimum: 0 }
+        '401': { description: Host identity is missing or invalid. }
+        '403': { description: The principal cannot read agents. }
+    post:
+      summary: Create a tenant-scoped draft agent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AgentInput' }
+      responses:
+        '201':
+          description: Agent and empty 0.1.0 draft version created.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Agent' }
+        '400': { description: Invalid agent fields. }
+        '401': { description: Host identity is missing or invalid. }
+        '403': { description: The principal cannot create agents. }
+  /agents/bootstrap/sim:
+    post:
+      summary: Idempotently create the six unconfigured SIM agent identities
+      description: Does not assign SME owners, tools, model bindings, or approvals. Existing records are preserved.
+      responses:
+        '200':
+          description: The six agent identities are present for the verified tenant.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [agents]
+                properties:
+                  agents: { type: array, minItems: 6, maxItems: 6, items: { $ref: '#/components/schemas/Agent' } }
+        '401': { description: Host identity is missing or invalid. }
+        '403': { description: The principal cannot bootstrap agents. }
+  /agents/{key}/archive:
+    post:
+      summary: Archive a tenant agent
+      parameters:
+        - { name: key, in: path, required: true, schema: { type: string, pattern: '^[a-z][a-z0-9_.-]{0,62}$' } }
+      responses:
+        '204': { description: Agent archived. }
+        '401': { description: Host identity is missing or invalid. }
+        '403': { description: The principal cannot archive agents. }
+        '404': { description: Agent does not exist or is already archived. }
+  /agents/{key}:
+    parameters:
+      - { name: key, in: path, required: true, schema: { type: string, pattern: '^[a-z][a-z0-9_.-]{0,62}$' } }
+    patch:
+      summary: Update tenant agent metadata
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [display_name, domain]
+              properties:
+                display_name: { type: string, minLength: 1, maxLength: 200 }
+                domain: { type: string, minLength: 1, maxLength: 100 }
+      responses:
+        '200': { description: Updated agent metadata. }
+        '400': { description: Invalid agent metadata. }
+        '401': { description: Host identity is missing or invalid. }
+        '403': { description: agent.update permission is absent. }
+        '404': { description: Agent does not exist in the verified tenant. }
+  /agents/{key}/clone:
+    post:
+      summary: Clone an agent into a new tenant draft
+      parameters:
+        - { name: key, in: path, required: true, schema: { type: string, pattern: '^[a-z][a-z0-9_.-]{0,62}$' } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AgentInput' }
+      responses:
+        '201': { description: New tenant-owned draft agent created. }
+        '400': { description: New agent fields are invalid. }
+        '401': { description: Host identity is missing or invalid. }
+        '403': { description: agent.clone permission is absent. }
+        '404': { description: Source agent does not exist in the verified tenant. }
+  /catalog/skills:
+    get:
+      summary: List skills for a tenant agent
+      parameters:
+        - { name: agent_key, in: query, required: true, schema: { type: string, pattern: '^[a-z][a-z0-9_.-]{0,62}$' } }
+      responses:
+        '200':
+          description: Skills scoped to the verified tenant and agent.
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/Skill' } }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: The principal cannot read skills. }
+        default: { description: Invalid query, route, or database error. }
+    post:
+      summary: Create a skill and its initial draft version
+      parameters:
+        - { name: agent_key, in: query, required: true, schema: { type: string, pattern: '^[a-z][a-z0-9_.-]{0,62}$' } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SkillInput' }
+      responses:
+        '201':
+          description: Skill created with an unconfigured 0.1.0 draft.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SkillCreateResponse' }
+        '400': { description: Invalid skill input. }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: The principal cannot create skills. }
+        '404': { description: Agent does not exist. }
+        '409': { description: Skill conflicts with existing state. }
+  /catalog/skills/{skillId}:
+    parameters:
+      - { name: skillId, in: path, required: true, schema: { type: string, format: uuid } }
+    patch:
+      summary: Update skill draft metadata
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [domain]
+              properties:
+                domain: { type: string, minLength: 1, maxLength: 100 }
+      responses:
+        '200': { description: Updated skill metadata. }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: The principal cannot update skills. }
+        '404': { description: Skill does not exist in the verified tenant. }
+    delete:
+      summary: Delete an unused skill with only draft versions
+      responses:
+        '204': { description: Skill deleted. }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: The principal cannot delete skills. }
+        '404': { description: Skill does not exist in the verified tenant. }
+        '409': { description: Published or bound skill cannot be deleted. }
+  /catalog/skills/{skillId}/versions:
+    parameters:
+      - { name: skillId, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      summary: List skill versions
+      responses:
+        '200':
+          description: Versions for a tenant-owned skill.
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/SkillVersion' } }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: The principal cannot read skills. }
+    post:
+      summary: Create a skill draft version
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SkillVersionInput' }
+      responses:
+        '201':
+          description: Draft version created.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SkillVersion' }
+        '400': { description: Invalid version or schema. }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: The principal cannot create skill versions. }
+        '409': { description: Version conflicts with existing state. }
+  /catalog/skill-versions/{versionId}:
+    parameters:
+      - { name: versionId, in: path, required: true, schema: { type: string, format: uuid } }
+    put:
+      summary: Update a draft skill version
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SkillVersionInput' }
+      responses:
+        '200':
+          description: Updated draft skill version.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SkillVersion' }
+        '400': { description: Invalid version or schema. }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: The principal cannot update skill versions. }
+        '404': { description: Draft version does not exist in the verified tenant. }
+        '409': { description: Published versions are immutable. }
+  /catalog/skill-versions/{versionId}/publish:
+    parameters:
+      - { name: versionId, in: path, required: true, schema: { type: string, format: uuid } }
+    post:
+      summary: Publish a skill version
+      description: The route is fail-closed unless the tenant access map grants skill.version.publish; no such grant is included in the initial deployment.
+      responses:
+        '200':
+          description: Published skill version.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SkillVersion' }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: Release authority is not configured. }
+        '404': { description: Draft version does not exist in the verified tenant. }
+        '409': { description: Version cannot be published. }
+  /catalog/agents/{agentKey}/versions:
+    parameters:
+      - { name: agentKey, in: path, required: true, schema: { type: string, pattern: '^[a-z][a-z0-9_.-]{0,62}$' } }
+    get:
+      summary: List versions of a tenant agent
+      responses:
+        '200':
+          description: Agent versions.
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/AgentVersion' } }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: The principal cannot read agent versions. }
+    post:
+      summary: Create a draft agent version
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AgentVersionInput' }
+      responses:
+        '201':
+          description: Draft version created.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AgentVersion' }
+        '400': { description: Invalid version or schema. }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: The principal cannot create agent versions. }
+        '404': { description: Agent does not exist in the verified tenant. }
+        '409': { description: Version conflicts with existing state. }
+  /catalog/agent-versions/{versionId}:
+    parameters:
+      - { name: versionId, in: path, required: true, schema: { type: string, format: uuid } }
+    put:
+      summary: Update a draft agent version
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AgentVersionInput' }
+      responses:
+        '200':
+          description: Updated draft agent version.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AgentVersion' }
+        '400': { description: Invalid version or schema. }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: The principal cannot update agent versions. }
+        '404': { description: Draft version does not exist in the verified tenant. }
+        '409': { description: Published versions are immutable. }
+  /catalog/agent-versions/{versionId}/publish:
+    parameters:
+      - { name: versionId, in: path, required: true, schema: { type: string, format: uuid } }
+    post:
+      summary: Publish an agent version
+      description: The route is fail-closed unless the tenant access map grants agent.version.publish; no such grant is included in the initial deployment.
+      responses:
+        '200':
+          description: Published agent version.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AgentVersion' }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: Release authority is not configured. }
+        '404': { description: Draft version does not exist in the verified tenant. }
+        '409': { description: Version cannot be published. }
+  /catalog/tools:
+    get:
+      summary: Read the paginated platform-global tool-version catalog
+      description: Global tool definitions are read-only. Tenant-authored drafts use separate routes and are not executable or bindable.
+      parameters:
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: offset, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+      responses:
+        '200':
+          description: Global tool versions.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PageOfToolVersions' }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: The principal cannot read the tool catalog. }
+  /catalog/tool-drafts:
+    get:
+      summary: List tenant-owned tool drafts
+      parameters:
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: offset, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+      responses:
+        '200':
+          description: Tenant-scoped page of tool drafts.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PageOfToolDrafts' }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: tool.draft.read permission is absent. }
+    post:
+      summary: Create a tenant-owned non-executable tool draft
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ToolDraftInput' }
+      responses:
+        '201': { description: Tenant tool draft created. }
+        '400': { description: Invalid tool draft fields. }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: tool.draft.create permission is absent. }
+        '409': { description: Tool key conflicts in the tenant. }
+  /catalog/tool-drafts/{toolId}:
+    parameters:
+      - { name: toolId, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      summary: Read a tenant tool draft
+      responses:
+        '200': { description: Tenant tool draft. }
+        '403': { description: tool.draft.read permission is absent. }
+        '404': { description: Draft does not exist in the verified tenant. }
+    patch:
+      summary: Update tenant tool draft metadata
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ToolDraftInput' }
+      responses:
+        '200': { description: Updated tool draft. }
+        '400': { description: Invalid tool draft fields. }
+        '403': { description: tool.draft.update permission is absent. }
+        '404': { description: Draft does not exist in the verified tenant. }
+    delete:
+      summary: Archive a tenant tool draft
+      responses:
+        '204': { description: Tool draft archived. }
+        '403': { description: tool.draft.delete permission is absent. }
+        '404': { description: Draft does not exist in the verified tenant. }
+  /catalog/tool-drafts/{toolId}/versions:
+    parameters:
+      - { name: toolId, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      summary: List tenant tool draft versions
+      parameters:
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: offset, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+      responses:
+        '200':
+          description: Tenant-scoped page of draft versions.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PageOfToolDraftVersions' }
+        '403': { description: tool.draft.read permission is absent. }
+    post:
+      summary: Create a draft version for a tenant tool
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ToolDraftVersionInput' }
+      responses:
+        '201': { description: Tenant tool draft version created. }
+        '400': { description: Invalid version or schema. }
+        '403': { description: tool.draft.version.create permission is absent. }
+        '404': { description: Tool draft does not exist in the tenant. }
+        '409': { description: Version conflicts with existing state. }
+  /catalog/tool-draft-versions/{versionId}:
+    parameters:
+      - { name: versionId, in: path, required: true, schema: { type: string, format: uuid } }
+    put:
+      summary: Update a tenant tool draft version
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ToolDraftVersionInput' }
+      responses:
+        '200': { description: Updated tenant tool draft version. }
+        '400': { description: Invalid version or schema. }
+        '403': { description: tool.draft.version.update permission is absent. }
+        '404': { description: Draft version does not exist in the tenant. }
+    delete:
+      summary: Delete a tenant tool draft version
+      responses:
+        '204': { description: Tenant tool draft version deleted. }
+        '403': { description: tool.draft.version.delete permission is absent. }
+        '404': { description: Draft version does not exist in the tenant. }
+  /catalog/agent-versions/{versionId}/skills:
+    parameters:
+      - { name: versionId, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      summary: List skill bindings for a draft agent version
+      responses:
+        '200':
+          description: Bound skill versions.
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/BoundSkill' } }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: The principal cannot read bindings. }
+    post:
+      summary: Bind a skill version to a draft agent version
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [skill_version_id]
+              properties:
+                skill_version_id: { type: string, format: uuid }
+      responses:
+        '204': { description: Skill version bound. }
+        '400': { description: Invalid version ID. }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: The principal cannot bind skills. }
+        '409': { description: Binding is not valid for the tenant or draft version. }
+  /catalog/agent-versions/{versionId}/skills/{skillVersionId}:
+    parameters:
+      - { name: versionId, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: skillVersionId, in: path, required: true, schema: { type: string, format: uuid } }
+    delete:
+      summary: Remove a skill binding from a draft agent version
+      responses:
+        '204': { description: Skill binding removed. }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: The principal cannot unbind skills. }
+        '404': { description: Binding does not exist in the verified tenant. }
+        '409': { description: Published version bindings are immutable. }
+  /catalog/agent-versions/{versionId}/tools:
+    parameters:
+      - { name: versionId, in: path, required: true, schema: { type: string, format: uuid } }
+    get:
+      summary: List tool bindings for a draft agent version
+      responses:
+        '200':
+          description: Bound tool versions.
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/BoundTool' } }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: The principal cannot read bindings. }
+    post:
+      summary: Bind a published tool version to a draft agent version
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [tool_version_id, action_scope]
+              properties:
+                tool_version_id: { type: string, format: uuid }
+                action_scope: { type: object, additionalProperties: true }
+      responses:
+        '204': { description: Tool version bound. }
+        '400': { description: Invalid version ID or action scope. }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: The principal cannot bind tools. }
+        '409': { description: Tool is not published or agent version is not draft. }
+  /catalog/agent-versions/{versionId}/tools/{toolVersionId}:
+    parameters:
+      - { name: versionId, in: path, required: true, schema: { type: string, format: uuid } }
+      - { name: toolVersionId, in: path, required: true, schema: { type: string, format: uuid } }
+    delete:
+      summary: Remove a tool binding from a draft agent version
+      responses:
+        '204': { description: Tool binding removed. }
+        '401': { description: Tailscale identity is missing or unmapped. }
+        '403': { description: The principal cannot unbind tools. }
+        '404': { description: Binding does not exist in the verified tenant. }
+        '409': { description: Published version bindings are immutable. }
+components:
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string }
+    AgentInput:
+      type: object
+      additionalProperties: false
+      required: [key, display_name, domain]
+      properties:
+        key: { type: string, pattern: '^[a-z][a-z0-9_.-]{0,62}$' }
+        display_name: { type: string, minLength: 1, maxLength: 200 }
+        domain: { type: string, minLength: 1, maxLength: 100 }
+    Agent:
+      type: object
+      required: [id, key, display_name, domain, lifecycle_status, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        key: { type: string }
+        display_name: { type: string }
+        domain: { type: string }
+        owner_subject: { type: [string, 'null'] }
+        lifecycle_status: { type: string, enum: [draft, active, archived] }
+        created_at: { type: string, format: date-time }
+    ProviderInput:
+      type: object
+      additionalProperties: false
+      required: [key, display_name, adapter_type, base_url]
+      properties:
+        key: { type: string, pattern: '^[a-z][a-z0-9_-]{0,62}$' }
+        display_name: { type: string, minLength: 1, maxLength: 200 }
+        adapter_type:
+          type: string
+          enum: [openai, openai_compatible, azure_openai, ollama, custom]
+        base_url:
+          type: string
+          format: uri
+          pattern: '^https://[^/@?#]+(?:/[^?#]*)?$'
+          description: HTTPS URL without credentials, query, or fragment.
+    Provider:
+      allOf:
+        - $ref: '#/components/schemas/ProviderInput'
+        - type: object
+          required: [id, status, created_at]
+          properties:
+            id: { type: string, format: uuid }
+            status: { type: string, enum: [pending_test, active, disabled, error] }
+            created_at: { type: string, format: date-time }
+    DeploymentInput:
+      type: object
+      additionalProperties: false
+      required: [provider_id, key, provider_model_id, display_name, max_output_tokens, timeout_ms]
+      properties:
+        provider_id: { type: string, format: uuid }
+        key: { type: string, pattern: '^[a-z][a-z0-9_-]{0,62}$' }
+        provider_model_id: { type: string, minLength: 1, maxLength: 256 }
+        display_name: { type: string, minLength: 1, maxLength: 200 }
+        capabilities:
+          type: object
+          properties:
+            tools: { type: boolean }
+            json: { type: boolean }
+          additionalProperties: true
+        max_output_tokens: { type: integer, minimum: 1, maximum: 1000000 }
+        timeout_ms: { type: integer, minimum: 100, maximum: 600000 }
+        cost_policy: { type: object, additionalProperties: true }
+    Deployment:
+      allOf:
+        - $ref: '#/components/schemas/DeploymentInput'
+        - type: object
+          required: [id, status, created_at]
+          properties:
+            id: { type: string, format: uuid }
+            status: { type: string, enum: [pending_test, active, disabled, error] }
+            created_at: { type: string, format: date-time }
+    SkillInput:
+      type: object
+      additionalProperties: false
+      required: [key, domain]
+      properties:
+        key: { type: string, pattern: '^[a-z][a-z0-9_.-]{0,62}$' }
+        domain: { type: string, minLength: 1, maxLength: 100 }
+    Skill:
+      type: object
+      required: [id, agent_id, key, domain, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        agent_id: { type: string, format: uuid }
+        key: { type: string }
+        domain: { type: string }
+        owner_subject: { type: [string, 'null'] }
+        created_at: { type: string, format: date-time }
+    SkillVersionInput:
+      type: object
+      additionalProperties: false
+      required: [semver, instructions, output_schema]
+      properties:
+        semver: { type: string, pattern: '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$' }
+        instructions: { type: string, maxLength: 200000 }
+        procedures: { type: array, items: {} }
+        examples: { type: array, items: {} }
+        forbidden_actions: { type: array, items: {} }
+        output_schema: { type: object, additionalProperties: true }
+    SkillVersion:
+      type: object
+      required: [id, skill_id, semver, instructions, procedures, examples, forbidden_actions, output_schema, state, created_by, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        skill_id: { type: string, format: uuid }
+        semver: { type: string }
+        instructions: { type: string }
+        procedures: { type: array, items: {} }
+        examples: { type: array, items: {} }
+        forbidden_actions: { type: array, items: {} }
+        output_schema: { type: object }
+        checksum: { type: [string, 'null'] }
+        state: { type: string, enum: [draft, published, deprecated] }
+        created_by: { type: string }
+        created_at: { type: string, format: date-time }
+        published_by: { type: [string, 'null'] }
+        published_at: { type: [string, 'null'], format: date-time }
+    SkillCreateResponse:
+      type: object
+      required: [skill, initial_version]
+      properties:
+        skill: { $ref: '#/components/schemas/Skill' }
+        initial_version: { $ref: '#/components/schemas/SkillVersion' }
+    AgentVersionInput:
+      type: object
+      additionalProperties: false
+      required: [semver, manifest, input_schema, output_schema, model_policy, tool_policy]
+      properties:
+        semver: { type: string, pattern: '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$' }
+        manifest: { type: object, additionalProperties: true }
+        input_schema: { type: object, additionalProperties: true }
+        output_schema: { type: object, additionalProperties: true }
+        model_policy: { type: object, additionalProperties: true }
+        tool_policy: { type: object, additionalProperties: true }
+    AgentVersion:
+      type: object
+      required: [id, agent_id, semver, manifest, input_schema, output_schema, model_policy, tool_policy, state, created_by, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        agent_id: { type: string, format: uuid }
+        semver: { type: string }
+        manifest: { type: object }
+        input_schema: { type: object }
+        output_schema: { type: object }
+        model_policy: { type: object }
+        tool_policy: { type: object }
+        checksum: { type: [string, 'null'] }
+        state: { type: string, enum: [draft, published, deprecated] }
+        created_by: { type: string }
+        created_at: { type: string, format: date-time }
+        published_by: { type: [string, 'null'] }
+        published_at: { type: [string, 'null'], format: date-time }
+    ToolVersion:
+      type: object
+      required: [id, tool_id, key, kind, owner, risk_level, lifecycle_status, semver, adapter_ref, input_schema, output_schema, policy]
+      properties:
+        id: { type: string, format: uuid }
+        tool_id: { type: string, format: uuid }
+        key: { type: string }
+        kind: { type: string }
+        owner: { type: string }
+        risk_level: { type: string, enum: [low, medium, high, critical] }
+        lifecycle_status: { type: string, enum: [draft, active, archived] }
+        semver: { type: string }
+        adapter_ref: { type: string }
+        input_schema: { type: object }
+        output_schema: { type: object }
+        policy: { type: object }
+        checksum: { type: [string, 'null'] }
+        published_at: { type: [string, 'null'], format: date-time }
+    PageOfToolVersions:
+      type: object
+      required: [items, total, limit, offset]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/ToolVersion' } }
+        total: { type: integer, minimum: 0 }
+        limit: { type: integer, minimum: 1, maximum: 100 }
+        offset: { type: integer, minimum: 0 }
+    ToolDraftInput:
+      type: object
+      additionalProperties: false
+      required: [key, display_name, kind, risk_level]
+      properties:
+        key: { type: string, pattern: '^[a-z][a-z0-9_.-]{0,62}$' }
+        display_name: { type: string, minLength: 1, maxLength: 200 }
+        kind: { type: string, minLength: 1, maxLength: 64 }
+        risk_level: { type: string, enum: [low, medium, high, critical] }
+    ToolDraft:
+      type: object
+      required: [id, key, display_name, kind, risk_level, lifecycle_status, created_by, created_at, updated_at]
+      properties:
+        id: { type: string, format: uuid }
+        key: { type: string }
+        display_name: { type: string }
+        kind: { type: string }
+        risk_level: { type: string, enum: [low, medium, high, critical] }
+        lifecycle_status: { type: string, enum: [draft, archived] }
+        created_by: { type: string }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    ToolDraftVersionInput:
+      type: object
+      additionalProperties: false
+      required: [semver, adapter_ref, input_schema, output_schema]
+      properties:
+        semver: { type: string, pattern: '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$' }
+        adapter_ref: { type: string, pattern: '^[a-z][a-z0-9_.-]{0,127}$' }
+        input_schema: { type: object, additionalProperties: true }
+        output_schema: { type: object, additionalProperties: true }
+        policy: { type: object, additionalProperties: true }
+    ToolDraftVersion:
+      type: object
+      required: [id, tool_id, semver, adapter_ref, input_schema, output_schema, policy, state, created_by, created_at, updated_at]
+      properties:
+        id: { type: string, format: uuid }
+        tool_id: { type: string, format: uuid }
+        semver: { type: string }
+        adapter_ref: { type: string }
+        input_schema: { type: object }
+        output_schema: { type: object }
+        policy: { type: object }
+        checksum: { type: string }
+        state: { type: string, enum: [draft] }
+        created_by: { type: string }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    PageOfToolDrafts:
+      type: object
+      required: [items, total, limit, offset]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/ToolDraft' } }
+        total: { type: integer, minimum: 0 }
+        limit: { type: integer, minimum: 1, maximum: 100 }
+        offset: { type: integer, minimum: 0 }
+    PageOfToolDraftVersions:
+      type: object
+      required: [items, total, limit, offset]
+      properties:
+        items: { type: array, items: { $ref: '#/components/schemas/ToolDraftVersion' } }
+        total: { type: integer, minimum: 0 }
+        limit: { type: integer, minimum: 1, maximum: 100 }
+        offset: { type: integer, minimum: 0 }
+    BoundSkill:
+      type: object
+      required: [agent_version_id, skill_id, skill_version_id]
+      properties:
+        agent_version_id: { type: string, format: uuid }
+        skill_id: { type: string, format: uuid }
+        skill_version_id: { type: string, format: uuid }
+    BoundTool:
+      type: object
+      required: [agent_version_id, tool_version_id]
+      properties:
+        agent_version_id: { type: string, format: uuid }
+        tool_version_id: { type: string, format: uuid }
+    CredentialInput:
+      type: object
+      additionalProperties: false
+      required: [credential]
+      properties:
+        credential: { type: string, minLength: 1, maxLength: 98304, writeOnly: true }
+    CredentialStatus:
+      type: object
+      required: [credential_configured, provider_status]
+      properties:
+        credential_configured: { type: boolean }
+        provider_status: { type: string, enum: [pending_test, active, disabled, error] }
+        previous_secret_cleanup_pending: { type: boolean }
+        vault_cleanup_pending: { type: boolean }
+    ProviderProbeInput:
+      type: object
+      additionalProperties: false
+      required: [mode, deployment_id]
+      properties:
+        mode: { type: string, enum: [connectivity, capabilities] }
+        deployment_id: { type: string, format: uuid }
+        confirm_token_cost: { type: boolean, description: Required true when mode is capabilities. }
+        capabilities:
+          type: object
+          additionalProperties: false
+          properties:
+            json: { type: boolean }
+            tools: { type: boolean }
+          description: Empty or omitted for connectivity; at least one true capability for capabilities mode.
+    ProviderProbeResult:
+      type: object
+      required: [id, status, mode, may_incur_token_cost]
+      properties:
+        id: { type: string, format: uuid }
+        status: { type: string, enum: [active, error] }
+        mode: { type: string, enum: [connectivity, capabilities] }
+        capabilities: { type: object, additionalProperties: { type: boolean } }
+        evidence: { type: object, additionalProperties: { type: string } }
+        evidence_scope: { type: string, enum: [provider_endpoint] }
+        checked_at: { type: string, format: date-time }
+        may_incur_token_cost: { type: boolean }
+    ModelApproval:
+      type: object
+      required: [id, deployment_id, environment, purpose, state, decision_reason, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        deployment_id: { type: string, format: uuid }
+        environment: { type: string, enum: [development, staging, production] }
+        purpose: { type: string }
+        state: { type: string, enum: [pending, approved, rejected, revoked] }
+        capability_check_ref: { type: [string, 'null'] }
+        decision_reason: { type: string }
+        decided_by: { type: [string, 'null'] }
+        decided_at: { type: [string, 'null'], format: date-time }
+        created_at: { type: string, format: date-time }
+    AgentModelBindingInput:
+      type: object
+      additionalProperties: false
+      required: [model_deployment_id, environment]
+      properties:
+        model_deployment_id: { type: string, format: uuid }
+        fallback_model_deployment_id: { type: [string, 'null'], format: uuid }
+        environment: { type: string, enum: [development, staging, production] }
+        override_policy: { type: object, additionalProperties: true }
+    AgentModelBinding:
+      type: object
+      required: [agent_version_id, model_deployment_id, environment, override_policy]
+      properties:
+        agent_version_id: { type: string, format: uuid }
+        model_deployment_id: { type: string, format: uuid }
+        fallback_model_deployment_id: { type: [string, 'null'], format: uuid }
+        environment: { type: string, enum: [development, staging, production] }
+        override_policy: { type: object, additionalProperties: true }

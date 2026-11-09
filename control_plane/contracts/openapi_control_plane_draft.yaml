@@ -1,0 +1,231 @@
+openapi: 3.1.0
+info:
+  title: AI Workspace Control Plane API
+  version: 1.0.0-proposed
+  description: Proposed Control Plane backend contract. Not a deployed API. BFF cookie+CSRF and service auth required for write routes.
+servers:
+  - url: /
+tags:
+  - name: Session
+  - name: Workspace
+  - name: Applications
+  - name: Administration
+paths:
+  /api/v1/me:
+    get:
+      tags: [Session]
+      summary: Return verified current session context and permitted app references
+      responses:
+        '200':
+          description: Verified user context
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Me'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /api/v1/workspaces:
+    get:
+      tags: [Workspace]
+      summary: List only workspaces with active membership
+      responses:
+        '200':
+          description: Workspaces
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: {$ref: '#/components/schemas/Workspace'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /api/v1/session/workspace:
+    post:
+      tags: [Session, Workspace]
+      summary: Switch active workspace after server-side membership and CSRF verification
+      parameters: [{$ref: '#/components/parameters/Csrf'}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [workspace_id]
+              properties:
+                workspace_id: {type: string}
+      responses:
+        '204': {description: Workspace session context changed}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /api/v1/apps:
+    get:
+      tags: [Applications]
+      summary: List published entitled apps in current workspace
+      responses:
+        '200':
+          description: Filtered catalog
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: {$ref: '#/components/schemas/AppSummary'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /api/v1/apps/{app_key}/launch:
+    get:
+      tags: [Applications]
+      summary: Validate entitlement and return a trusted registered relative path
+      parameters: [{$name: app_key, in: path, required: true, schema: {type: string}}]
+      responses:
+        '200':
+          description: Trusted launch destination
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [app_key, route_base]
+                properties:
+                  app_key: {type: string}
+                  route_base: {type: string, pattern: '^/apps/[a-z0-9-]+/$'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /api/v1/authz/check:
+    post:
+      tags: [Applications]
+      summary: Evaluate action for verified current principal (request cannot override subject)
+      parameters: [{$ref: '#/components/parameters/Csrf'}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [action, resource_type, resource_id]
+              properties:
+                action: {type: string}
+                resource_type: {type: string}
+                resource_id: {type: string}
+      responses:
+        '200':
+          description: Evaluation (allow or deny); independent API checks still needed
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Decision'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /api/v1/admin/apps:
+    get:
+      tags: [Administration]
+      summary: List app versions for authorized platform admins
+      responses:
+        '200': {description: App version list}
+        '403': {$ref: '#/components/responses/Forbidden'}
+    post:
+      tags: [Administration]
+      summary: Create a validated draft; no arbitrary upstream URL
+      parameters: [{$ref: '#/components/parameters/Csrf'}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/AppDraft'}
+      responses:
+        '201': {description: Draft created}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '409': {description: Route or key conflict}
+  /api/v1/admin/apps/{app_key}/publish:
+    post:
+      tags: [Administration]
+      summary: Publish immutable validated app manifest after administrative approval
+      parameters:
+        - {name: app_key, in: path, required: true, schema: {type: string}}
+        - {$ref: '#/components/parameters/Csrf'}
+        - {name: If-Match, in: header, required: true, schema: {type: string}}
+      responses:
+        '200': {description: Manifest published}
+        '403': {$ref: '#/components/responses/Forbidden'}
+        '409': {description: Version conflict}
+  /api/v1/admin/apps/{app_key}/disable:
+    post:
+      tags: [Administration]
+      summary: Revoke app availability and registered launch path
+      parameters:
+        - {name: app_key, in: path, required: true, schema: {type: string}}
+        - {$ref: '#/components/parameters/Csrf'}
+      responses:
+        '204': {description: App disabled}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /api/v1/admin/audit:
+    get:
+      tags: [Administration]
+      summary: Paginated redacted audit events for authorized auditors
+      responses:
+        '200': {description: Paginated audit events}
+        '403': {$ref: '#/components/responses/Forbidden'}
+components:
+  parameters:
+    Csrf:
+      name: X-CSRF-Token
+      in: header
+      required: true
+      schema: {type: string}
+      description: Anti-CSRF token bound to the server-side session (add Origin checks).
+  responses:
+    Unauthorized:
+      description: Not authenticated
+    Forbidden:
+      description: Denied by server-side policy
+      content:
+        application/json:
+          schema: {$ref: '#/components/schemas/ApiError'}
+  schemas:
+    ApiError:
+      type: object
+      required: [code, message, trace_id]
+      properties:
+        code: {type: string}
+        message: {type: string}
+        trace_id: {type: string}
+    Workspace:
+      type: object
+      required: [id, name]
+      properties:
+        id: {type: string}
+        name: {type: string}
+        status: {type: string}
+    Me:
+      type: object
+      required: [subject_id, display_name, tenant_id, workspace_id, workspaces, apps]
+      properties:
+        subject_id: {type: string}
+        display_name: {type: string}
+        tenant_id: {type: string}
+        workspace_id: {type: string}
+        workspaces: {type: array, items: {$ref: '#/components/schemas/Workspace'}}
+        apps: {type: array, items: {$ref: '#/components/schemas/AppSummary'}}
+    AppSummary:
+      type: object
+      required: [app_key, name, route_base, version]
+      properties:
+        app_key: {type: string}
+        name: {type: string}
+        route_base: {type: string}
+        version: {type: string}
+    AppDraft:
+      type: object
+      required: [app_key, name, route_base, required_entitlements]
+      additionalProperties: false
+      properties:
+        app_key: {type: string}
+        name: {type: string}
+        route_base: {type: string, pattern: '^/apps/[a-z][a-z0-9-]+/$'}
+        required_entitlements: {type: array, items: {type: string}}
+    Decision:
+      type: object
+      required: [effect, reason_code, policy_version]
+      properties:
+        effect: {type: string, enum: [allow, deny]}
+        reason_code: {type: string}
+        policy_version: {type: string}

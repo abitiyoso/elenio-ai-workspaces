@@ -1,0 +1,36 @@
+{
+  "schema_version":"workspace.definition.v1","pack_key":"lab.poc-assessment","version":"1.0.0",
+  "title":"PoC Assessment Workspace","description":"Plan and evaluate proof-of-concept experiments without SIM tender-specific logic.",
+  "status":"published","brand":{"icon":"flask-conical","accent":"#2864EC"},
+  "bindings":{"flowcase_workflow_key":"poc-request","artifact_provider":"workspace_artifacts","agent_keys":["poc.experiment_planner"],"kms_scope_policy_ref":"lab.poc-sources"},
+  "navigation":[
+    {"key":"overview","label":"Case Overview","view":"overview","icon":"layout-dashboard"},
+    {"key":"experiments","label":"Experiments","view":"artifact_list","artifact_type":"experiment","icon":"flask-conical","required_permission":"artifact:read"},
+    {"key":"outcomes","label":"Result Assessments","view":"artifact_list","artifact_type":"result","icon":"chart-no-axes-column","required_permission":"artifact:read"},
+    {"key":"tasks","label":"Team Tasks","view":"tasks","icon":"check-square"},
+    {"key":"approvals","label":"Milestone Reviews","view":"approvals","icon":"shield-check"},
+    {"key":"documents","label":"Reference Sources","view":"documents","icon":"files"},
+    {"key":"ai","label":"AI Activity","view":"ai_activity","icon":"bot"},
+    {"key":"history","label":"Case Timeline","view":"timeline","icon":"clock-3"}
+  ],
+  "artifact_types":[
+    {"key":"experiment","title":"Experiment Plan","description":"Hypotheses, test setup and acceptance thresholds.","fields":[
+      {"key":"experiment_id","label":"Experiment ID","widget":"text","read_only":true},
+      {"key":"hypothesis","label":"Hypothesis","widget":"textarea","required":true},
+      {"key":"target","label":"Success threshold (%)","widget":"number","min":0,"max":100,"required":true},
+      {"key":"setup","label":"Experiment design","widget":"textarea","required":true},
+      {"key":"source_ref","label":"Reference","widget":"evidence_ref"}
+    ]},
+    {"key":"result","title":"Result Assessment","description":"Measured results with reviewer conclusion.","fields":[
+      {"key":"result_id","label":"Result ID","widget":"text","read_only":true},
+      {"key":"metric","label":"Measured metric","widget":"text","required":true},
+      {"key":"observed","label":"Observed value (%)","widget":"number","min":0,"max":100,"required":true},
+      {"key":"conclusion","label":"Conclusion","widget":"textarea","required":true},
+      {"key":"source_ref","label":"Test evidence","widget":"evidence_ref"}
+    ]}
+  ],
+  "actions":[
+    {"key":"plan-experiment","label":"Draft Test Plan","executor":"agent_invocation","agent_key":"poc.experiment_planner","required_permission":"agent:invoke","placement":"ai_panel","output_artifact_type":"experiment"},
+    {"key":"request-review","label":"Request Review","executor":"flowcase_action","command_key":"request_review","required_permission":"task:request","placement":"artifact_toolbar"}
+  ]
+}

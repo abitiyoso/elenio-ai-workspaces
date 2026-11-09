@@ -1,0 +1,133 @@
+openapi: 3.1.0
+info:
+  title: Agent Studio Runtime — Flowcase integration
+  version: 0.2.0
+  description: |
+    Implemented by Agent Studio release p1-20261030-04 and matched to Flowcase's
+    proposed AgentExecutor contract (flowcase_platform/internal/integrations/agent).
+    Status: PROPOSED until the Flowcase team confirms provider name, token
+    distribution and the shared callback secret.
+
+    Agents return drafts only. No response or callback carries an approval;
+    Flowcase owns review, gate decisions and artifact versions.
+servers:
+  - url: http://127.0.0.1:8190/api/v1
+paths:
+  /runs:
+    post:
+      summary: Invoke the active production release of an agent
+      description: |
+        Idempotent per (service client, idempotency_key). A repeat with the same
+        body returns the original run with 200; a different body under the same
+        key returns 409. `skill_version` pins the expected agent semver or version
+        id; a mismatch with the active release returns 409.
+      security: [{ serviceToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [idempotency_key, agent_id, input]
+              properties:
+                idempotency_key: { type: string, pattern: "^[A-Za-z0-9._:-]{8,128}$" }
+                agent_id: { type: string, description: Agent key, e.g. sim.intake }
+                skill_version: { type: string }
+                input: { type: object }
+                evidence:
+                  type: array
+                  description: KMS references from the case; recorded as unverified until retrieved.
+                  items:
+                    type: object
+                    properties:
+                      source_id: { type: string }
+                      version_id: { type: string }
+                      title: { type: string }
+                      classification: { type: string }
+                case_id: { type: string, maxLength: 128 }
+                correlation_id: { type: string, maxLength: 128 }
+                deadline_seconds: { type: integer, minimum: 1, maximum: 600 }
+      responses:
+        "202": { description: Run queued, content: { application/json: { schema: { $ref: "#/components/schemas/Run" } } } }
+        "200": { description: Duplicate invocation; original run, content: { application/json: { schema: { $ref: "#/components/schemas/Run" } } } }
+        "400": { description: Invalid request }
+        "401": { description: Missing, unknown or expired service credential }
+        "403": { description: Credential lacks run.invoke }
+        "409": { description: "No active release, version mismatch, idempotency conflict, or no approved model" }
+        "429": { description: Tenant rate limit or backpressure }
+  /runs/{id}:
+    get:
+      summary: Run status (only runs this client started)
+      security: [{ serviceToken: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "200": { description: Run, content: { application/json: { schema: { $ref: "#/components/schemas/Run" } } } }
+        "404": { description: Unknown run or started by another client }
+  /runs/{id}/cancel:
+    post:
+      summary: Cancel a queued or running run
+      security: [{ serviceToken: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "202": { description: Cancelled or cancellation requested, content: { application/json: { schema: { $ref: "#/components/schemas/Run" } } } }
+        "409": { description: Run already settled }
+webhooks:
+  agentRunResult:
+    post:
+      summary: Settled run delivered to Flowcase POST /api/v1/agent-callbacks/{provider}
+      description: |
+        Transactional outbox, at-least-once, exponential backoff with jitter, up to
+        10 attempts. Headers: X-Flowcase-Timestamp (unix seconds) and
+        X-Flowcase-Signature: v1=hex(HMAC-SHA256(secret, timestamp + "." + body)).
+        message_id is "<run_id>:final" so Flowcase can dedupe redeliveries.
+        output_checksum is SHA-256 of the canonical JSON of run.output (sorted
+        keys, numbers preserved), as computed by Flowcase's OutputChecksum.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message_id, audience, tenant_id, run]
+              properties:
+                message_id: { type: string }
+                audience: { const: flowcase }
+                tenant_id: { type: string, format: uuid }
+                run: { $ref: "#/components/schemas/Run" }
+      responses:
+        "202": { description: Acknowledged (applied, duplicate or ignored) }
+components:
+  securitySchemes:
+    serviceToken:
+      type: http
+      scheme: bearer
+      description: Opaque, tenant-bound, expiring credential stored by Agent Studio as SHA-256; run.invoke/read/cancel only.
+  schemas:
+    Run:
+      type: object
+      required: [run_id, status, agent_id, skill_version]
+      properties:
+        run_id: { type: string, format: uuid }
+        status: { enum: [queued, running, succeeded, failed, cancelled] }
+        agent_id: { type: string }
+        skill_version: { type: string, description: Agent version semver the run is pinned to }
+        output:
+          type: object
+          description: Present when succeeded.
+          properties:
+            artifact_draft: { type: object, description: Agent output validated against the version output schema }
+            review:
+              type: object
+              properties:
+                status: { enum: [ready_for_review, needs_review] }
+                validation:
+                  type: object
+                  properties:
+                    schema_valid: { type: boolean }
+                    risk_flags: { type: array, items: { type: string } }
+                    cited_sources: { type: array, items: { type: string } }
+            pinned: { type: object, description: Agent version, skill versions, tool versions, model deployment and config version }
+            model_mode: { enum: [provider] }
+        output_checksum: { type: string }
+        error: { type: string, description: Stable error code when failed or cancelled }
+        trace_ids: { type: array, items: { type: string } }

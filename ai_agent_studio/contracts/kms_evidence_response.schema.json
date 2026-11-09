@@ -1,0 +1,17 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://schemas.example.invalid/agent-studio/kms-evidence-response-v1",
+  "title":"KMS Evidence Search Response (proposed)",
+  "type":"object","additionalProperties":false,
+  "required":["request_id","results"],
+  "properties":{
+    "request_id":{"type":"string"},
+    "results":{"type":"array","items":{"type":"object","additionalProperties":false,"required":["source_id","source_version","citation_anchor","title","snippet","status","classification"],"properties":{
+      "source_id":{"type":"string"}, "source_version":{"type":"string"}, "citation_anchor":{"type":"string"},
+      "title":{"type":"string"}, "snippet":{"type":"string"},
+      "status":{"type":"string","enum":["published","expired","conflicted","unverified","withdrawn"]},
+      "classification":{"type":"string"}, "effective_at":{"type":["string","null"],"format":"date-time"},
+      "expires_at":{"type":["string","null"],"format":"date-time"}, "citation_uri":{"type":["string","null"]}
+    }}}
+  }
+}

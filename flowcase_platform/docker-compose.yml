@@ -1,0 +1,84 @@
+# Local development stack. Flowcase does NOT deploy KMS, Docling, Elasticsearch or an AI runtime;
+# those stay external and are represented by disabled/stub adapters until their contracts are confirmed.
+name: flowcase
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: flowcase
+      POSTGRES_USER: flowcase
+      POSTGRES_PASSWORD: flowcase-local-only
+    ports: ["127.0.0.1:${FLOWCASE_PG_PORT:-55434}:5432"]
+    volumes: [postgres_data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flowcase -d flowcase"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    build: .
+    command: ["/app/migrate", "up"]
+    env_file: [{ path: ./.env, required: false }]
+    environment: &app_env
+      APP_ENV: development
+      DATABASE_URL: postgres://flowcase:flowcase-local-only@postgres:5432/flowcase?sslmode=disable
+      AUTH_MODE: dev_mock
+      DEV_AUTH_ACKNOWLEDGE: i-understand-this-is-not-secure
+      DEV_AUTH_USER_ID: 00000000-0000-4000-8000-000000000101
+      DEV_AUTH_TENANT_ID: 00000000-0000-4000-8000-000000000001
+      DEV_AUTH_ROLES: workspace_member,case_owner,workflow_designer,workflow_publisher
+      DEV_AUTH_PERSONAS: '[{"key":"approver","user_id":"00000000-0000-4000-8000-000000000102","name":"Dian Approver","roles":["workspace_member","domain_approver"]},{"key":"viewer","user_id":"00000000-0000-4000-8000-000000000103","name":"Vera Viewer","roles":["workspace_member"]}]'
+      KMS_MODE: stub
+      AGENT_RUNTIME_MODE: stub
+      CONNECTORS_MODE: stub
+      AGENT_CALLBACK_SECRET: local-dev-callback-secret-change-me-0123
+      PACKS_CONFIG: /app/config/packs.json
+    volumes: ["./config:/app/config:ro"]
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  seed-dev:
+    build: .
+    command: ["/app/migrate", "seed-dev"]
+    environment: *app_env
+    volumes: ["./config:/app/config:ro"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  api:
+    build: .
+    command: ["/app/api"]
+    environment:
+      <<: *app_env
+      HTTP_ADDRESS: ":8080"
+      METRICS_ADDRESS: ":9090"
+    volumes: ["./config:/app/config:ro"]
+    ports: ["127.0.0.1:8080:8080", "127.0.0.1:9090:9090"]
+    depends_on:
+      seed-dev: { condition: service_completed_successfully }
+
+  worker:
+    build: .
+    command: ["/app/worker"]
+    environment:
+      <<: *app_env
+      WORKER_HEALTH_ADDRESS: ":8081"
+    volumes: ["./config:/app/config:ro"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  web:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0"
+    environment:
+      FLOWCASE_API_PROXY: http://api:8080
+    volumes: ["./web:/app", "web_node_modules:/app/node_modules"]
+    ports: ["127.0.0.1:5173:5173"]
+    depends_on: [api]
+
+volumes:
+  postgres_data:
+  web_node_modules:

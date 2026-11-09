@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0",
+  "key": "internal-poc-request",
+  "name": "Internal Proof-of-Concept Request",
+  "version": 1,
+  "status": "published",
+  "description": "Non-SIM demonstration of workflow engine reusability",
+  "tenant_scope": "organization",
+  "input_schema": {
+    "type": "object",
+    "required": [
+      "requester_id",
+      "purpose"
+    ],
+    "properties": {
+      "requester_id": {
+        "type": "string"
+      },
+      "purpose": {
+        "type": "string"
+      },
+      "estimated_cost": {
+        "type": "number"
+      }
+    }
+  },
+  "nodes": [
+    {
+      "id": "start",
+      "type": "start",
+      "name": "New PoC request",
+      "next": [
+        "scope"
+      ]
+    },
+    {
+      "id": "scope",
+      "type": "human_task",
+      "name": "Scope & success criteria",
+      "config": {
+        "assignee_role": "poc-owner"
+      },
+      "next": [
+        "budget_rule"
+      ]
+    },
+    {
+      "id": "budget_rule",
+      "type": "condition",
+      "name": "Requires budget approval?",
+      "config": {
+        "expression": {
+          "operator": "gt",
+          "field": "estimated_cost",
+          "value": 0
+        },
+        "branches": {
+          "true": "budget_approval",
+          "false": "provision"
+        }
+      },
+      "next": [
+        "budget_approval",
+        "provision"
+      ]
+    },
+    {
+      "id": "budget_approval",
+      "type": "human_approval",
+      "name": "Budget approval",
+      "config": {
+        "policy_ref": "poc.budget"
+      },
+      "next": [
+        "provision"
+      ]
+    },
+    {
+      "id": "provision",
+      "type": "human_task",
+      "name": "Assign resources",
+      "config": {
+        "assignee_role": "delivery-lead"
+      },
+      "next": [
+        "end"
+      ]
+    },
+    {
+      "id": "end",
+      "type": "end",
+      "name": "Ready for PoC execution",
+      "next": []
+    }
+  ],
+  "policy_refs": [
+    "poc.budget"
+  ],
+  "metadata": {
+    "origin": "illustrative reusable platform example, not SIM policy"
+  }
+}

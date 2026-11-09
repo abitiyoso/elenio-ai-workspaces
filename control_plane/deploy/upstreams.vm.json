@@ -1,0 +1,34 @@
+{
+  "kms": {
+    "mode": "proxy",
+    "url": "http://127.0.0.1:5380",
+    "health_url": "http://127.0.0.1:8380/readyz",
+    "audience": "kms",
+    "strip_prefix": true,
+    "contract": "control_plane_jwt \u2192 KMS AUTH_MODE=control_plane_jwt (ES256 via CP JWKS, aud=kms, tenant map, tenant_principals directory); instance kms-cp (deploy/kms-cp)"
+  },
+  "flowcase": {
+    "mode": "proxy",
+    "url": "http://127.0.0.1:5280",
+    "health_url": "http://127.0.0.1:8280/readyz",
+    "audience": "flowcase",
+    "strip_prefix": true,
+    "contract": "control_plane_jwt \u2192 Flowcase AUTH_MODE=trusted_jwt (ES256 via CP JWKS, iss=CP origin, aud=flowcase, tenant_id claim); instance flowcase-cp (deploy/flowcase-cp)"
+  },
+  "agent-studio": {
+    "mode": "proxy",
+    "url": "http://127.0.0.1:8290",
+    "health_url": "http://127.0.0.1:8290/health/ready",
+    "audience": "agent-studio",
+    "strip_prefix": true,
+    "contract": "control_plane_jwt \u2192 Agent Studio AGENT_STUDIO_HUMAN_AUTH=control_plane_jwt (ES256 via CP JWKS, aud=agent-studio, access map keyed by CP user id); instance agent-studio-cp (deploy/agent-studio-cp)"
+  },
+  "case-workspace": {
+    "mode": "proxy",
+    "url": "http://127.0.0.1:8480",
+    "health_url": "http://127.0.0.1:8480/readyz",
+    "audience": "case-workspace",
+    "strip_prefix": true,
+    "contract": "control_plane_jwt \u2192 UCW BFF (ES256 via CP JWKS, aud=case-workspace); user-scoped Flowcase/KMS calls via CP token exchange; instance case-workspace-cp (deploy/case-workspace-cp)"
+  }
+}

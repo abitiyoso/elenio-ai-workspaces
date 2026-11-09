@@ -1,0 +1,19 @@
+{
+  "agents": {
+    "sim.intake": { "runtime_agent_id": "sim.intake", "skill_version": "unpinned" },
+    "sim.solution-matching": { "runtime_agent_id": "sim.solution_matching", "skill_version": "unpinned" },
+    "sim.standard-project": { "runtime_agent_id": "sim.standard_project", "skill_version": "unpinned" },
+    "sim.design": { "runtime_agent_id": "sim.design", "skill_version": "unpinned" },
+    "sim.cost-challenge": { "runtime_agent_id": "sim.cost_challenge", "skill_version": "unpinned" },
+    "sim.proposal": { "runtime_agent_id": "sim.proposal", "skill_version": "unpinned" }
+  },
+  "policies": {
+    "sim.bid-disposition": { "sod": ["not_case_owner", "not_task_submitter"] },
+    "sim.requirement-baseline": { "sod": ["not_case_owner", "not_task_submitter"] },
+    "sim.solution-baseline": { "sod": ["not_case_owner", "not_task_submitter"] },
+    "sim.delivery-cost": { "sod": ["not_case_owner", "not_task_submitter"] },
+    "sim.proposal-quality": { "sod": ["not_case_owner", "not_task_submitter"] },
+    "sim.release": { "sod": ["not_case_owner", "not_task_submitter"] },
+    "poc.budget": { "sod": ["not_case_owner", "not_task_submitter"] }
+  }
+}

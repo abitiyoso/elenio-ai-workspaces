@@ -1,0 +1,1227 @@
+openapi: 3.1.0
+info:
+  title: Flowcase Workflow & Case Platform API
+  version: 0.4.0-phase3
+  description: |
+    Phase 2 surface: platform probes, the verified session, integration status, the workflow registry
+    (definitions, immutable versions, validation, publication, templates, catalog, audit) and the case
+    runtime (cases pinned to published versions, parallel branches, agent/service/timer steps, human tasks,
+    policy-bound approvals, artifacts with targeted invalidation and re-review, pause/resume), plus the
+    signed agent-callback endpoint.
+
+    All `/api/v1` routes require `Authorization: Bearer <host token>` (short-lived, audience-restricted JWT
+    from the parent workspace). Identity, tenant and roles are resolved server-side; headers such as
+    `X-User-ID`, `X-Tenant-ID` or role headers are ignored. Every query is tenant-scoped: other tenants'
+    workflows answer 404.
+
+    Conventions:
+    - Create commands require `Idempotency-Key`; a replay with the same body returns the original resource,
+      a different body returns 422 `idempotency_key_reused`.
+    - Draft edits, publish and deprecate require `If-Match` with the version ETag (`"<version_num>"`):
+      missing → 428, stale → 412 `version_mismatch`.
+    - Published versions are immutable (409 `immutable_version`); edit by creating the next draft version.
+    - Validation failures return 422 `invalid_definition` with `details[].path` as JSON pointers.
+servers:
+  - url: http://localhost:8080
+    description: Local development
+security:
+  - hostToken: []
+tags:
+  - name: platform
+  - name: workflows
+  - name: audit
+  - name: cases
+  - name: tasks
+  - name: approvals
+  - name: drafts
+paths:
+  /healthz:
+    get:
+      tags: [platform]
+      summary: Liveness probe
+      security: []
+      responses:
+        "200":
+          description: Process is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status: { const: ok }
+  /readyz:
+    get:
+      tags: [platform]
+      summary: Readiness probe (PostgreSQL, schema version, host JWKS when trusted auth is used)
+      security: []
+      responses:
+        "200":
+          description: Ready
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Readiness" }
+        "503":
+          description: Not ready; failing checks are named but internal error text is never returned
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Readiness" }
+  /api/v1/session:
+    get:
+      tags: [platform]
+      summary: The verified caller identity
+      operationId: getSession
+      responses:
+        "200":
+          description: Verified session
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Session" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "503": { $ref: "#/components/responses/AuthUnavailable" }
+  /api/v1/integrations:
+    get:
+      tags: [platform]
+      summary: Adapter modes and health for host auth, KMS, AI runtime and case runtime
+      description: Never returns endpoints, credentials or key material.
+      operationId: getIntegrations
+      responses:
+        "200":
+          description: Integration status
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [host_auth, knowledge, agent_runtime, case_runtime]
+                properties:
+                  host_auth: { $ref: "#/components/schemas/IntegrationStatus" }
+                  knowledge: { $ref: "#/components/schemas/IntegrationStatus" }
+                  agent_runtime: { $ref: "#/components/schemas/IntegrationStatus" }
+                  case_runtime: { $ref: "#/components/schemas/IntegrationStatus" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+  /api/v1/workflows:
+    get:
+      tags: [workflows]
+      summary: List workflows visible to the caller's tenant (any member role)
+      operationId: listWorkflows
+      parameters:
+        - { name: status, in: query, schema: { enum: [all, published, draft], default: all } }
+        - { name: q, in: query, description: Case-insensitive match on name or key, schema: { type: string, maxLength: 100 } }
+        - { $ref: "#/components/parameters/Limit" }
+        - { name: cursor, in: query, schema: { type: string } }
+      responses:
+        "200":
+          description: One page of workflows ordered by key
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, next_cursor]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/WorkflowSummary" } }
+                  next_cursor: { type: [string, "null"] }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    post:
+      tags: [workflows]
+      summary: Create a workflow with draft v1 (workflow_designer)
+      description: Source is a pack template, an imported definition document, or (neither) a start→end skeleton.
+      operationId: createWorkflow
+      parameters: [{ $ref: "#/components/parameters/IdempotencyKey" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [key]
+              properties:
+                key: { type: string, pattern: "^[a-z][a-z0-9-]{0,62}$" }
+                name: { type: string, minLength: 3, maxLength: 200 }
+                description: { type: string, maxLength: 2000 }
+                template: { type: string, description: Template workflow key from /workflow-templates }
+                definition: { $ref: "#/components/schemas/WorkflowDefinition" }
+      responses:
+        "201": { $ref: "#/components/responses/Saved" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+  /api/v1/workflows/{key}:
+    parameters: [{ $ref: "#/components/parameters/Key" }]
+    get:
+      tags: [workflows]
+      summary: Workflow detail with version history
+      operationId: getWorkflow
+      responses:
+        "200":
+          description: Workflow and versions (newest first)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/WorkflowDetail" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /api/v1/workflows/{key}/duplicate:
+    parameters: [{ $ref: "#/components/parameters/Key" }]
+    post:
+      tags: [workflows]
+      summary: Copy a version into a new workflow's draft v1 (workflow_designer)
+      operationId: duplicateWorkflow
+      parameters: [{ $ref: "#/components/parameters/IdempotencyKey" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [key]
+              properties:
+                key: { type: string, pattern: "^[a-z][a-z0-9-]{0,62}$" }
+                name: { type: string }
+                from_version: { type: integer, minimum: 0, description: 0 = latest published }
+      responses:
+        "201": { $ref: "#/components/responses/Saved" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /api/v1/workflows/{key}/versions:
+    parameters: [{ $ref: "#/components/parameters/Key" }]
+    get:
+      tags: [workflows]
+      summary: Version history
+      operationId: listWorkflowVersions
+      responses:
+        "200":
+          description: Versions newest first
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/VersionSummary" } }
+        "404": { $ref: "#/components/responses/NotFound" }
+    post:
+      tags: [workflows]
+      summary: Fork the next draft version from a published (or deprecated) version (workflow_designer)
+      description: Only one open draft per workflow. Existing versions and cases pinned to them are not affected.
+      operationId: createWorkflowVersion
+      parameters: [{ $ref: "#/components/parameters/IdempotencyKey" }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                from_version: { type: integer, minimum: 0, description: 0 = latest published }
+      responses:
+        "201": { $ref: "#/components/responses/Saved" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /api/v1/workflows/{key}/versions/{version}:
+    parameters: [{ $ref: "#/components/parameters/Key" }, { $ref: "#/components/parameters/Version" }]
+    get:
+      tags: [workflows]
+      summary: A version (immutable when published)
+      operationId: getWorkflowVersion
+      responses:
+        "200":
+          description: Version with its definition; ETag carries version_num
+          headers:
+            ETag: { schema: { type: string } }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/WorkflowVersion" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [workflows]
+      summary: Replace a draft's definition (workflow_designer)
+      description: |
+        Drafts may be saved with semantic errors (returned in `validation`); structurally invalid documents
+        are rejected. The body's key and version must match the URL. Editing a validated draft returns it to draft.
+      operationId: updateWorkflowVersion
+      parameters: [{ $ref: "#/components/parameters/IfMatch" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [definition]
+              properties:
+                definition: { $ref: "#/components/schemas/WorkflowDefinition" }
+                change_note: { type: string, maxLength: 2000 }
+      responses:
+        "200": { $ref: "#/components/responses/SavedOk" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "412": { $ref: "#/components/responses/PreconditionFailed" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "428": { $ref: "#/components/responses/PreconditionRequired" }
+  /api/v1/workflows/{key}/versions/{version}/validate:
+    parameters: [{ $ref: "#/components/parameters/Key" }, { $ref: "#/components/parameters/Version" }]
+    post:
+      tags: [workflows]
+      summary: Validate stored content server-side (workflow_designer or workflow_publisher)
+      description: A clean draft becomes `validated`; a validated draft that no longer passes returns to `draft`.
+      operationId: validateWorkflowVersion
+      responses:
+        "200": { $ref: "#/components/responses/SavedOk" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /api/v1/workflows/{key}/versions/{version}/publish:
+    parameters: [{ $ref: "#/components/parameters/Key" }, { $ref: "#/components/parameters/Version" }]
+    post:
+      tags: [workflows]
+      summary: Publish an immutable version (human workflow_publisher only)
+      description: Re-validates on the server, records the SHA-256 content hash, audits, and emits an outbox event.
+      operationId: publishWorkflowVersion
+      parameters: [{ $ref: "#/components/parameters/IfMatch" }]
+      responses:
+        "200": { $ref: "#/components/responses/SavedOk" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "412": { $ref: "#/components/responses/PreconditionFailed" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "428": { $ref: "#/components/responses/PreconditionRequired" }
+  /api/v1/workflows/{key}/versions/{version}/deprecate:
+    parameters: [{ $ref: "#/components/parameters/Key" }, { $ref: "#/components/parameters/Version" }]
+    post:
+      tags: [workflows]
+      summary: Deprecate a published version for new cases (human workflow_publisher only)
+      operationId: deprecateWorkflowVersion
+      parameters: [{ $ref: "#/components/parameters/IfMatch" }]
+      responses:
+        "200": { $ref: "#/components/responses/SavedOk" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "412": { $ref: "#/components/responses/PreconditionFailed" }
+        "428": { $ref: "#/components/responses/PreconditionRequired" }
+  /api/v1/workflow-validations:
+    post:
+      tags: [workflows]
+      summary: Validate an unsaved definition document (nothing is stored or audited)
+      operationId: validateWorkflowDocument
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [definition]
+              properties:
+                definition: { $ref: "#/components/schemas/WorkflowDefinition" }
+      responses:
+        "200":
+          description: Validation report
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ValidationReport" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /api/v1/workflow-templates:
+    get:
+      tags: [workflows]
+      summary: Templates shipped by domain packs (SIM tender, internal PoC)
+      operationId: listWorkflowTemplates
+      responses:
+        "200":
+          description: Templates
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        pack: { type: string }
+                        key: { type: string }
+                        name: { type: string }
+                        description: { type: string }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /api/v1/workflow-catalog:
+    get:
+      tags: [workflows]
+      summary: Registered policies, agents, connectors, assignee roles and artifact types
+      description: Definitions may only reference registered entries. Policies marked provisional await business sign-off.
+      operationId: getWorkflowCatalog
+      responses:
+        "200":
+          description: Catalog snapshot
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Catalog" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /api/v1/audit-events:
+    get:
+      tags: [audit]
+      summary: Append-only audit events, newest first (workflow_designer, workflow_publisher or tenant_admin)
+      operationId: listAuditEvents
+      parameters:
+        - { name: subject_type, in: query, schema: { type: string } }
+        - { name: subject_id, in: query, schema: { type: string } }
+        - { $ref: "#/components/parameters/Limit" }
+        - { name: cursor, in: query, description: seq of the last event on the previous page, schema: { type: string } }
+      responses:
+        "200":
+          description: One page of events
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, next_cursor]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/AuditEvent" } }
+                  next_cursor: { type: [string, "null"] }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /api/v1/runtime-capabilities:
+    get:
+      tags: [cases]
+      summary: Node types this runtime can execute (cases cannot start on workflows using others)
+      operationId: getRuntimeCapabilities
+      responses:
+        "200":
+          description: Capabilities
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  supported_node_types: { type: array, items: { type: string } }
+  /api/v1/cases:
+    get:
+      tags: [cases]
+      summary: Cases visible to the caller (members, owners, people with work in the case, tenant admins)
+      operationId: listCases
+      parameters:
+        - { name: status, in: query, schema: { enum: [all, active, under_review, paused, completed, closed], default: all } }
+        - { name: q, in: query, schema: { type: string } }
+        - { $ref: "#/components/parameters/Limit" }
+        - { name: cursor, in: query, schema: { type: string } }
+      responses:
+        "200":
+          description: One page, newest first
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, next_cursor]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/CaseSummary" } }
+                  next_cursor: { type: [string, "null"] }
+        "400": { $ref: "#/components/responses/BadRequest" }
+    post:
+      tags: [cases]
+      summary: Start a case pinned to a published workflow version (case_owner)
+      description: |
+        `version` 0 or omitted selects the latest published version. Variables are validated against the
+        version's input_schema; workflows using node types outside runtime-capabilities are refused (422).
+      operationId: createCase
+      parameters: [{ $ref: "#/components/parameters/IdempotencyKey" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [workflow_key, title]
+              properties:
+                workflow_key: { type: string }
+                version: { type: integer, minimum: 0 }
+                title: { type: string, minLength: 1, maxLength: 300 }
+                variables: { type: object }
+      responses:
+        "201":
+          description: Case created; the worker schedules the start step
+          headers:
+            Location: { schema: { type: string } }
+            ETag: { schema: { type: string } }
+          content: { application/json: { schema: { $ref: "#/components/schemas/CaseDetail" } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+  /api/v1/cases/{id}:
+    parameters: [{ $ref: "#/components/parameters/Id" }]
+    get:
+      tags: [cases]
+      summary: Case detail with pinned version, timeline, tasks, approvals, condition evaluations and history
+      operationId: getCase
+      responses:
+        "200":
+          description: Case; ETag carries version_num
+          content: { application/json: { schema: { $ref: "#/components/schemas/CaseDetail" } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /api/v1/cases/{id}/pause:
+    parameters: [{ $ref: "#/components/parameters/Id" }]
+    post:
+      tags: [cases]
+      summary: Pause a case (owner or tenant admin); the worker and human actions stop advancing it
+      operationId: pauseCase
+      parameters: [{ $ref: "#/components/parameters/IfMatch" }]
+      requestBody:
+        content: { application/json: { schema: { type: object, properties: { reason: { type: string, maxLength: 2000 } } } } }
+      responses:
+        "200": { description: Paused, content: { application/json: { schema: { $ref: "#/components/schemas/CaseDetail" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "412": { $ref: "#/components/responses/PreconditionFailed" }
+        "428": { $ref: "#/components/responses/PreconditionRequired" }
+  /api/v1/cases/{id}/resume:
+    parameters: [{ $ref: "#/components/parameters/Id" }]
+    post:
+      tags: [cases]
+      summary: Resume a paused case (owner or tenant admin)
+      operationId: resumeCase
+      parameters: [{ $ref: "#/components/parameters/IfMatch" }]
+      requestBody:
+        content: { application/json: { schema: { type: object, properties: { reason: { type: string, maxLength: 2000 } } } } }
+      responses:
+        "200": { description: Resumed, content: { application/json: { schema: { $ref: "#/components/schemas/CaseDetail" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "412": { $ref: "#/components/responses/PreconditionFailed" }
+  /api/v1/cases/{id}/events:
+    parameters: [{ $ref: "#/components/parameters/Id" }]
+    post:
+      tags: [cases]
+      summary: Record a structured business event on the case (Phase 2 accepts type "note")
+      operationId: addCaseEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [type, body]
+              properties:
+                type: { const: note }
+                body: { type: string, minLength: 1, maxLength: 4000 }
+      responses:
+        "201": { description: Recorded, content: { application/json: { schema: { $ref: "#/components/schemas/CaseDetail" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /api/v1/tasks:
+    get:
+      tags: [tasks]
+      summary: Task inbox (open tasks for the caller's domain roles, or tasks they completed)
+      operationId: listTasks
+      parameters:
+        - { name: status, in: query, schema: { enum: [open, completed, all], default: open } }
+      responses:
+        "200":
+          description: Tasks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/Task" } }
+  /api/v1/tasks/{id}:
+    parameters: [{ $ref: "#/components/parameters/Id" }]
+    get:
+      tags: [tasks]
+      summary: Task with comments
+      operationId: getTask
+      responses:
+        "200": { description: Task; ETag carries version_num, content: { application/json: { schema: { $ref: "#/components/schemas/Task" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /api/v1/tasks/{id}/complete:
+    parameters: [{ $ref: "#/components/parameters/Id" }]
+    post:
+      tags: [tasks]
+      summary: Submit a task (holder of the task's domain role); output validated against form_schema
+      operationId: completeTask
+      parameters: [{ $ref: "#/components/parameters/IfMatch" }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                output: { type: object }
+                comment: { type: string, maxLength: 4000 }
+      responses:
+        "200": { description: Submitted, content: { application/json: { schema: { $ref: "#/components/schemas/Task" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "412": { $ref: "#/components/responses/PreconditionFailed" }
+        "422": { $ref: "#/components/responses/Unprocessable" }
+        "428": { $ref: "#/components/responses/PreconditionRequired" }
+  /api/v1/tasks/{id}/revision:
+    parameters: [{ $ref: "#/components/parameters/Id" }]
+    post:
+      tags: [tasks]
+      summary: Send a submitted task back for rework (case owner) while its next step still waits on a person
+      operationId: requestTaskRevision
+      parameters: [{ $ref: "#/components/parameters/IfMatch" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [rationale]
+              properties:
+                rationale: { type: string, minLength: 5, maxLength: 4000 }
+      responses:
+        "200": { description: Revision requested; a new iteration opens, content: { application/json: { schema: { $ref: "#/components/schemas/Task" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "412": { $ref: "#/components/responses/PreconditionFailed" }
+  /api/v1/tasks/{id}/comments:
+    parameters: [{ $ref: "#/components/parameters/Id" }]
+    post:
+      tags: [tasks]
+      summary: Comment on a task
+      operationId: addTaskComment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, additionalProperties: false, required: [body], properties: { body: { type: string, minLength: 1, maxLength: 4000 } } }
+      responses:
+        "200": { description: Task with comments, content: { application/json: { schema: { $ref: "#/components/schemas/Task" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /api/v1/approvals:
+    get:
+      tags: [approvals]
+      summary: Approval inbox filtered by the caller's policy delegations; each row says whether they may decide
+      operationId: listApprovals
+      parameters:
+        - { name: status, in: query, schema: { enum: [pending, decided, all], default: pending } }
+      responses:
+        "200":
+          description: Approvals
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/Approval" } }
+  /api/v1/approvals/{id}:
+    parameters: [{ $ref: "#/components/parameters/Id" }]
+    get:
+      tags: [approvals]
+      summary: Approval with policy, subject hash and decision
+      operationId: getApproval
+      responses:
+        "200": { description: Approval; ETag carries version_num, content: { application/json: { schema: { $ref: "#/components/schemas/Approval" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /api/v1/approvals/{id}/decision:
+    parameters: [{ $ref: "#/components/parameters/Id" }]
+    post:
+      tags: [approvals]
+      summary: Decide an approval (human domain_approver with a delegation for the policy; segregation of duties applies)
+      description: |
+        403 reasons: service_principal, missing_role, no_delegation, sod_case_owner, sod_task_submitter.
+        409: approval_closed, return_not_allowed, stale_approval (case changed since the request), case_not_active,
+        stale_artifacts (a covered artifact must be revised first), rereview_pending (affected reviews must be re-approved first).
+        Decisions are immutable and hashed; "return" re-opens the gate's return_to step as a new iteration.
+      operationId: decideApproval
+      parameters: [{ $ref: "#/components/parameters/IfMatch" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [decision, rationale]
+              properties:
+                decision: { enum: [approve, reject, return] }
+                rationale: { type: string, minLength: 5, maxLength: 4000 }
+      responses:
+        "200": { description: Decided, content: { application/json: { schema: { $ref: "#/components/schemas/Approval" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "412": { $ref: "#/components/responses/PreconditionFailed" }
+        "428": { $ref: "#/components/responses/PreconditionRequired" }
+  /api/v1/drafts:
+    get:
+      tags: [drafts]
+      summary: Draft review inbox (agent drafts of cases the caller owns; all for tenant admins)
+      operationId: listDrafts
+      parameters:
+        - { name: status, in: query, schema: { enum: [pending, decided, all], default: pending } }
+      responses:
+        "200":
+          description: Draft reviews (content only for pending ones)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/DraftReview" } }
+  /api/v1/drafts/{id}:
+    parameters: [{ $ref: "#/components/parameters/Id" }]
+    get:
+      tags: [drafts]
+      summary: Draft review with the artifact version content
+      operationId: getDraft
+      responses:
+        "200": { description: Draft review; ETag carries version_num, content: { application/json: { schema: { $ref: "#/components/schemas/DraftReview" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /api/v1/drafts/{id}/submit:
+    parameters: [{ $ref: "#/components/parameters/Id" }]
+    post:
+      tags: [drafts]
+      summary: Submit an agent draft to the next step (case owner); the artifact's current version is handed on
+      description: |
+        403 not_case_owner (also for service principals). 409 draft_not_pending, case_not_active (paused or closed).
+        Submitting never decides a gate: the next approval keeps its policy and segregation-of-duties rules.
+      operationId: submitDraft
+      parameters: [{ $ref: "#/components/parameters/IfMatch" }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                note: { type: string, maxLength: 1000 }
+      responses:
+        "200": { description: Submitted; the next step is scheduled, content: { application/json: { schema: { $ref: "#/components/schemas/DraftReview" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "412": { $ref: "#/components/responses/PreconditionFailed" }
+        "428": { $ref: "#/components/responses/PreconditionRequired" }
+  /api/v1/drafts/{id}/revision:
+    parameters: [{ $ref: "#/components/parameters/Id" }]
+    post:
+      tags: [drafts]
+      summary: Send an agent draft back to the agent with feedback (case owner); the step re-runs as a new iteration
+      description: |
+        400 feedback_required (5 to 1000 characters). 403 not_case_owner. 409 draft_not_pending, case_not_active,
+        revision_limit (at most 10 revision requests per step and case). The agent receives the feedback as
+        revision_note and its previous draft in upstream_artifacts; the result is a new artifact version and a new pending review.
+      operationId: reviseDraft
+      parameters: [{ $ref: "#/components/parameters/IfMatch" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [feedback]
+              properties:
+                feedback: { type: string, minLength: 5, maxLength: 1000 }
+      responses:
+        "200": { description: Revision requested, content: { application/json: { schema: { $ref: "#/components/schemas/DraftReview" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "412": { $ref: "#/components/responses/PreconditionFailed" }
+        "428": { $ref: "#/components/responses/PreconditionRequired" }
+  /api/v1/cases/{id}/artifacts:
+    parameters: [{ $ref: "#/components/parameters/Id" }]
+    get:
+      tags: [cases]
+      summary: Artifacts with every immutable version, dependencies and KMS evidence references
+      operationId: listCaseArtifacts
+      responses:
+        "200":
+          description: Artifacts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/Artifact" } }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /api/v1/cases/{id}/artifacts/{artifact}/versions:
+    parameters:
+      - { $ref: "#/components/parameters/Id" }
+      - { name: artifact, in: path, required: true, schema: { type: string, format: uuid } }
+    post:
+      tags: [cases]
+      summary: Record a human revision (case owner); downstream artifacts go stale and affected reviews re-open
+      operationId: reviseArtifact
+      parameters: [{ $ref: "#/components/parameters/IfMatch" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [content, change_note]
+              properties:
+                content: { type: object }
+                change_note: { type: string, minLength: 5, maxLength: 2000 }
+      responses:
+        "201": { description: New version recorded, content: { application/json: { schema: { $ref: "#/components/schemas/CaseDetail" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "412": { $ref: "#/components/responses/PreconditionFailed" }
+  /api/v1/agent-callbacks/{provider}:
+    parameters: [{ name: provider, in: path, required: true, schema: { type: string } }]
+    post:
+      tags: [cases]
+      summary: Signed agent-run result (PROPOSED contract, pending runtime confirmation)
+      description: |
+        Authenticated by signature, not by a user session: `X-Flowcase-Timestamp` (unix seconds, ±5 min) and
+        `X-Flowcase-Signature: v1=<hex HMAC-SHA256(secret, timestamp + "." + body)>`, audience "flowcase", output checksum.
+        Deliveries are de-duplicated by message_id; duplicates, late results (run settled or superseded) and
+        out-of-order progress are acknowledged without effect.
+      operationId: agentCallback
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message_id, audience, tenant_id, run]
+              properties:
+                message_id: { type: string }
+                audience: { const: flowcase }
+                tenant_id: { type: string }
+                run:
+                  type: object
+                  properties:
+                    run_id: { type: string }
+                    status: { enum: [queued, running, succeeded, failed, cancelled] }
+                    agent_id: { type: string }
+                    output: { type: object }
+                    output_checksum: { type: string }
+      responses:
+        "202":
+          description: Acknowledged
+          content:
+            application/json:
+              schema: { type: object, properties: { outcome: { enum: [applied, duplicate, ignored_late, ignored_progress, unknown_run] } } }
+        "401": { description: Signature, timestamp, audience or checksum invalid, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+        "404": { description: Unknown provider, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+components:
+  securitySchemes:
+    hostToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT (RS256/ES256, iss/aud/exp/iat required, tenant claim configurable)
+  parameters:
+    Id:
+      { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    Key:
+      { name: key, in: path, required: true, schema: { type: string, pattern: "^[a-z][a-z0-9-]{0,62}$" } }
+    Version:
+      { name: version, in: path, required: true, schema: { type: integer, minimum: 1 } }
+    Limit:
+      { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 50 } }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: { type: string, pattern: "^[A-Za-z0-9._:-]{8,128}$" }
+    IfMatch:
+      name: If-Match
+      in: header
+      required: true
+      description: Strong ETag from the last read or save, e.g. "4"
+      schema: { type: string }
+    RequestId:
+      name: X-Request-ID
+      in: header
+      required: false
+      description: Correlation id; echoed back. Malformed values are replaced with a generated id.
+      schema: { type: string, pattern: "^[A-Za-z0-9._-]{8,128}$" }
+  responses:
+    Saved:
+      description: Created; Location and ETag headers are set
+      headers:
+        ETag: { schema: { type: string } }
+        Location: { schema: { type: string } }
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/SaveResult" }
+    SavedOk:
+      description: Saved; ETag carries the new version_num
+      headers:
+        ETag: { schema: { type: string } }
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/SaveResult" }
+    BadRequest:
+      description: Malformed request, missing Idempotency-Key, bad cursor
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    Unauthenticated:
+      description: Missing, malformed, expired or forged token, or caller is not an active tenant member
+      headers:
+        WWW-Authenticate: { schema: { type: string } }
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    AuthUnavailable:
+      description: Authentication cannot be performed (e.g. host keys unreachable); fails closed
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    Forbidden:
+      description: The caller's role does not allow this action
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    NotFound:
+      description: Not found in the caller's tenant
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    Conflict:
+      description: key_exists, draft_exists, invalid_state or immutable_version
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    PreconditionFailed:
+      description: If-Match does not match the current version_num (version_mismatch)
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    PreconditionRequired:
+      description: If-Match header missing
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+    Unprocessable:
+      description: invalid_definition (details carry JSON-pointer paths) or idempotency_key_reused
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, trace_id]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            trace_id: { type: string }
+            details:
+              type: array
+              items:
+                type: object
+                required: [code, message]
+                properties:
+                  code: { type: string }
+                  message: { type: string }
+                  path: { type: string, description: JSON pointer into the definition, or a request field }
+    Readiness:
+      type: object
+      required: [status, checks]
+      properties:
+        status: { enum: [ready, not_ready] }
+        checks:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              status: { enum: [ok, unavailable] }
+    Session:
+      type: object
+      required: [user_id, tenant_id, display_name, roles, auth_mode, environment, expires_at]
+      properties:
+        user_id: { type: string, format: uuid }
+        tenant_id: { type: string, format: uuid }
+        display_name: { type: string }
+        roles:
+          type: array
+          items:
+            enum: [workspace_member, case_owner, workflow_designer, workflow_publisher, sme_contributor, domain_approver, ai_ops, tenant_admin]
+        auth_mode: { enum: [trusted_jwt, dev_mock] }
+        persona: { type: string, description: Development persona key (dev_mock only) }
+        dev_personas:
+          type: array
+          description: Selectable development identities (dev_mock only; chosen with X-Flowcase-Dev-Persona)
+          items: { type: object, properties: { key: { type: string }, display_name: { type: string }, roles: { type: array, items: { type: string } } } }
+        environment: { enum: [development, test, staging, production] }
+        expires_at: { type: [string, "null"], format: date-time }
+    IntegrationStatus:
+      type: object
+      required: [mode, status, message]
+      properties:
+        mode: { type: string }
+        status: { enum: [ok, warning, disabled, stub, unavailable] }
+        message: { type: string }
+    WorkflowDefinition:
+      description: Schema 1.0 document; see contracts/WORKFLOW_DEFINITION_SCHEMA.json. `status`, `key` and `version` are server-managed.
+      type: object
+      required: [schema_version, key, name, version, nodes]
+      properties:
+        schema_version: { const: "1.0" }
+        key: { type: string }
+        name: { type: string }
+        version: { type: integer }
+        status: { enum: [draft, validated, published, deprecated] }
+        description: { type: string }
+        tenant_scope: { enum: [organization, global] }
+        input_schema: { type: object }
+        policy_refs: { type: array, items: { type: string } }
+        metadata: { type: object }
+        nodes:
+          type: array
+          items:
+            type: object
+            required: [id, type, name, next]
+            properties:
+              id: { type: string }
+              type: { enum: [start, end, human_task, agent_task, service_task, human_approval, condition, parallel_split, parallel_join, timer, subworkflow] }
+              name: { type: string }
+              config: { type: object }
+              next: { type: array, items: { type: string } }
+    Diagnostic:
+      type: object
+      required: [severity, code, message, path]
+      properties:
+        severity: { enum: [error, warning] }
+        code: { type: string }
+        message: { type: string }
+        path: { type: string }
+        node_id: { type: string }
+    ValidationReport:
+      type: object
+      required: [valid, diagnostics]
+      properties:
+        valid: { type: boolean }
+        diagnostics: { type: array, items: { $ref: "#/components/schemas/Diagnostic" } }
+    WorkflowVersion:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        workflow_key: { type: string }
+        version: { type: integer }
+        status: { enum: [draft, validated, published, deprecated] }
+        schema_version: { type: string }
+        definition: { $ref: "#/components/schemas/WorkflowDefinition" }
+        definition_hash: { type: [string, "null"], description: SHA-256 of canonical content; set at publication }
+        derived_from_version: { type: [integer, "null"] }
+        change_note: { type: string }
+        created_by: { type: string }
+        created_by_name: { type: string }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        validated_at: { type: [string, "null"], format: date-time }
+        published_by: { type: [string, "null"] }
+        published_by_name: { type: [string, "null"] }
+        published_at: { type: [string, "null"], format: date-time }
+        deprecated_at: { type: [string, "null"], format: date-time }
+        version_num: { type: integer, description: Optimistic concurrency counter; the ETag value }
+    SaveResult:
+      type: object
+      required: [version, validation]
+      properties:
+        version: { $ref: "#/components/schemas/WorkflowVersion" }
+        validation: { $ref: "#/components/schemas/ValidationReport" }
+    VersionSummary:
+      type: object
+      properties:
+        id: { type: string }
+        version: { type: integer }
+        status: { type: string }
+        definition_hash: { type: [string, "null"] }
+        change_note: { type: string }
+        node_count: { type: integer }
+        created_by_name: { type: string }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        published_by_name: { type: [string, "null"] }
+        published_at: { type: [string, "null"], format: date-time }
+        deprecated_at: { type: [string, "null"], format: date-time }
+        version_num: { type: integer }
+    WorkflowSummary:
+      type: object
+      properties:
+        id: { type: string }
+        key: { type: string }
+        name: { type: string }
+        description: { type: string }
+        domain_pack: { type: [string, "null"] }
+        latest_published_version: { type: [integer, "null"] }
+        open_draft_version: { type: [integer, "null"] }
+        version_count: { type: integer }
+        node_count: { type: integer }
+        updated_at: { type: string, format: date-time }
+    WorkflowDetail:
+      allOf:
+        - { $ref: "#/components/schemas/WorkflowSummary" }
+        - type: object
+          properties:
+            versions: { type: array, items: { $ref: "#/components/schemas/VersionSummary" } }
+    Catalog:
+      type: object
+      properties:
+        policies:
+          type: array
+          items:
+            type: object
+            properties: { ref: { type: string }, name: { type: string }, pack: { type: string }, provisional: { type: boolean } }
+        agents:
+          type: array
+          items:
+            type: object
+            properties: { ref: { type: string }, name: { type: string }, pack: { type: string }, skill_version: { type: string } }
+        connectors:
+          type: array
+          items:
+            type: object
+            properties: { ref: { type: string }, name: { type: string }, pack: { type: string }, operations: { type: array, items: { type: string } } }
+        assignee_roles: { type: array, items: { type: string } }
+        artifact_types: { type: array, items: { type: string } }
+    AuditEvent:
+      type: object
+      properties:
+        id: { type: string }
+        seq: { type: integer }
+        occurred_at: { type: string, format: date-time }
+        actor_type: { enum: [user, service, system] }
+        actor_id: { type: [string, "null"] }
+        actor_name: { type: [string, "null"] }
+        action: { type: string }
+        subject_type: { type: string }
+        subject_id: { type: string }
+        subject_version: { type: [string, "null"] }
+        trace_id: { type: [string, "null"] }
+        data: { type: object }
+    CaseRef:
+      type: object
+      properties: { id: { type: string }, reference: { type: string }, title: { type: string }, status: { type: string } }
+    CaseSummary:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        reference: { type: string, examples: [CASE-2026-0001] }
+        title: { type: string }
+        status: { enum: [active, paused, under_review, completed, cancelled, failed] }
+        outcome: { type: [string, "null"] }
+        workflow_key: { type: string }
+        workflow_name: { type: string }
+        workflow_version: { type: integer }
+        definition_hash: { type: string }
+        owner_name: { type: string }
+        current_steps: { type: array, items: { type: string } }
+        open_tasks: { type: integer }
+        pending_approvals: { type: integer }
+        progress: { type: integer, minimum: 0, maximum: 100 }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        version_num: { type: integer }
+    CaseDetail:
+      allOf:
+        - { $ref: "#/components/schemas/CaseSummary" }
+        - type: object
+          properties:
+            variables: { type: object }
+            business_facets: { type: object }
+            workflow_nodes: { type: array, items: { type: object, properties: { id: { type: string }, name: { type: string }, type: { type: string }, next: { type: array, items: { type: string } } } } }
+            timeline:
+              type: array
+              items:
+                type: object
+                properties:
+                  id: { type: string }
+                  node_id: { type: string }
+                  node_name: { type: string }
+                  node_type: { type: string }
+                  iteration: { type: integer }
+                  status: { enum: [pending, ready, running, waiting_human, waiting_external, completed, failed, cancelled, superseded] }
+                  attempt: { type: integer }
+                  last_error: { type: [string, "null"] }
+                  created_at: { type: string, format: date-time }
+                  completed_at: { type: [string, "null"], format: date-time }
+            tasks: { type: array, items: { $ref: "#/components/schemas/Task" } }
+            approvals: { type: array, items: { $ref: "#/components/schemas/Approval" } }
+            condition_evaluations:
+              type: array
+              items: { type: object, properties: { node_id: { type: string }, expression: { type: object }, inputs: { type: object }, result: { type: boolean }, target: { type: string } } }
+            history: { type: array, items: { type: object, properties: { action: { type: string }, actor_name: { type: [string, "null"] }, occurred_at: { type: string }, data: { type: object } } } }
+            actions: { type: object, properties: { can_pause: { type: boolean }, can_resume: { type: boolean }, can_note: { type: boolean } } }
+            drafts: { type: array, items: { $ref: "#/components/schemas/DraftReview" }, description: All draft reviews of the case, newest first }
+    DraftReview:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        case: { $ref: "#/components/schemas/CaseRef" }
+        node_id: { type: string }
+        node_name: { type: string }
+        iteration: { type: integer }
+        artifact_type: { type: string }
+        artifact_version: { type: integer }
+        artifact_version_id: { type: string, format: uuid }
+        content: { type: [object, "null"], description: Artifact version content (current version while pending) }
+        status: { enum: [pending, submitted, revision_requested, cancelled] }
+        feedback: { type: [string, "null"] }
+        decided_by_name: { type: [string, "null"] }
+        decided_at: { type: [string, "null"], format: date-time }
+        created_at: { type: string, format: date-time }
+        version_num: { type: integer }
+        can_submit: { type: boolean }
+        can_revise: { type: boolean }
+        revisions: { type: integer, description: Revision requests this step has had in the case }
+    Task:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        case: { $ref: "#/components/schemas/CaseRef" }
+        node_id: { type: string }
+        iteration: { type: integer }
+        title: { type: string }
+        assignee_role: { type: string }
+        instructions: { type: string }
+        form_schema: { type: [object, "null"] }
+        revision_note: { type: [string, "null"] }
+        status: { enum: [assigned, submitted, revision_requested, cancelled] }
+        output: { type: [object, "null"] }
+        completed_by_name: { type: [string, "null"] }
+        due_at: { type: [string, "null"], format: date-time }
+        version_num: { type: integer }
+        can_complete: { type: boolean }
+        can_request_revision: { type: boolean }
+        comments: { type: array, items: { type: object, properties: { author_name: { type: string }, body: { type: string }, created_at: { type: string } } } }
+    Approval:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        case: { $ref: "#/components/schemas/CaseRef" }
+        node_id: { type: string }
+        iteration: { type: integer }
+        title: { type: string }
+        policy_ref: { type: string }
+        policy_name: { type: string }
+        policy_provisional: { type: boolean }
+        return_to: { type: [string, "null"] }
+        subject_hash: { type: string, description: SHA-256 of the case state the decision covers }
+        subject: { type: object }
+        status: { enum: [pending, approved, rejected, returned, cancelled, invalidated] }
+        decision:
+          type: [object, "null"]
+          properties: { decision: { type: string }, rationale: { type: string }, decided_by_name: { type: string }, decision_hash: { type: string }, decided_at: { type: string } }
+        version_num: { type: integer }
+        kind: { enum: [gate, rereview] }
+        invalidated_reason: { type: [string, "null"] }
+        covered_artifacts: { type: array, items: { type: object, properties: { type: { type: string }, version: { type: integer }, status: { type: string }, checksum: { type: string } } } }
+        can_decide: { type: boolean }
+        blocked_reason: { type: [string, "null"], examples: [sod_case_owner, no_delegation, stale_artifacts, rereview_pending] }
+    Artifact:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        artifact_type: { type: string }
+        producer_node_id: { type: string }
+        current_version: { type: integer }
+        version_num: { type: integer, description: ETag value for revisions }
+        versions:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              version: { type: integer }
+              status: { enum: [draft, ready_for_review, approved, stale, superseded] }
+              checksum: { type: string }
+              produced_by_kind: { enum: [agent, human, revision] }
+              stale_reason: { type: [string, "null"] }
+              content: { type: object }
+              depends_on: { type: array, items: { type: object, properties: { type: { type: string }, version: { type: integer } } } }
+              evidence: { type: array, items: { type: object, properties: { source_id: { type: string }, version_id: { type: string }, status: { enum: [valid, stale, forbidden] } } } }

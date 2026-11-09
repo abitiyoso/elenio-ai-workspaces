@@ -1,0 +1,33 @@
+{
+  "key": "internal-poc-request",
+  "name": "Internal PoC Request",
+  "description": "Non-SIM example proving the same runtime serves unrelated processes. Illustrative, not organizational policy.",
+  "templates": [
+    "poc_request_v1.json"
+  ],
+  "evolutions": [],
+  "catalog": {
+    "policies": [
+      {
+        "ref": "poc.budget",
+        "name": "PoC budget approval",
+        "provisional": true
+      }
+    ],
+    "agents": [],
+    "connectors": [
+      {
+        "ref": "poc.notify",
+        "name": "Notify requester (development stub)",
+        "operations": [
+          "send"
+        ]
+      }
+    ],
+    "assignee_roles": [
+      "poc-owner",
+      "delivery-lead"
+    ],
+    "artifact_types": []
+  }
+}

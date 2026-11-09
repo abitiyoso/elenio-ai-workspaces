@@ -1,0 +1,41 @@
+{
+  "schema_version":"workspace.definition.v1",
+  "pack_key":"sim.tender",
+  "version":"1.0.0",
+  "title":"SIM Tender Workspace",
+  "description":"Solution bidding, source-grounded requirements and deliverables without hardcoded tender UI in the workspace shell.",
+  "status":"published",
+  "brand":{"icon":"briefcase","accent":"#2864EC"},
+  "bindings":{"flowcase_workflow_key":"sim-tender","artifact_provider":"domain_adapter","agent_keys":["sim.intake","sim.solution_matching","sim.design","sim.standard_project","sim.cost_challenge","sim.proposal"],"kms_scope_policy_ref":"sim.case-sources"},
+  "navigation":[
+    {"key":"overview","label":"Case Overview","view":"overview","icon":"layout-dashboard"},
+    {"key":"requirements","label":"Requirements","view":"artifact_list","artifact_type":"requirement","icon":"list-checks","required_permission":"artifact:read"},
+    {"key":"solution","label":"Solution Design","view":"artifact_list","artifact_type":"solution_option","icon":"network","required_permission":"artifact:read"},
+    {"key":"tasks","label":"Tasks & Reviews","view":"tasks","icon":"check-square"},
+    {"key":"approvals","label":"Gate Decisions","view":"approvals","icon":"shield-check"},
+    {"key":"documents","label":"Evidence Library","view":"documents","icon":"files"},
+    {"key":"ai","label":"AI Activity","view":"ai_activity","icon":"bot"},
+    {"key":"history","label":"Case Timeline","view":"timeline","icon":"clock-3"}
+  ],
+  "artifact_types":[
+    {"key":"requirement","title":"Requirement Register","description":"Structured tender clauses, compliance and source lineage.","fields":[
+      {"key":"req_id","label":"Requirement ID","widget":"text","required":true,"read_only":true},
+      {"key":"statement","label":"Requirement","widget":"textarea","required":true},
+      {"key":"priority","label":"Priority","widget":"select","options":["Mandatory","Optional"],"required":true},
+      {"key":"assessment","label":"Assessment","widget":"select","options":["Unknown","Compliant","Partial","Non-compliant"],"required":true,"hint":"Assessment must be supported by approved evidence and human review."},
+      {"key":"source_ref","label":"Source reference","widget":"evidence_ref","required":true}
+    ]},
+    {"key":"solution_option","title":"Solution Options","description":"Proposed architectures and constraints, ready for SME review.","fields":[
+      {"key":"option_id","label":"Option ID","widget":"text","read_only":true},
+      {"key":"name","label":"Option name","widget":"text","required":true},
+      {"key":"approach","label":"Architecture","widget":"textarea","required":true},
+      {"key":"risk","label":"Risk level","widget":"select","options":["Low","Medium","High"],"required":true},
+      {"key":"source_ref","label":"Supporting evidence","widget":"evidence_ref"}
+    ]}
+  ],
+  "actions":[
+    {"key":"run-intake","label":"Run Intake Agent","executor":"agent_invocation","agent_key":"sim.intake","required_permission":"agent:invoke","placement":"ai_panel","output_artifact_type":"requirement"},
+    {"key":"run-design","label":"Draft Design","executor":"agent_invocation","agent_key":"sim.design","required_permission":"agent:invoke","placement":"ai_panel","output_artifact_type":"solution_option"},
+    {"key":"request-review","label":"Request Review","executor":"flowcase_action","command_key":"request_review","required_permission":"task:request","placement":"artifact_toolbar"}
+  ]
+}

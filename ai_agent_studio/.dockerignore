@@ -1,0 +1,7 @@
+.git
+.env
+deploy/.env
+deploy/access-map.json
+apps/agent-studio-web/node_modules
+apps/agent-studio-web/dist
+apps/agent-studio-web/*.tsbuildinfo

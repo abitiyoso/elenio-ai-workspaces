@@ -1,0 +1,12 @@
+DROP INDEX IF EXISTS node_executions_predecessor_idx;
+ALTER TABLE node_executions DROP COLUMN IF EXISTS predecessor_id;
+DROP TABLE IF EXISTS condition_evaluations;
+DROP TABLE IF EXISTS approval_decisions;
+DROP FUNCTION IF EXISTS flowcase_human_decider();
+DROP FUNCTION IF EXISTS flowcase_append_only();
+DROP TABLE IF EXISTS approval_requests;
+DROP TABLE IF EXISTS task_comments;
+DROP TABLE IF EXISTS tasks;
+DROP TABLE IF EXISTS case_counters;
+DROP TABLE IF EXISTS policy_delegations;
+DROP TABLE IF EXISTS domain_role_assignments;

@@ -1,0 +1,53 @@
+{
+  "disclaimer": "All people, cases, dates, documents, decisions and metrics are fictional interface fixtures. No real KMS, Flowcase, Agent Studio or Control Plane is connected.",
+  "cases": [
+    {
+      "id":"SIM-2026-042","pack_key":"sim.tender","pack_version":"1.0.0","name":"Integrated Command Center","organization":"Pemkot XYZ (demo)","owner":"Nadia P.","status":"In review","priority":"High","due":"06 Nov 2026","progress":63,"workflow_instance_id":"wf-sim-042","workflow_version":"1.0.0","current_stage":"G1 · Requirements baseline",
+      "stages":[{"label":"G0 · Qualify","state":"done"},{"label":"G1 · Baseline","state":"current"},{"label":"G2 · Solution","state":"pending"},{"label":"G3 · Feasibility","state":"pending"},{"label":"G4 · Proposal","state":"pending"},{"label":"G5 · Release","state":"pending"}],
+      "artifacts":[
+        {"id":"sim-req-014","type":"requirement","version":2,"status":"Needs review","data":{"req_id":"REQ-014","statement":"Video archives retained for at least 30 days across monitored sites.","priority":"Mandatory","assessment":"Unknown","source_ref":"KMS-RFP-011 v1 · p12 §3.2.4"},"updated_by":"Intake Agent (draft)","updated":"Today 09:42"},
+        {"id":"sim-req-019","type":"requirement","version":1,"status":"Human verified","data":{"req_id":"REQ-019","statement":"Issue alerts based on authorized incident analytics rules.","priority":"Mandatory","assessment":"Partial","source_ref":"KMS-KAK-031 v1 · p9 §4.3"},"updated_by":"SA Reviewer","updated":"Yesterday 15:10"},
+        {"id":"sim-sol-01","type":"solution_option","version":1,"status":"AI draft","data":{"option_id":"SOL-01","name":"Hybrid edge-cloud","approach":"Local video processing with central visualization; validate network/security controls.","risk":"Medium","source_ref":"KMS-CATALOG-08 v2 · §2"},"updated_by":"Design Agent (draft)","updated":"Yesterday 10:00"}
+      ],
+      "documents":[{"id":"doc-sim-rfp","title":"Command_Center_RFP.pdf","kms_ref":"KMS-RFP-011","version":"v1","status":"Published source","pages":42},{"id":"doc-sim-kak","title":"Technical_Annex.pdf","kms_ref":"KMS-KAK-031","version":"v1","status":"Published source","pages":18}],
+      "tasks":[{"id":"task-sim-17","title":"Verify 30-day storage sizing","status":"Open","assignee":"Infrastructure SME","due":"03 Nov"},{"id":"task-sim-16","title":"Review compliance evidence","status":"Open","assignee":"Solution Architect","due":"04 Nov"}],
+      "approvals":[{"id":"gate-sim-0","name":"G0 · Bid qualification","status":"Approved","approver":"Bid Owner","version_ref":"case:v1"},{"id":"gate-sim-1","name":"G1 · Baseline acceptance","status":"Pending","approver":"Delegated SME","version_ref":"requirements:v2"}],
+      "runs":[{"id":"run-sim-14","agent":"sim.intake","version":"1.2.0","status":"Draft ready","time":"Today 09:42"}],
+      "audit":[{"at":"Today 09:42","actor":"Agent Studio","action":"Produced requirements draft v2"},{"at":"Yesterday 15:10","actor":"SA Reviewer","action":"Human-reviewed REQ-019"}]
+    },
+    {
+      "id":"SIM-2026-044","pack_key":"sim.tender","pack_version":"1.0.0","name":"Regional Network Modernization","organization":"Agency Delta (demo)","owner":"Raka S.","status":"In progress","priority":"Medium","due":"14 Nov 2026","progress":24,"workflow_instance_id":"wf-sim-044","workflow_version":"1.0.0","current_stage":"G0 · Qualification",
+      "stages":[{"label":"G0 · Qualify","state":"current"},{"label":"G1 · Baseline","state":"pending"},{"label":"G2 · Solution","state":"pending"}],
+      "artifacts":[{"id":"sim-req-033","type":"requirement","version":1,"status":"AI draft","data":{"req_id":"REQ-033","statement":"Provide encrypted inter-site connectivity and documented failover behavior.","priority":"Mandatory","assessment":"Unknown","source_ref":"KMS-RFP-043 v1 · p8 §2.3"},"updated_by":"Intake Agent (draft)","updated":"Today 11:10"}],
+      "documents":[{"id":"doc-sim-rfp2","title":"Network_Requirements.pdf","kms_ref":"KMS-RFP-043","version":"v1","status":"Published source","pages":25}],
+      "tasks":[{"id":"task-sim-33","title":"Qualify opportunity","status":"Open","assignee":"Bid Owner","due":"03 Nov"}],
+      "approvals":[{"id":"gate-sim-33","name":"G0 · Bid qualification","status":"Pending","approver":"Bid Owner","version_ref":"case:v1"}],"runs":[],"audit":[]
+    },
+    {
+      "id":"LEGAL-2026-018","pack_key":"legal.contract-review","pack_version":"1.0.0","name":"Data Processing Agreement","organization":"Metro Retail (demo)","owner":"Maya L.","status":"In review","priority":"High","due":"09 Nov 2026","progress":52,"workflow_instance_id":"wf-legal-018","workflow_version":"2.1.0","current_stage":"Legal review",
+      "stages":[{"label":"Intake","state":"done"},{"label":"Clause review","state":"current"},{"label":"Risk disposition","state":"pending"},{"label":"Signature","state":"pending"}],
+      "artifacts":[
+        {"id":"legal-clause-09","type":"clause","version":3,"status":"Needs review","data":{"clause_id":"CL-09","topic":"Liability","interpretation":"Liability cap needs clarification for indirect damages and data incidents.","risk":"High","source_ref":"KMS-DPA-091 v2 · p7 §8.1"},"updated_by":"Clause Analyzer (draft)","updated":"Today 08:10"},
+        {"id":"legal-dev-05","type":"deviation","version":1,"status":"Human verified","data":{"deviation_id":"DEV-05","issue":"Non-standard subprocessor notification window.","owner":"Legal Counsel","resolution":"Open","source_ref":"KMS-DPA-091 v2 · p4 §5.3"},"updated_by":"Legal Counsel","updated":"Yesterday 16:12"}
+      ],
+      "documents":[{"id":"doc-legal-1","title":"Data_Processing_Agreement.docx","kms_ref":"KMS-DPA-091","version":"v2","status":"Published source","pages":16}],
+      "tasks":[{"id":"task-legal-1","title":"Assess liability cap exception","status":"Open","assignee":"Legal Counsel","due":"04 Nov"}],
+      "approvals":[{"id":"gate-legal-1","name":"Deviation review","status":"Pending","approver":"Legal Lead","version_ref":"deviation:v1"}],
+      "runs":[{"id":"run-legal-01","agent":"legal.clause_analyzer","version":"1.0.0","status":"Draft ready","time":"Today 08:10"}],
+      "audit":[{"at":"Today 08:10","actor":"Agent Studio","action":"Extracted high-risk clause for review"}]
+    },
+    {
+      "id":"LAB-2026-007","pack_key":"lab.poc-assessment","pack_version":"1.0.0","name":"Document Search Accuracy PoC","organization":"Internal Innovation (demo)","owner":"Farah M.","status":"In progress","priority":"Medium","due":"18 Nov 2026","progress":41,"workflow_instance_id":"wf-poc-007","workflow_version":"1.0.0","current_stage":"Experiment design",
+      "stages":[{"label":"Scope","state":"done"},{"label":"Experiment","state":"current"},{"label":"Evaluation","state":"pending"},{"label":"Decision","state":"pending"}],
+      "artifacts":[
+        {"id":"poc-exp-01","type":"experiment","version":2,"status":"Human verified","data":{"experiment_id":"EXP-01","hypothesis":"Hybrid search improves recall on the approved offline query benchmark.","target":90,"setup":"Evaluate 200 labeled queries; compare configured baselines with identical datasets.","source_ref":"KMS-POC-REF-03 v1 · §1"},"updated_by":"PoC Owner","updated":"Yesterday 16:12"},
+        {"id":"poc-result-01","type":"result","version":1,"status":"AI draft","data":{"result_id":"RES-01","metric":"Recall at k=10","observed":86,"conclusion":"Below target; require manual quality review before acceptance.","source_ref":"KMS-POC-RESULT-01 v1 · §2"},"updated_by":"Result Analyzer (draft)","updated":"Today 10:40"}
+      ],
+      "documents":[{"id":"doc-poc-1","title":"Search_Evaluation_Plan.pdf","kms_ref":"KMS-POC-REF-03","version":"v1","status":"Published source","pages":12}],
+      "tasks":[{"id":"task-poc-1","title":"Validate measurement methodology","status":"Open","assignee":"Data Scientist","due":"05 Nov"}],
+      "approvals":[{"id":"gate-poc-1","name":"Experiment protocol review","status":"Approved","approver":"Research Lead","version_ref":"experiment:v2"},{"id":"gate-poc-2","name":"Result acceptance","status":"Pending","approver":"PoC Sponsor","version_ref":"result:v1"}],
+      "runs":[{"id":"run-poc-01","agent":"poc.experiment_planner","version":"1.0.0","status":"Draft ready","time":"Yesterday 09:10"}],
+      "audit":[{"at":"Yesterday 16:12","actor":"PoC Owner","action":"Revised experiment plan v2"}]
+    }
+  ]
+}

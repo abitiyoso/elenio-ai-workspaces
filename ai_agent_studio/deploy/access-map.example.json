@@ -1,0 +1,41 @@
+[
+  {
+    "login": "REPLACE_WITH_APPROVED_TAILSCALE_LOGIN",
+    "tenant_id": "REPLACE_WITH_TENANT_UUID",
+    "permissions": [
+      "agent.read",
+      "agent.create",
+      "agent.archive",
+      "agent.bootstrap",
+      "agent.update",
+      "agent.clone",
+      "agent.version.read",
+      "agent.version.create",
+      "agent.version.update",
+      "agent.skill.read",
+      "agent.tool.read",
+      "model_provider.read",
+      "model_provider.create",
+      "model_provider.credential.read",
+      "model_provider.credential.write",
+      "model_provider.credential.delete",
+      "model_provider.probe",
+      "model_deployment.read",
+      "model_deployment.create",
+      "skill.read",
+      "skill.create",
+      "skill.update",
+      "skill.delete",
+      "skill.version.create",
+      "skill.version.update",
+      "tool.read",
+      "tool.draft.read",
+      "tool.draft.create",
+      "tool.draft.update",
+      "tool.draft.delete",
+      "tool.draft.version.create",
+      "tool.draft.version.update",
+      "tool.draft.version.delete"
+    ]
+  }
+]

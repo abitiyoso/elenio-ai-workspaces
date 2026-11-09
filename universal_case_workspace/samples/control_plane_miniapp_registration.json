@@ -1,0 +1,14 @@
+{
+  "_note": "Proposed Control Plane registration example. Confirm actual registry API/schema before posting; the route is resolved from trusted ops config, not a JSON-provided external upstream.",
+  "app_key": "case-workspace",
+  "display_name": "Universal Case Workspace",
+  "owner_team": "AI Workspace Platform",
+  "version": "1.0.0",
+  "status": "draft",
+  "route_base": "/apps/case-workspace/",
+  "launch_entitlement": "case-workspace:launch",
+  "features": ["my-cases", "dynamic-domain-packs", "schema-driven-artifacts", "evidence-panel", "flowcase-tasks", "contextual-ai-actions"],
+  "required_services": ["control-plane", "flowcase", "kms", "agent-studio"],
+  "auth": {"model": "trusted_same_origin_bff", "separate_login": false, "audience": "case-workspace-api"},
+  "requires_verified_registry_route": true
+}

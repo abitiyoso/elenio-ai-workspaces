@@ -1,0 +1,14 @@
+.env
+*.local
+/bin/
+/dist/
+web/node_modules/
+web/dist/
+web/*.tsbuildinfo
+coverage/
+.DS_Store
+
+# TypeScript must never emit next to sources
+web/src/**/*.js
+web/vite.config.js
+web/vite.config.d.ts

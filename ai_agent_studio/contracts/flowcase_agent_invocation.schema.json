@@ -1,0 +1,20 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://schemas.example.invalid/agent-studio/flowcase-agent-invocation-v1",
+  "title":"Flowcase → Agent Studio Invoke v1 (proposed)",
+  "type":"object", "additionalProperties":false,
+  "required":["correlation_id","workflow_instance_id","workflow_node_id","case_id","agent_key","agent_version_id","input_artifact_refs","knowledge_scope","deadline","idempotency_key"],
+  "properties":{
+    "correlation_id":{"type":"string","minLength":1},
+    "workflow_instance_id":{"type":"string","minLength":1},
+    "workflow_node_id":{"type":"string","minLength":1},
+    "case_id":{"type":"string","minLength":1},
+    "agent_key":{"type":"string","pattern":"^[a-z][a-z0-9_.-]+$"},
+    "agent_version_id":{"type":"string","minLength":1},
+    "input_artifact_refs":{"type":"array","items":{"type":"string"}},
+    "knowledge_scope":{"type":"object","additionalProperties":false,"required":["case_id","collection_ids"],"properties":{"case_id":{"type":"string"},"collection_ids":{"type":"array","items":{"type":"string"}},"allow_expired":{"const":false}}},
+    "deadline":{"type":"string","format":"date-time"},
+    "idempotency_key":{"type":"string","minLength":8},
+    "callback_registration_id":{"type":"string"}
+  }
+}

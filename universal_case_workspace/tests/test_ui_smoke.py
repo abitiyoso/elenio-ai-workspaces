@@ -1,0 +1,90 @@
+"""Offline UI smoke test. Requires playwright and Chromium. No real platform services exercised."""
+import asyncio
+from pathlib import Path
+from playwright.async_api import async_playwright
+ROOT=Path(__file__).resolve().parents[1]
+HTML=(ROOT/'Universal_Case_Workspace_Prototype.html').read_text()
+async def run():
+ async with async_playwright() as p:
+  browser=await p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox','--disable-dev-shm-usage','--disable-gpu'])
+  page=await browser.new_page(viewport={'width':1600,'height':980},device_scale_factor=1)
+  errors=[];page.on('pageerror',lambda err:errors.append(str(err)))
+  await page.set_content(HTML,wait_until='domcontentloaded',timeout=30000)
+  await page.wait_for_timeout(160)
+  print('title:',await page.title());print('JS errors after render:',errors)
+  assert await page.locator('#page-overview .hero').count()==1
+  await page.screenshot(path=str(ROOT/'previews/UCW_Overview_Desktop.png'),full_page=True)
+  await page.locator('[data-go="workbench"]').click()
+  assert await page.locator('#page-workbench .case-tabs button').count()==8
+  await page.screenshot(path=str(ROOT/'previews/UCW_SIM_Workspace.png'),full_page=True)
+  await page.locator('[data-tab="requirements"]').click()
+  assert 'Requirement Register' in await page.locator('#page-workbench').inner_text()
+  await page.locator('[data-action="artifact:sim-req-014"]').click()
+  assert await page.locator('#drawer').evaluate('(x)=>x.classList.contains("show")')
+  print('SIM fields:',await page.locator('#artifactFields .field').count())
+  await page.locator('#art_statement').fill('Updated requirement interpretation for demo — human draft')
+  await page.locator('[data-action="saveArtifact"]').click()
+  assert 'v3' in await page.locator('#page-workbench').inner_text()
+  await page.locator('[data-action="artifact:sim-req-014"]').click()
+  assert 'History' in await page.locator('#drawerBody').inner_text() and 'v2' in await page.locator('#drawerBody').inner_text()
+  await page.locator('#drawerClose').click()
+  await page.locator('[data-tab="ai"]').click()
+  await page.locator('#page-workbench [data-action="agent:run-intake"]').first.click()
+  assert 'AI draft' in await page.locator('#page-workbench').inner_text()
+  print('after run AI draft rendered')
+  await page.locator('[data-tab="approvals"]').click()
+  before=await page.locator('#page-workbench .card').first.inner_text()
+  await page.locator('[data-action="review:gate-sim-1"]').click()
+  assert 'cannot approve' in (await page.locator('#modalDescription').inner_text()).lower()
+  await page.locator('#modalCancel').click()
+  assert before==await page.locator('#page-workbench .card').first.inner_text()
+  await page.locator('[data-go="cases"]').click()
+  await page.locator('#casePackFilter').select_option('legal.contract-review')
+  await page.locator('#page-cases [data-action="open:LEGAL-2026-018"]').click()
+  tabs=await page.locator('#page-workbench .case-tabs').inner_text()
+  print('legal tabs:',tabs)
+  assert 'Clause Register' in tabs and 'Deviations' in tabs and 'Requirements' not in tabs
+  await page.locator('[data-tab="clauses"]').click()
+  assert 'Clause Register' in await page.locator('#page-workbench').inner_text()
+  await page.screenshot(path=str(ROOT/'previews/UCW_Contract_Workspace.png'),full_page=True)
+  await page.locator('[data-go="cases"]').click()
+  await page.locator('#casePackFilter').select_option('lab.poc-assessment')
+  await page.locator('#page-cases [data-action="open:LAB-2026-007"]').click()
+  tabs=await page.locator('#page-workbench .case-tabs').inner_text()
+  print('PoC tabs:',tabs)
+  assert 'Experiments' in tabs and 'Result Assessments' in tabs and 'Clause Register' not in tabs
+  await page.locator('[data-tab="experiments"]').click()
+  await page.locator('[data-action="artifact:poc-exp-01"]').click()
+  assert await page.locator('#art_target').get_attribute('type')=='number'
+  await page.locator('#drawerClose').click()
+  await page.screenshot(path=str(ROOT/'previews/UCW_PoC_Workspace.png'),full_page=True)
+  # Client-role mock is only a UI affordance; production APIs still enforce authority.
+  await page.locator('#roleSwitch').select_option('viewer')
+  await page.locator('[data-go="workbench"]').click()
+  await page.locator('[data-tab="experiments"]').click()
+  await page.locator('[data-action="artifact:poc-exp-01"]').click()
+  assert await page.locator('#drawerFoot [data-action="saveArtifact"]').count()==0
+  await page.locator('#drawerClose').click()
+  await page.locator('#roleSwitch').select_option('editor')
+  await page.locator('[data-go="packs"]').click()
+  print('pack cards:',await page.locator('.pack-card').count())
+  assert await page.locator('.pack-card').count()==3
+  await page.locator('[data-action="pack:sim.tender"]').click()
+  assert 'sim.tender' in await page.locator('#packJSON').inner_text()
+  await page.screenshot(path=str(ROOT/'previews/UCW_Domain_Packs.png'),full_page=True)
+  assert not errors, errors
+  mobile=await browser.new_page(viewport={'width':390,'height':844},device_scale_factor=1)
+  merr=[];mobile.on('pageerror',lambda err:merr.append(str(err)))
+  await mobile.set_content(HTML,wait_until='domcontentloaded',timeout=30000)
+  await mobile.wait_for_timeout(100)
+  widths=await mobile.evaluate('({viewport:document.documentElement.clientWidth,doc:document.documentElement.scrollWidth,body:document.body.scrollWidth})')
+  print('mobile widths:',widths)
+  await mobile.screenshot(path=str(ROOT/'previews/UCW_Mobile_Overview.png'),full_page=True)
+  await mobile.locator('#menuButton').click()
+  assert await mobile.locator('#sidebar').evaluate('(x)=>x.classList.contains("open")')
+  await mobile.locator('#sidebar [data-go="workbench"]').click()
+  await mobile.screenshot(path=str(ROOT/'previews/UCW_Mobile_Workspace.png'),full_page=True)
+  print('desktop errors:',errors,'mobile errors:',merr)
+  assert not merr, merr
+  await browser.close()
+asyncio.run(run())

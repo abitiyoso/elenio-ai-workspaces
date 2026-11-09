@@ -1,0 +1,10 @@
+# Runtime image from artifacts built by deploy/deploy-vm.sh (linux/amd64 binary + web/dist).
+FROM gcr.io/distroless/static-debian12:nonroot
+WORKDIR /app
+COPY build/control-plane-api /app/control-plane-api
+COPY build/web /app/web/dist
+COPY dev-seed.json /app/deploy/dev-seed.json
+ENV WEB_DIR=/app/web/dist DEV_SEED_FILE=/app/deploy/dev-seed.json
+USER nonroot:nonroot
+ENTRYPOINT ["/app/control-plane-api"]
+CMD ["serve"]

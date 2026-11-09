@@ -1,0 +1,418 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.example.invalid/ai-workspace/workspace-definition-v1",
+  "title": "Universal Case Workspace — versioned domain pack manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "pack_key",
+    "version",
+    "title",
+    "description",
+    "status",
+    "bindings",
+    "navigation",
+    "artifact_types",
+    "actions"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "workspace.definition.v1"
+    },
+    "pack_key": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 90
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "published",
+        "retired"
+      ]
+    },
+    "brand": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "icon": {
+          "type": "string",
+          "maxLength": 36
+        },
+        "accent": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        }
+      }
+    },
+    "bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "flowcase_workflow_key",
+        "artifact_provider"
+      ],
+      "properties": {
+        "flowcase_workflow_key": {
+          "type": "string",
+          "minLength": 3
+        },
+        "artifact_provider": {
+          "type": "string",
+          "enum": [
+            "flowcase_registry",
+            "domain_adapter",
+            "workspace_artifacts"
+          ]
+        },
+        "agent_keys": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 3
+          },
+          "uniqueItems": true
+        },
+        "kms_scope_policy_ref": {
+          "type": "string"
+        }
+      }
+    },
+    "navigation": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 20,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key",
+          "label",
+          "view"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]+$"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 2
+          },
+          "view": {
+            "enum": [
+              "overview",
+              "artifact_list",
+              "tasks",
+              "approvals",
+              "documents",
+              "ai_activity",
+              "timeline",
+              "activity",
+              "extension"
+            ]
+          },
+          "artifact_type": {
+            "type": "string"
+          },
+          "extension_ref": {
+            "type": "string"
+          },
+          "required_permission": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "artifact_types": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 25,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key",
+          "title",
+          "description",
+          "fields"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]+$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 2
+          },
+          "description": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 40,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "key",
+                "label",
+                "widget"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "widget": {
+                  "enum": [
+                    "text",
+                    "textarea",
+                    "select",
+                    "number",
+                    "date",
+                    "boolean",
+                    "evidence_ref"
+                  ]
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "read_only": {
+                  "type": "boolean"
+                },
+                "options": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "hint": {
+                  "type": "string"
+                },
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "source": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "provider",
+              "flowcase_artifact_type"
+            ],
+            "description": "Where rows of this artifact type come from. rows_path is a dotted path into the artifact draft content (after unwrapping an Agent Studio envelope's artifact_draft); without it the artifact renders as one document.",
+            "properties": {
+              "provider": {
+                "enum": [
+                  "flowcase"
+                ]
+              },
+              "flowcase_artifact_type": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,62}$"
+              },
+              "rows_path": {
+                "type": "string",
+                "maxLength": 200,
+                "pattern": "^[a-z_][a-z0-9_]*(\\.[a-z_][a-z0-9_]*){0,7}$"
+              },
+              "producer_node_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_-]{0,62}$",
+                "description": "Flowcase workflow node that produces this artifact type (display only)."
+              }
+            }
+          }
+        }
+      }
+    },
+    "actions": {
+      "type": "array",
+      "maxItems": 30,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key",
+          "label",
+          "executor",
+          "required_permission"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]+$"
+          },
+          "label": {
+            "type": "string"
+          },
+          "executor": {
+            "enum": [
+              "agent_invocation",
+              "flowcase_action",
+              "artifact_command",
+              "registered_extension"
+            ]
+          },
+          "agent_key": {
+            "type": "string"
+          },
+          "command_key": {
+            "type": "string"
+          },
+          "registered_extension_ref": {
+            "type": "string"
+          },
+          "required_permission": {
+            "type": "string"
+          },
+          "placement": {
+            "enum": [
+              "case_header",
+              "artifact_toolbar",
+              "ai_panel",
+              "task_toolbar"
+            ]
+          },
+          "output_artifact_type": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "intake": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "agent_key",
+        "greeting",
+        "fields"
+      ],
+      "description": "Pre-case intake chat: the agent that fills the case brief, its fixed greeting, starter prompts and the brief fields with their mapping onto the Flowcase case (title or variables.<name>).",
+      "properties": {
+        "agent_key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_.-]{2,62}$"
+        },
+        "greeting": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "starters": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          }
+        },
+        "documents": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "target_field",
+            "max_files",
+            "prompt"
+          ],
+          "description": "Document upload in the intake chat (PDF, DOCX, TXT, MD; OCR for scanned pages). The extracted text fills target_field (a textarea field) and prompt, with {filename}, is sent as the user's message so the agent reads the document.",
+          "properties": {
+            "target_field": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]{0,62}$"
+            },
+            "max_files": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5
+            },
+            "prompt": {
+              "type": "string",
+              "minLength": 10,
+              "maxLength": 1000
+            }
+          }
+        },
+        "fields": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 30,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "key",
+              "label",
+              "widget",
+              "maps_to"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]{0,62}$"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 2,
+                "maxLength": 90
+              },
+              "widget": {
+                "enum": [
+                  "text",
+                  "textarea",
+                  "date",
+                  "list"
+                ]
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "maps_to": {
+                "type": "string",
+                "pattern": "^(title|variables\\.[a-z][a-z0-9_]{0,62})$"
+              },
+              "max_length": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 20000
+              },
+              "help": {
+                "type": "string",
+                "maxLength": 300
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

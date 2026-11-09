@@ -1,0 +1,38 @@
+{
+  "schema_version":"workspace.definition.v1",
+  "pack_key":"legal.contract-review","version":"1.0.0",
+  "title":"Contract Review Workspace",
+  "description":"Clause interpretation, exception register and legal approvals with the same case shell.",
+  "status":"published","brand":{"icon":"file-check-2","accent":"#2864EC"},
+  "bindings":{"flowcase_workflow_key":"legal-review","artifact_provider":"domain_adapter","agent_keys":["legal.clause_analyzer"],"kms_scope_policy_ref":"legal.contract-sources"},
+  "navigation":[
+    {"key":"overview","label":"Case Overview","view":"overview","icon":"layout-dashboard"},
+    {"key":"clauses","label":"Clause Register","view":"artifact_list","artifact_type":"clause","icon":"list-checks","required_permission":"artifact:read"},
+    {"key":"deviations","label":"Deviations","view":"artifact_list","artifact_type":"deviation","icon":"alert-circle","required_permission":"artifact:read"},
+    {"key":"tasks","label":"Legal Tasks","view":"tasks","icon":"check-square"},
+    {"key":"approvals","label":"Signoffs","view":"approvals","icon":"shield-check"},
+    {"key":"documents","label":"Contract Sources","view":"documents","icon":"files"},
+    {"key":"ai","label":"AI Activity","view":"ai_activity","icon":"bot"},
+    {"key":"history","label":"Case Timeline","view":"timeline","icon":"clock-3"}
+  ],
+  "artifact_types":[
+    {"key":"clause","title":"Clause Register","description":"Linked contract clauses and suggested interpretation.","fields":[
+      {"key":"clause_id","label":"Clause ID","widget":"text","read_only":true},
+      {"key":"topic","label":"Topic","widget":"select","options":["Liability","Data Protection","Termination","Payment"],"required":true},
+      {"key":"interpretation","label":"Interpretation","widget":"textarea","required":true},
+      {"key":"risk","label":"Risk","widget":"select","options":["Low","Medium","High"],"required":true},
+      {"key":"source_ref","label":"Contract clause source","widget":"evidence_ref","required":true}
+    ]},
+    {"key":"deviation","title":"Deviation Register","description":"Tracked exceptions requiring accountable review.","fields":[
+      {"key":"deviation_id","label":"Deviation ID","widget":"text","read_only":true},
+      {"key":"issue","label":"Deviation","widget":"textarea","required":true},
+      {"key":"owner","label":"Reviewer","widget":"text","required":true},
+      {"key":"resolution","label":"Disposition","widget":"select","options":["Open","Mitigated","Rejected","Accepted exception"],"required":true},
+      {"key":"source_ref","label":"Supporting clause","widget":"evidence_ref"}
+    ]}
+  ],
+  "actions":[
+    {"key":"analyze-clauses","label":"Analyze Clauses","executor":"agent_invocation","agent_key":"legal.clause_analyzer","required_permission":"agent:invoke","placement":"ai_panel","output_artifact_type":"clause"},
+    {"key":"request-legal-review","label":"Request Legal Review","executor":"flowcase_action","command_key":"request_review","required_permission":"task:request","placement":"artifact_toolbar"}
+  ]
+}

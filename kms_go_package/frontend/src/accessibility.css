@@ -1,0 +1,27 @@
+.nav-item{height:auto;min-height:44px}
+.button{min-height:44px}
+.button.light{min-height:44px}
+.menu-button{min-width:44px;min-height:44px}
+.text-button{min-height:44px}
+
+/* Keyboard users can bypass the navigation; the target receives focus without a visible outline. */
+.skip-link{position:absolute;left:12px;top:-60px;z-index:20;background:#fff;color:#1d3f6e;border-radius:6px;padding:10px 14px;font-size:13px;font-weight:650;box-shadow:0 2px 8px #0b1f3833}
+.skip-link:focus{top:12px}
+.main-area:focus,.page-heading h1:focus{outline:none}
+
+/* Readable minimum sizes: the reference design used 8–10px labels, too small for sustained reading. */
+.nav-item{font-size:13px}
+.nav-section,.brand small,.tenant-card small,.profile small,.storage-note,.storage-head span+span,.nav-count{font-size:11px}
+.tenant-card strong,.profile strong,.storage-head{font-size:12px}
+.crumb,.system-state,.page-footer,.eyebrow,.panel-kicker,.status-chip,.empty-label,.document-id,.text-button{font-size:11px}
+.page-heading p,.welcome-panel p,.notice,.notice strong{font-size:13px}
+.button,.button.compact{font-size:12px}
+.foundation-card strong,.empty-card strong{font-size:13px}
+.foundation-card p,.empty-card p,.section-heading p{font-size:12px}
+.section-heading h2{font-size:15px}
+.panel-heading p,.results-heading p,.inline-empty p{font-size:12px}
+
+/* Muted text darkened to at least 4.5:1 against white and the page background. */
+.crumb,.system-state,.page-footer,.section-heading p,.foundation-card p,.empty-card p,.page-heading p,.panel-heading p,.results-heading p,.inline-empty p,.document-id,.notice{color:#5d6f83}
+.nav-section{color:#a9bdd5}
+.brand small,.tenant-card small,.profile small,.storage-note,.storage-head span+span{color:#b4c6da}

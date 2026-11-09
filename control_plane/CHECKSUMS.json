@@ -1,0 +1,116 @@
+{
+  "product": "AI Workspace Control Plane",
+  "version": "1.0",
+  "files": [
+    {
+      "path": "AI_WORKSPACE_CONTROL_PLANE_TECHNICAL_PRD.md",
+      "bytes": 23402,
+      "sha256": "b4329129099a7251a091558973b4efea1aaabe753ba8b25c9d86efb14714e60c"
+    },
+    {
+      "path": "AI_Workspace_Control_Plane_Prototype.html",
+      "bytes": 59596,
+      "sha256": "f58844921569846b509f9999e1823b16e58b60e3b01e3706dc3afb41899ee226"
+    },
+    {
+      "path": "AUTH_AND_TRUST_BOUNDARIES.md",
+      "bytes": 5954,
+      "sha256": "d1a984fce9d7de4926ada8698fd951f08c43138d0e38301522e4b20b1d84f8b7"
+    },
+    {
+      "path": "CODEX_MASTER_PROMPT.md",
+      "bytes": 8397,
+      "sha256": "5bef79dbdac1890107fc6861ff1f753dfd1059eccb563d062e4ce2f4c4638e7f"
+    },
+    {
+      "path": "INTEGRATION_AND_DEPLOYMENT_GUIDE.md",
+      "bytes": 4654,
+      "sha256": "2da5702d3a9e382d762ea1db41d53caadcd10edaf807519f0f1ca2944fd77c42"
+    },
+    {
+      "path": "QA_RESULTS.md",
+      "bytes": 1690,
+      "sha256": "2108406b206474821fe5e53d474d521631b53cdabd9a016dbe938954e5f6efe4"
+    },
+    {
+      "path": "RBAC_AND_ENTITLEMENTS.md",
+      "bytes": 4752,
+      "sha256": "5447e22cdc89a6808ffb3d735a9474547682a92b04b0607c7868b2048ad40c8b"
+    },
+    {
+      "path": "README_START_HERE.md",
+      "bytes": 4717,
+      "sha256": "5e2ddbc339ed3d18950d6dc9715ef3cf556d581234c81733a53d25ffb0ab82a5"
+    },
+    {
+      "path": "UI_DESIGN_NOTES.md",
+      "bytes": 2882,
+      "sha256": "97a68c151b85e028bd46bb086becee9bb39295dd4dedd19bbb7ddb6e14e6745d"
+    },
+    {
+      "path": "contracts/auth_context.schema.json",
+      "bytes": 1293,
+      "sha256": "d1330bfb8b72636c3213e38baf5d64e2cd0cf55e60335ff0b7185819cb4cb388"
+    },
+    {
+      "path": "contracts/authorization_decision.schema.json",
+      "bytes": 1317,
+      "sha256": "be7e459c9f134afb83d7b5d3dfafd2dfe48b4353c9dedd9d56b41ee519099b36"
+    },
+    {
+      "path": "contracts/mini_app_manifest.schema.json",
+      "bytes": 1722,
+      "sha256": "074a5469aae11351bdf2e7b4a65ae738ed7841350540eba6a2a78d22001acc9a"
+    },
+    {
+      "path": "contracts/openapi_control_plane_draft.yaml",
+      "bytes": 8015,
+      "sha256": "3825af03ca2081fcf5634df22d0ac1fb666a2cd98b14b550a74322d5d2b8cdb3"
+    },
+    {
+      "path": "previews/Control_Plane_Access_Control.png",
+      "bytes": 185036,
+      "sha256": "fdd5a786f74b518d3028912d34c9ef79ff6028bff919fedfd34c5890bbf89c51"
+    },
+    {
+      "path": "previews/Control_Plane_App_Catalog.png",
+      "bytes": 126521,
+      "sha256": "e87702436d3fb52c0fe1ac6648b71ebd4f2215f0a8a2f8e3e46a98ac9ad23f73"
+    },
+    {
+      "path": "previews/Control_Plane_Mobile.png",
+      "bytes": 233456,
+      "sha256": "b13b4bd892358061a08930e7ccae8a9a1cabc51bb480d619a8d524033653af95"
+    },
+    {
+      "path": "previews/Control_Plane_Overview.png",
+      "bytes": 360057,
+      "sha256": "5c2df53fda62a1f7702fbf203aa5dd9819931ea919c4c3245d19ca4c40dbc5b6"
+    },
+    {
+      "path": "previews/Control_Plane_Preview_16x9.png",
+      "bytes": 306204,
+      "sha256": "1380c572a2b57662ff4ed2d88dc32460a2b45cf79edfea5d1c5c2a8a0d521a4c"
+    },
+    {
+      "path": "samples/demo_tenants_users.json",
+      "bytes": 1343,
+      "sha256": "b3ff16a43ca3484a242e452a7ff076a407278ed866a3721d6a004d36d2cc8eb7"
+    },
+    {
+      "path": "samples/mini_apps.json",
+      "bytes": 2417,
+      "sha256": "ffe307dc97f29f2567072e4123a9623e9b7a83612fdb9e6835c45e27cec5463d"
+    },
+    {
+      "path": "samples/rbac_policy.json",
+      "bytes": 1188,
+      "sha256": "e39e7f82caa94a4ec75c6a8719e918b8a673e77d53aa6ea26e5d06fc30c7a7b5"
+    },
+    {
+      "path": "tests/ui_smoke.py",
+      "bytes": 5190,
+      "sha256": "a5b352bf4a92c61c2c583d00cad4d48d22adf95a09eca8058338075346bc97b5"
+    }
+  ]
+}

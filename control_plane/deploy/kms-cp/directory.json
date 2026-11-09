@@ -1,0 +1,27 @@
+{
+  "disclaimer": "KMS-side tenant principals for Control Plane subjects (fictional demo users). KMS roles come only from this table; Control Plane roles are never copied. Rafi (Control Plane platform admin) is a plain KMS principal on purpose, and Nadia is absent: KMS denies her even though the Control Plane lets platform admins open the route. Demo All Access holds both KMS tenant roles for walkthroughs; KMS still refuses self-approval of reviews.",
+  "tenant_key": "acme-demo",
+  "users": [
+    {
+      "subject": "7f3c1a52-0d1e-4c71-9a0b-5b1e2f3a4c03",
+      "roles": [
+        "knowledge_steward"
+      ]
+    },
+    {
+      "subject": "7f3c1a52-0d1e-4c71-9a0b-5b1e2f3a4c05",
+      "roles": []
+    },
+    {
+      "subject": "7f3c1a52-0d1e-4c71-9a0b-5b1e2f3a4c01",
+      "roles": []
+    },
+    {
+      "subject": "7f3c1a52-0d1e-4c71-9a0b-5b1e2f3a4c06",
+      "roles": [
+        "platform_admin",
+        "knowledge_steward"
+      ]
+    }
+  ]
+}

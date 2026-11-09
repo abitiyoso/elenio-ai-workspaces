@@ -1,0 +1,68 @@
+{
+  "pack_key": "sim-b2b-six-agent",
+  "pack_version": "1.0.0",
+  "status": "illustrative-proposal",
+  "source": "SIM B2B Solution Workspace PRD v3.1 Section 21",
+  "agents": [
+    {
+      "key": "sim.intake",
+      "name": "Intake Agent",
+      "domain": "business-requirements",
+      "review_gate": "G1",
+      "sme_owner_roles": ["SIM-Interface", "Bid Manager", "Industry SME"],
+      "tools": ["kms.search", "kms.fetch_evidence", "flowcase.artifact.propose"],
+      "output_type": "requirements_baseline_draft",
+      "forbidden_actions": ["approve_requirement", "mark_unanswered_mandatory_compliant"]
+    },
+    {
+      "key": "sim.solution_matching",
+      "name": "Solution Matching Agent",
+      "domain": "capability-fit",
+      "review_gate": "G2",
+      "sme_owner_roles": ["Tribe Capability", "Product Owner"],
+      "tools": ["kms.search", "kms.fetch_evidence", "flowcase.artifact.get", "flowcase.artifact.propose"],
+      "output_type": "capability_fit_gap_draft",
+      "forbidden_actions": ["assert_unsupported_capability", "approve_solution_baseline"]
+    },
+    {
+      "key": "sim.standard_project",
+      "name": "Standard Project Agent",
+      "domain": "delivery-planning",
+      "review_gate": "G3",
+      "sme_owner_roles": ["PMO", "Delivery Lead", "Chapter Talent"],
+      "tools": ["kms.search", "flowcase.artifact.get", "flowcase.artifact.propose"],
+      "output_type": "wbs_and_mandays_draft",
+      "forbidden_actions": ["confirm_resource_availability", "approve_delivery_commitment"]
+    },
+    {
+      "key": "sim.design",
+      "name": "Design Agent",
+      "domain": "architecture",
+      "review_gate": "G2-G3",
+      "sme_owner_roles": ["SA Lead", "DPE", "PAM", "AIX", "Security/Privacy SME"],
+      "tools": ["kms.search", "kms.fetch_evidence", "flowcase.artifact.get", "flowcase.artifact.propose"],
+      "output_type": "solution_design_draft",
+      "forbidden_actions": ["approve_hld", "promise_undocumented_sla"]
+    },
+    {
+      "key": "sim.cost_challenge",
+      "name": "Cost Challenge Agent",
+      "domain": "costing-review",
+      "review_gate": "G3",
+      "sme_owner_roles": ["Costing/Pricing", "Finance/Budget", "Infrastructure SME"],
+      "tools": ["costing.read_reference", "math.calculate", "flowcase.artifact.get", "flowcase.artifact.propose"],
+      "output_type": "cost_challenge_findings_draft",
+      "forbidden_actions": ["approve_price", "publish_rate_card", "commit_customer_discount"]
+    },
+    {
+      "key": "sim.proposal",
+      "name": "Proposal Agent",
+      "domain": "proposal-composition",
+      "review_gate": "G4-G5",
+      "sme_owner_roles": ["Bid Owner", "SA Lead", "Industry SME", "Legal/Compliance"],
+      "tools": ["kms.search", "kms.fetch_evidence", "flowcase.artifact.get", "flowcase.artifact.propose"],
+      "output_type": "proposal_sections_draft",
+      "forbidden_actions": ["approve_final_proposal", "submit_to_customer", "invent_customer_reference"]
+    }
+  ]
+}

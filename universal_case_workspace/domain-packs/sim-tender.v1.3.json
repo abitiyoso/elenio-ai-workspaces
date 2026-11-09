@@ -1,0 +1,468 @@
+{
+  "schema_version": "workspace.definition.v1",
+  "pack_key": "sim.tender",
+  "version": "1.3.0",
+  "title": "SIM Tender Workspace",
+  "description": "Solution bidding on the live sim-tender workflow: intake chat with KAK/RFP document upload (OCR for scans), agent drafts reviewed by the case owner, gate decisions in Flowcase. No customer/opportunity ID in the intake.",
+  "status": "published",
+  "brand": {
+    "icon": "briefcase",
+    "accent": "#2864EC"
+  },
+  "bindings": {
+    "flowcase_workflow_key": "sim-tender",
+    "artifact_provider": "flowcase_registry",
+    "agent_keys": [
+      "sim.intake",
+      "sim.solution_matching",
+      "sim.design",
+      "sim.standard_project",
+      "sim.cost_challenge",
+      "sim.proposal",
+      "sim.case_intake"
+    ],
+    "kms_scope_policy_ref": "sim.case-sources"
+  },
+  "navigation": [
+    {
+      "key": "overview",
+      "label": "Case Overview",
+      "view": "overview",
+      "icon": "layout-dashboard"
+    },
+    {
+      "key": "requirements",
+      "label": "Requirements",
+      "view": "artifact_list",
+      "artifact_type": "requirement",
+      "icon": "list-checks",
+      "required_permission": "artifact:read"
+    },
+    {
+      "key": "solution-fit",
+      "label": "Solution Fit",
+      "view": "artifact_list",
+      "artifact_type": "solution_fit",
+      "icon": "puzzle",
+      "required_permission": "artifact:read"
+    },
+    {
+      "key": "design",
+      "label": "Design",
+      "view": "artifact_list",
+      "artifact_type": "design_option",
+      "icon": "network",
+      "required_permission": "artifact:read"
+    },
+    {
+      "key": "work-breakdown",
+      "label": "Work Breakdown",
+      "view": "artifact_list",
+      "artifact_type": "work_package",
+      "icon": "list-tree",
+      "required_permission": "artifact:read"
+    },
+    {
+      "key": "cost-review",
+      "label": "Cost Review",
+      "view": "artifact_list",
+      "artifact_type": "cost_finding",
+      "icon": "calculator",
+      "required_permission": "artifact:read"
+    },
+    {
+      "key": "proposal",
+      "label": "Proposal",
+      "view": "artifact_list",
+      "artifact_type": "proposal_section",
+      "icon": "file-text",
+      "required_permission": "artifact:read"
+    },
+    {
+      "key": "tasks",
+      "label": "Tasks & Reviews",
+      "view": "tasks",
+      "icon": "check-square"
+    },
+    {
+      "key": "approvals",
+      "label": "Gate Decisions",
+      "view": "approvals",
+      "icon": "shield-check"
+    },
+    {
+      "key": "documents",
+      "label": "Cited Sources",
+      "view": "documents",
+      "icon": "files"
+    },
+    {
+      "key": "ai",
+      "label": "AI Activity",
+      "view": "ai_activity",
+      "icon": "bot"
+    },
+    {
+      "key": "history",
+      "label": "Case Timeline",
+      "view": "timeline",
+      "icon": "clock-3"
+    }
+  ],
+  "artifact_types": [
+    {
+      "key": "requirement",
+      "title": "Requirement Register",
+      "description": "Requirements extracted from the RFP by the intake agent, with category and cited evidence.",
+      "source": {
+        "provider": "flowcase",
+        "flowcase_artifact_type": "requirement-register",
+        "producer_node_id": "intake",
+        "rows_path": "requirements"
+      },
+      "fields": [
+        {
+          "key": "id",
+          "label": "Requirement ID",
+          "widget": "text",
+          "read_only": true
+        },
+        {
+          "key": "statement",
+          "label": "Requirement",
+          "widget": "textarea",
+          "required": true
+        },
+        {
+          "key": "category",
+          "label": "Category",
+          "widget": "select",
+          "options": [
+            "functional",
+            "non_functional",
+            "commercial",
+            "legal",
+            "compliance"
+          ],
+          "required": true
+        },
+        {
+          "key": "mandatory",
+          "label": "Mandatory",
+          "widget": "boolean",
+          "required": true
+        },
+        {
+          "key": "evidence_refs",
+          "label": "Evidence",
+          "widget": "evidence_ref"
+        }
+      ]
+    },
+    {
+      "key": "solution_fit",
+      "title": "Capability Fit-Gap",
+      "description": "Requirement-to-capability matching with fit and reuse option, ready for SME review.",
+      "source": {
+        "provider": "flowcase",
+        "flowcase_artifact_type": "capability-fit-gap",
+        "producer_node_id": "matching",
+        "rows_path": "fit_gap"
+      },
+      "fields": [
+        {
+          "key": "requirement_ref",
+          "label": "Requirement",
+          "widget": "text",
+          "read_only": true
+        },
+        {
+          "key": "capability",
+          "label": "Capability",
+          "widget": "text",
+          "required": true
+        },
+        {
+          "key": "fit",
+          "label": "Fit",
+          "widget": "select",
+          "options": [
+            "fit",
+            "partial",
+            "gap",
+            "unknown"
+          ],
+          "required": true
+        },
+        {
+          "key": "option",
+          "label": "Option",
+          "widget": "select",
+          "options": [
+            "reuse",
+            "custom",
+            "hybrid",
+            "undecided"
+          ],
+          "required": true
+        },
+        {
+          "key": "rationale",
+          "label": "Rationale",
+          "widget": "textarea",
+          "required": true
+        },
+        {
+          "key": "evidence_refs",
+          "label": "Evidence",
+          "widget": "evidence_ref"
+        }
+      ]
+    },
+    {
+      "key": "design_option",
+      "title": "High-Level Design Options",
+      "description": "Candidate architectures from the design agent; one is proposed for review.",
+      "source": {
+        "provider": "flowcase",
+        "flowcase_artifact_type": "hld",
+        "producer_node_id": "design",
+        "rows_path": "hld_options"
+      },
+      "fields": [
+        {
+          "key": "name",
+          "label": "Option",
+          "widget": "text",
+          "required": true
+        },
+        {
+          "key": "summary",
+          "label": "Summary",
+          "widget": "textarea",
+          "required": true
+        },
+        {
+          "key": "evidence_refs",
+          "label": "Evidence",
+          "widget": "evidence_ref"
+        }
+      ]
+    },
+    {
+      "key": "work_package",
+      "title": "Work Breakdown",
+      "description": "Standard project work packages with role and effort basis.",
+      "source": {
+        "provider": "flowcase",
+        "flowcase_artifact_type": "wbs",
+        "producer_node_id": "project",
+        "rows_path": "wbs"
+      },
+      "fields": [
+        {
+          "key": "work_package",
+          "label": "Work package",
+          "widget": "text",
+          "required": true
+        },
+        {
+          "key": "description",
+          "label": "Description",
+          "widget": "textarea"
+        },
+        {
+          "key": "role",
+          "label": "Role",
+          "widget": "text",
+          "required": true
+        },
+        {
+          "key": "mandays",
+          "label": "Man-days",
+          "widget": "number",
+          "min": 0,
+          "required": true
+        },
+        {
+          "key": "basis",
+          "label": "Basis",
+          "widget": "textarea"
+        },
+        {
+          "key": "evidence_refs",
+          "label": "Evidence",
+          "widget": "evidence_ref"
+        }
+      ]
+    },
+    {
+      "key": "cost_finding",
+      "title": "Cost Review Findings",
+      "description": "Cost challenge findings: missing costs, variances, risky assumptions and optimizations.",
+      "source": {
+        "provider": "flowcase",
+        "flowcase_artifact_type": "cost-review",
+        "producer_node_id": "cost",
+        "rows_path": "findings"
+      },
+      "fields": [
+        {
+          "key": "area",
+          "label": "Area",
+          "widget": "text",
+          "required": true
+        },
+        {
+          "key": "finding_type",
+          "label": "Finding",
+          "widget": "select",
+          "options": [
+            "missing_cost",
+            "variance",
+            "assumption_risk",
+            "optimization"
+          ],
+          "required": true
+        },
+        {
+          "key": "description",
+          "label": "Description",
+          "widget": "textarea",
+          "required": true
+        },
+        {
+          "key": "impact_note",
+          "label": "Impact",
+          "widget": "text"
+        },
+        {
+          "key": "evidence_refs",
+          "label": "Evidence",
+          "widget": "evidence_ref"
+        }
+      ]
+    },
+    {
+      "key": "proposal_section",
+      "title": "Proposal Draft",
+      "description": "Proposal sections drafted from the approved baseline, with cited evidence.",
+      "source": {
+        "provider": "flowcase",
+        "flowcase_artifact_type": "proposal-draft",
+        "producer_node_id": "proposal",
+        "rows_path": "sections"
+      },
+      "fields": [
+        {
+          "key": "heading",
+          "label": "Section",
+          "widget": "text",
+          "required": true
+        },
+        {
+          "key": "draft_text",
+          "label": "Draft text",
+          "widget": "textarea",
+          "required": true
+        },
+        {
+          "key": "evidence_refs",
+          "label": "Evidence",
+          "widget": "evidence_ref"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "key": "run-intake",
+      "label": "Run Intake Agent",
+      "executor": "agent_invocation",
+      "agent_key": "sim.intake",
+      "required_permission": "agent:invoke",
+      "placement": "ai_panel",
+      "output_artifact_type": "requirement"
+    },
+    {
+      "key": "run-design",
+      "label": "Draft Design",
+      "executor": "agent_invocation",
+      "agent_key": "sim.design",
+      "required_permission": "agent:invoke",
+      "placement": "ai_panel",
+      "output_artifact_type": "design_option"
+    },
+    {
+      "key": "request-review",
+      "label": "Request Review",
+      "executor": "flowcase_action",
+      "command_key": "request_review",
+      "required_permission": "task:request",
+      "placement": "artifact_toolbar"
+    }
+  ],
+  "intake": {
+    "agent_key": "sim.case_intake",
+    "greeting": "Halo! Ceritakan kebutuhan yang ingin Anda jadikan case: siapa pelanggannya, apa masalah atau kebutuhannya, berapa skala dan di mana lokasinya, serta kapan target tanggalnya. Anda juga bisa langsung mengunggah dokumen KAK/RKS/RFP (PDF, DOCX, TXT atau MD; hasil scan juga bisa) dengan tombol lampiran. Saya akan membacanya, mencocokkannya dengan basis pengetahuan dan mengisi draft case untuk Anda. Case baru dibuat setelah Anda menekan Create case.",
+    "starters": [
+      "Ada KAK asisten AI untuk agen contact center berbasis SOP dan FAQ",
+      "Pelanggan pemerintah daerah butuh command center terintegrasi untuk CCTV kota",
+      "Bank ingin chatbot layanan nasabah yang menjawab dari dokumen produk internal"
+    ],
+    "documents": {
+      "target_field": "rfp_excerpt",
+      "max_files": 3,
+      "prompt": "Saya mengunggah dokumen \"{filename}\". Isinya sudah ada di field rfp_excerpt pada draft. Tolong baca dokumen itu, jelaskan singkat kebutuhannya, isi draft case dari isi dokumen (judul, pelanggan, ringkasan kebutuhan, batasan), cocokkan dengan basis pengetahuan, lalu tanyakan informasi penting yang tidak ada di dokumen."
+    },
+    "fields": [
+      {
+        "key": "title",
+        "label": "Case title",
+        "widget": "text",
+        "required": true,
+        "maps_to": "title",
+        "max_length": 300
+      },
+      {
+        "key": "customer_name",
+        "label": "Customer name",
+        "widget": "text",
+        "maps_to": "variables.customer_name",
+        "max_length": 200,
+        "required": true
+      },
+      {
+        "key": "deadline",
+        "label": "Target date",
+        "widget": "date",
+        "required": true,
+        "maps_to": "variables.deadline",
+        "help": "Submission deadline (YYYY-MM-DD)."
+      },
+      {
+        "key": "case_summary",
+        "label": "Case brief",
+        "widget": "textarea",
+        "maps_to": "variables.case_summary",
+        "max_length": 4000
+      },
+      {
+        "key": "rfp_excerpt",
+        "label": "RFP / KAK text",
+        "widget": "textarea",
+        "maps_to": "variables.rfp_excerpt",
+        "max_length": 20000,
+        "help": "Filled from uploaded documents (or paste the relevant text); agents treat it as untrusted reference material."
+      },
+      {
+        "key": "constraints",
+        "label": "Constraints",
+        "widget": "list",
+        "maps_to": "variables.constraints",
+        "max_length": 500,
+        "help": "One constraint per item."
+      }
+    ]
+  }
+}

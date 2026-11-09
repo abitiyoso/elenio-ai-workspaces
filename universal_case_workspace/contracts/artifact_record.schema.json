@@ -1,0 +1,14 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://schemas.example.invalid/ai-workspace/artifact-record-v1",
+  "title":"UCW Generic Artifact (proposed provider response)","type":"object","additionalProperties":false,
+  "required":["artifact_id","case_id","type_key","schema_version","revision","status","fields","evidence_refs","etag"],
+  "properties":{
+    "artifact_id":{"type":"string","minLength":1},"case_id":{"type":"string"},
+    "type_key":{"type":"string"},"schema_version":{"type":"string"},"revision":{"type":"integer","minimum":1},
+    "status":{"enum":["ai_draft","human_draft","needs_review","human_verified","approved","stale","rejected"]},
+    "fields":{"type":"object","additionalProperties":true},
+    "evidence_refs":{"type":"array","items":{"type":"object","required":["source_id","source_version","anchor"],"properties":{"source_id":{"type":"string"},"source_version":{"type":"string"},"anchor":{"type":"string"},"trust_status":{"type":"string"}}}},
+    "author_ref":{"type":"string"},"approved_decision_ref":{"type":["string","null"]},"etag":{"type":"string","minLength":1}
+  }
+}

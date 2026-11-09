@@ -1,0 +1,23 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://schemas.example.invalid/ai-workspace/authorization-decision-v1",
+  "title":"Control Plane authorization decision v1",
+  "type":"object","additionalProperties":false,
+  "required":["decision_id","effect","reason_code","subject_id","tenant_id","workspace_id","resource_type","resource_id","action","policy_version","evaluated_at"],
+  "properties":{
+    "decision_id":{"type":"string","minLength":1},
+    "effect":{"enum":["allow","deny"]},
+    "reason_code":{"enum":["ROLE_GRANT","EXPLICIT_DENY","NOT_MEMBER","MEMBERSHIP_SUSPENDED","APP_DISABLED","APP_UNPUBLISHED","MISSING_PERMISSION","SUBJECT_DISABLED","WRONG_AUDIENCE","POLICY_ERROR"]},
+    "subject_id":{"type":"string","minLength":1},
+    "tenant_id":{"type":"string","minLength":1},
+    "workspace_id":{"type":"string","minLength":1},
+    "resource_type":{"enum":["mini_app","workspace","platform_admin"]},
+    "resource_id":{"type":"string","minLength":1},
+    "action":{"type":"string","minLength":1},
+    "policy_version":{"type":"string"},
+    "effective_roles":{"type":"array","items":{"type":"string"}},
+    "missing_permissions":{"type":"array","items":{"type":"string"}},
+    "evaluated_at":{"type":"string","format":"date-time"},
+    "correlation_id":{"type":"string"}
+  }
+}

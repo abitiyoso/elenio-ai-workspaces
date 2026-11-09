@@ -1,0 +1,12 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://schemas.example.invalid/ai-workspace/workspace-events-v1",
+  "title":"UCW Projection Event Envelope (proposed)","type":"object","additionalProperties":false,
+  "required":["event_id","producer","case_id","event_type","occurred_at","payload_ref"],
+  "properties":{
+    "event_id":{"type":"string"},"producer":{"enum":["controlplane","flowcase","kms","agentstudio","domain_adapter","workspace"]},
+    "case_id":{"type":"string"},"event_type":{"type":"string"},"occurred_at":{"type":"string","format":"date-time"},
+    "payload_ref":{"type":"string"},"resource_revision":{"type":"string"},"correlation_id":{"type":"string"},
+    "signature_ref":{"type":"string"}
+  }
+}

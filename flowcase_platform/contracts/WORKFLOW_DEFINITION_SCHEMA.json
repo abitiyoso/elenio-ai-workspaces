@@ -1,0 +1,35 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://example.invalid/schemas/workflow-definition-v1.json",
+  "title":"Workflow Definition (conceptual v1)",
+  "type":"object",
+  "required":["schema_version","key","name","version","status","nodes"],
+  "additionalProperties":false,
+  "properties":{
+    "schema_version":{"const":"1.0"},
+    "key":{"type":"string","pattern":"^[a-z][a-z0-9-]*$"},
+    "name":{"type":"string","minLength":3},
+    "version":{"type":"integer","minimum":1},
+    "status":{"enum":["draft","validated","published","deprecated"]},
+    "description":{"type":"string"},
+    "tenant_scope":{"enum":["organization","global"]},
+    "input_schema":{"type":"object"},
+    "policy_refs":{"type":"array","items":{"type":"string"}},
+    "metadata":{"type":"object"},
+    "nodes":{"type":"array","minItems":2,"items":{"$ref":"#/$defs/node"}}
+  },
+  "$defs":{
+    "node":{
+      "type":"object",
+      "required":["id","type","name","next"],
+      "additionalProperties":false,
+      "properties":{
+        "id":{"type":"string","pattern":"^[a-z][a-z0-9_-]*$"},
+        "type":{"enum":["start","end","human_task","agent_task","service_task","human_approval","condition","parallel_split","parallel_join","timer","subworkflow"]},
+        "name":{"type":"string","minLength":1},
+        "config":{"type":"object"},
+        "next":{"type":"array","items":{"type":"string"},"uniqueItems":true}
+      }
+    }
+  }
+}

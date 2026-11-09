@@ -1,0 +1,15 @@
+{
+  "disclaimer":"Synthetic people and emails for UI prototyping; no real employee identities, credentials or authentication records.",
+  "tenant":{"id":"acme-demo","name":"Example Enterprise","mode":"single-tenant-pilot"},
+  "workspaces":[
+    {"id":"sim-b2b","name":"SIM B2B Solutions","description":"Tender and solution workspace","status":"active"},
+    {"id":"engineering","name":"Platform Engineering","description":"Platform services and AI engineering","status":"active"},
+    {"id":"legal-ops","name":"Legal Operations","description":"Example future contract-review domain","status":"active"}
+  ],
+  "users":[
+    {"id":"u-rafi","name":"Rafi Pratama","email":"rafi@example.invalid","state":"active","memberships":{"sim-b2b":["platform_admin","workspace_admin"],"engineering":["platform_admin"]}},
+    {"id":"u-maya","name":"Maya Putri","email":"maya@example.invalid","state":"active","memberships":{"sim-b2b":["knowledge_contributor","case_worker"],"legal-ops":["knowledge_contributor"]}},
+    {"id":"u-dimas","name":"Dimas Wijaya","email":"dimas@example.invalid","state":"active","memberships":{"sim-b2b":["case_reviewer","case_worker"]}},
+    {"id":"u-sari","name":"Sari Amelia","email":"sari@example.invalid","state":"active","memberships":{"sim-b2b":["agent_author","knowledge_contributor"],"engineering":["agent_author"]}}
+  ]
+}

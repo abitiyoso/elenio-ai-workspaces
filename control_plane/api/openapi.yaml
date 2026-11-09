@@ -1,0 +1,1439 @@
+# Generated from the implemented routes (internal/http/server.go). Keep in sync when routes change.
+openapi: 3.1.0
+info:
+  title: AI Workspace Control Plane API
+  version: 1.0.0
+  description: 'Implemented BFF contract. Cookie session + CSRF (X-CSRF-Token) + same-origin Origin for every unsafe method. Wire types: web/src/api/types.ts.'
+servers:
+- url: /
+security:
+- session: []
+paths:
+  /healthz:
+    get:
+      tags:
+      - Platform
+      summary: Liveness
+      security: []
+      responses:
+        '200':
+          description: ok
+  /readyz:
+    get:
+      tags:
+      - Platform
+      summary: Readiness (database, migrations; IdP reported as degraded)
+      security: []
+      responses:
+        '200':
+          description: ready
+        '503':
+          description: not ready
+  /.well-known/jwks.json:
+    get:
+      tags:
+      - Platform
+      summary: Public ES256 keys for audience-bound service tokens
+      security: []
+      responses:
+        '200':
+          description: JWKS
+  /auth/login:
+    get:
+      tags:
+      - Session
+      summary: Start OIDC authorization code + PKCE S256 (302 to IdP)
+      security: []
+      parameters:
+      - name: return_to
+        in: query
+        schema:
+          type: string
+        description: same-origin relative path; anything else is ignored
+      responses:
+        '302':
+          description: redirect to IdP
+        '503':
+          description: IdP unavailable
+        '429': &id001
+          $ref: '#/components/responses/Error'
+  /auth/callback:
+    get:
+      tags:
+      - Session
+      summary: IdP redirect target; validates state/binding/iss, exchanges code, verifies ID token
+      security: []
+      responses:
+        '302':
+          description: to return_to, or /signed-out?error=<code>
+  /auth/logout:
+    post:
+      tags:
+      - Session
+      summary: Revoke session, revoke refresh token at IdP, return end-session URL
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  redirect:
+                    type: string
+        '401': *id001
+        '403': *id001
+        '429': *id001
+      parameters:
+      - $ref: '#/components/parameters/Csrf'
+  /api/v1/me:
+    get:
+      tags:
+      - Session
+      summary: Verified session context, entitled apps, capabilities, CSRF token
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Me'
+        '401': *id001
+        '403': *id001
+        '429': *id001
+  /api/v1/session/workspace:
+    post:
+      tags:
+      - Session
+      summary: Switch active workspace (membership verified server-side)
+      responses:
+        '204':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - $ref: '#/components/parameters/Csrf'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - workspace_id
+              properties:
+                workspace_id:
+                  type: string
+                  format: uuid
+  /api/v1/workspaces:
+    get:
+      tags:
+      - Workspace
+      summary: Workspaces with active membership
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - items
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Workspace'
+        '401': *id001
+        '403': *id001
+        '429': *id001
+  /api/v1/apps:
+    get:
+      tags:
+      - Applications
+      summary: Published, entitled apps in the active workspace
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - items
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AppSummary'
+        '401': *id001
+        '403': *id001
+        '429': *id001
+  /api/v1/apps/{app_key}/launch:
+    get:
+      tags:
+      - Applications
+      summary: Authorise app:open and return the registered route
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - app_key
+                - route_base
+                - integration
+                properties:
+                  app_key:
+                    type: string
+                  route_base:
+                    type: string
+                    pattern: ^/apps/[a-z][a-z0-9-]{2,63}/$
+                  integration:
+                    enum:
+                    - proxy
+                    - pending
+        '401': *id001
+        '403': *id001
+        '429': *id001
+      parameters:
+      - name: app_key
+        in: path
+        required: true
+        schema:
+          type: string
+  /api/v1/authz/check:
+    post:
+      tags:
+      - Applications
+      summary: Decision for the verified caller only (no subject override)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: ../contracts/authorization_decision.schema.json
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - $ref: '#/components/parameters/Csrf'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - action
+              - resource_type
+              - resource_id
+              properties:
+                action:
+                  type: string
+                resource_type:
+                  enum:
+                  - mini_app
+                  - workspace
+                  - platform_admin
+                resource_id:
+                  type: string
+  /api/v1/admin/users:
+    get:
+      tags:
+      - Administration
+      summary: Directory users in scope
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - items
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DirectoryUser'
+        '401': *id001
+        '403': *id001
+        '429': *id001
+      parameters:
+      - name: q
+        in: query
+        schema:
+          type: string
+    post:
+      tags:
+      - Administration
+      summary: Pre-provision a directory binding (iss, sub); no credentials
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectoryUser'
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - $ref: '#/components/parameters/Csrf'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - idp_issuer
+              - idp_subject
+              - display_name
+              - reason
+              properties:
+                idp_issuer:
+                  type: string
+                idp_subject:
+                  type: string
+                display_name:
+                  type: string
+                email:
+                  type: string
+                reason:
+                  type: string
+  /api/v1/admin/users/{id}/suspend:
+    post:
+      tags:
+      - Administration
+      summary: Suspend user and revoke all sessions
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectoryUser'
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Csrf'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: &id002
+              type: object
+              additionalProperties: false
+              required:
+              - reason
+              properties:
+                reason:
+                  type: string
+                  minLength: 3
+                  maxLength: 500
+  /api/v1/admin/users/{id}/activate:
+    post:
+      tags:
+      - Administration
+      summary: Reactivate user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectoryUser'
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Csrf'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id002
+  /api/v1/admin/users/{id}/sessions/revoke:
+    post:
+      tags:
+      - Administration
+      summary: Revoke all sessions of a user
+      responses:
+        '200':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Csrf'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id002
+  /api/v1/admin/users/{id}/tenant-roles:
+    put:
+      tags:
+      - Administration
+      summary: Request a tenant role (always dual control → 202)
+      responses:
+        '202':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrantResult'
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Csrf'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: &id003
+              type: object
+              additionalProperties: false
+              required:
+              - role_key
+              - reason
+              properties:
+                role_key:
+                  type: string
+                reason:
+                  type: string
+                expires_at:
+                  type:
+                  - string
+                  - 'null'
+                  format: date-time
+  /api/v1/admin/workspaces:
+    get:
+      tags:
+      - Administration
+      summary: Workspaces in admin scope
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - items
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Workspace'
+        '401': *id001
+        '403': *id001
+        '429': *id001
+    post:
+      tags:
+      - Administration
+      summary: Create workspace
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - $ref: '#/components/parameters/Csrf'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - key
+              - name
+              - reason
+              properties:
+                key:
+                  type: string
+                name:
+                  type: string
+                description:
+                  type: string
+                reason:
+                  type: string
+  /api/v1/admin/workspaces/{id}/members:
+    get:
+      tags:
+      - Administration
+      summary: Members of a workspace
+      responses:
+        '200':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      tags:
+      - Administration
+      summary: Add member
+      responses:
+        '201':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Csrf'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - user_id
+              - reason
+              properties:
+                user_id:
+                  type: string
+                reason:
+                  type: string
+  /api/v1/admin/memberships/{id}/suspend:
+    post:
+      tags:
+      - Administration
+      summary: Suspend membership
+      responses:
+        '200':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Csrf'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id002
+  /api/v1/admin/memberships/{id}/reinstate:
+    post:
+      tags:
+      - Administration
+      summary: Reinstate membership
+      responses:
+        '200':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Csrf'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id002
+  /api/v1/admin/memberships/{id}/revoke:
+    post:
+      tags:
+      - Administration
+      summary: Revoke membership and its role bindings
+      responses:
+        '200':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Csrf'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id002
+  /api/v1/admin/memberships/{id}/roles:
+    put:
+      tags:
+      - Administration
+      summary: Grant workspace role (201 granted / 202 pending approval)
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GrantResult'
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Csrf'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id003
+  /api/v1/admin/role-bindings/{id}:
+    delete:
+      tags:
+      - Administration
+      summary: Revoke a role binding
+      responses:
+        '204':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Csrf'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id002
+  /api/v1/admin/grant-requests:
+    get:
+      tags:
+      - Administration
+      summary: Sensitive grant requests
+      responses:
+        '200':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+      parameters:
+      - name: state
+        in: query
+        schema:
+          enum:
+          - pending
+          - approved
+          - rejected
+  /api/v1/admin/grant-requests/{id}/approve:
+    post:
+      tags:
+      - Administration
+      summary: Independent approval (approver ≠ requester ≠ target)
+      responses:
+        '200':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Csrf'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id002
+  /api/v1/admin/grant-requests/{id}/reject:
+    post:
+      tags:
+      - Administration
+      summary: Reject request
+      responses:
+        '200':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Csrf'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id002
+  /api/v1/admin/roles:
+    get:
+      tags:
+      - Administration
+      summary: Role catalogue with permissions
+      responses:
+        '200':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+  /api/v1/admin/permissions:
+    get:
+      tags:
+      - Administration
+      summary: Permission catalogue
+      responses:
+        '200':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+  /api/v1/admin/workspaces/{id}/overrides:
+    get:
+      tags:
+      - Administration
+      summary: Entitlement overrides
+      responses:
+        '200':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      tags:
+      - Administration
+      summary: Create override (deny any; allow only non-sensitive)
+      responses:
+        '201':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Csrf'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - user_id
+              - permission_key
+              - effect
+              - reason
+              properties:
+                user_id:
+                  type: string
+                permission_key:
+                  type: string
+                effect:
+                  enum:
+                  - allow
+                  - deny
+                reason:
+                  type: string
+                expires_at:
+                  type:
+                  - string
+                  - 'null'
+                  format: date-time
+  /api/v1/admin/overrides/{id}:
+    delete:
+      tags:
+      - Administration
+      summary: Revoke override
+      responses:
+        '204':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Csrf'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id002
+  /api/v1/admin/access-preview:
+    post:
+      tags:
+      - Administration
+      summary: Explain app:open for a user (decision with trace)
+      responses:
+        '200':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - $ref: '#/components/parameters/Csrf'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - user_id
+              - workspace_id
+              - app_key
+              properties:
+                user_id:
+                  type: string
+                workspace_id:
+                  type: string
+                app_key:
+                  type: string
+  /api/v1/admin/apps:
+    get:
+      tags:
+      - Administration
+      summary: Registry apps with immutable versions
+      responses:
+        '200':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+    post:
+      tags:
+      - Administration
+      summary: Register app with first draft version
+      responses:
+        '201':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - $ref: '#/components/parameters/Csrf'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: &id004
+              type: object
+              additionalProperties: false
+              required:
+              - manifest
+              - reason
+              properties:
+                manifest:
+                  $ref: ../contracts/mini_app_manifest.schema.json
+                reason:
+                  type: string
+  /api/v1/admin/apps/{key}:
+    get:
+      tags:
+      - Administration
+      summary: Registry app
+      responses:
+        '200':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+      parameters:
+      - name: key
+        in: path
+        required: true
+        schema:
+          type: string
+  /api/v1/admin/apps/{key}/versions:
+    post:
+      tags:
+      - Administration
+      summary: Add immutable draft version
+      responses:
+        '201':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - name: key
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Csrf'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id004
+  /api/v1/admin/apps/{key}/publish:
+    post:
+      tags:
+      - Administration
+      summary: Publish a draft version
+      responses:
+        '200':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '412': *id001
+        '428': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - name: key
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Csrf'
+      - $ref: '#/components/parameters/IfMatch'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - version
+              - reason
+              properties:
+                version:
+                  type: string
+                reason:
+                  type: string
+  /api/v1/admin/apps/{key}/disable:
+    post:
+      tags:
+      - Administration
+      summary: Disable app (effective next request)
+      responses:
+        '200':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '412': *id001
+        '428': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - name: key
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Csrf'
+      - $ref: '#/components/parameters/IfMatch'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id002
+  /api/v1/admin/apps/{key}/enable:
+    post:
+      tags:
+      - Administration
+      summary: Re-enable published version
+      responses:
+        '200':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+        '412': *id001
+        '428': *id001
+        '400': *id001
+        '422': *id001
+      parameters:
+      - name: key
+        in: path
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Csrf'
+      - $ref: '#/components/parameters/IfMatch'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: *id002
+  /api/v1/admin/audit:
+    get:
+      tags:
+      - Administration
+      summary: Redacted audit events, newest first, cursor pagination
+      responses:
+        '200':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+      parameters:
+      - name: cursor
+        in: query
+        schema:
+          type: string
+      - name: limit
+        in: query
+        schema:
+          type: string
+      - name: action
+        in: query
+        schema:
+          type: string
+      - name: actor_user_id
+        in: query
+        schema:
+          type: string
+      - name: workspace_id
+        in: query
+        schema:
+          type: string
+  /api/v1/admin/integrations:
+    get:
+      tags:
+      - Administration
+      summary: IdP, session, token and adapter metadata (no secrets)
+      responses:
+        '200':
+          description: OK
+        '401': *id001
+        '403': *id001
+        '429': *id001
+  /api/v1/token-exchange:
+    post:
+      tags:
+      - Platform
+      summary: Delegated token exchange for experience-app BFFs (server-to-server, ADR-004)
+      description: 'Not cookie-authenticated (no CSRF/Origin). Client auth is HTTP Basic with a client from TOKEN_EXCHANGE_CLIENTS.
+        The subject token must be a CP token minted for the client (aud = client_id) with a live session; the user must be able
+        to open both the client app and the target app in the active workspace. Issues a <= 5 min token for the target audience
+        with the same subject/session/workspace and act.sub = app:<client_id>. Every attempt is audited (token.exchanged /
+        token.exchange_denied).'
+      security:
+      - exchangeClient: []
+      parameters:
+      - name: X-Request-ID
+        in: header
+        required: false
+        schema:
+          type: string
+        description: correlation id copied into the issued token and the audit event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenExchangeRequest'
+      responses:
+        '200':
+          description: issued
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                const: no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenExchangeResponse'
+        '400':
+          description: INVALID_REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '401':
+          description: INVALID_CLIENT, INVALID_SUBJECT_TOKEN, SUBJECT_TOKEN_AUDIENCE_MISMATCH, SUBJECT_TOKEN_DELEGATED, SUBJECT_NOT_HUMAN,
+            SESSION_INACTIVE, SESSION_WORKSPACE_CHANGED, SUBJECT_INACTIVE
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '403':
+          description: AUDIENCE_NOT_ALLOWED, AUDIENCE_NOT_CONFIGURED, CLIENT_APP_DENIED, TARGET_APP_DENIED (message carries the policy
+            reason code)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '429':
+          $ref: '#/components/responses/Error'
+  /apps/{app_key}/{path}:
+    get:
+      tags:
+      - Applications
+      summary: Authorised same-origin mini-app route (302 login / 403 / 503 pending / proxied)
+      parameters:
+      - name: app_key
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: path
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: proxied
+        '302':
+          description: login
+        '403':
+          description: denied
+        '503':
+          description: integration pending
+components:
+  securitySchemes:
+    session:
+      type: apiKey
+      in: cookie
+      name: __Host-cp_session
+    exchangeClient:
+      type: http
+      scheme: basic
+      description: token-exchange client id and secret from deployment config (TOKEN_EXCHANGE_CLIENTS stores sha256 of the secret)
+  parameters:
+    Csrf:
+      name: X-CSRF-Token
+      in: header
+      required: true
+      schema:
+        type: string
+    IfMatch:
+      name: If-Match
+      in: header
+      required: true
+      schema:
+        type: string
+      description: '"<revision>"'
+  responses:
+    Error:
+      description: Structured error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+  schemas:
+    ApiError:
+      type: object
+      required:
+      - code
+      - message
+      - trace_id
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        trace_id:
+          type: string
+        issues:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              code:
+                type: string
+              message:
+                type: string
+    TokenExchangeRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - subject_token
+      - audience
+      properties:
+        subject_token:
+          type: string
+          description: CP-issued JWT the client received through /apps/<client_id>/ (aud = client_id)
+        audience:
+          type: string
+          description: target app key from the client's allowlist, e.g. flowcase
+        grant_type:
+          type: string
+          const: urn:ietf:params:oauth:grant-type:token-exchange
+        subject_token_type:
+          type: string
+          enum:
+          - urn:ietf:params:oauth:token-type:jwt
+          - urn:ietf:params:oauth:token-type:access_token
+        requested_token_type:
+          type: string
+          const: urn:ietf:params:oauth:token-type:jwt
+    TokenExchangeResponse:
+      type: object
+      required:
+      - access_token
+      - token_type
+      - expires_in
+      - issued_token_type
+      properties:
+        access_token:
+          type: string
+          description: ES256 JWT, aud = target audience, act = {sub = app:<client_id>}
+        token_type:
+          type: string
+          const: Bearer
+        expires_in:
+          type: integer
+          maximum: 300
+        issued_token_type:
+          type: string
+          const: urn:ietf:params:oauth:token-type:jwt
+    Workspace:
+      type: object
+      required:
+      - id
+      - key
+      - name
+      - status
+      properties:
+        id:
+          type: string
+        key:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+        member_count:
+          type: integer
+    AppSummary:
+      type: object
+      required:
+      - app_key
+      - display_name
+      - route_base
+      - version
+      - integration
+      properties:
+        app_key:
+          type: string
+        display_name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        icon:
+          type: string
+        owner_team:
+          type: string
+        route_base:
+          type: string
+        version:
+          type: string
+        status:
+          type: string
+        integration:
+          enum:
+          - proxy
+          - pending
+        health:
+          type: object
+    Me:
+      type: object
+      required:
+      - user
+      - tenant
+      - workspaces
+      - apps
+      - csrf_token
+      - capabilities
+      properties:
+        user:
+          type: object
+        tenant:
+          type: object
+        workspace:
+          oneOf:
+          - $ref: '#/components/schemas/Workspace'
+          - type: 'null'
+        workspaces:
+          type: array
+          items:
+            $ref: '#/components/schemas/Workspace'
+        apps:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppSummary'
+        permissions:
+          type: array
+          items:
+            type: string
+        capabilities:
+          type: object
+        csrf_token:
+          type: string
+        session:
+          type: object
+        environment:
+          enum:
+          - development
+          - production
+        policy_version:
+          type: string
+    DirectoryUser:
+      type: object
+      properties:
+        id:
+          type: string
+        display_name:
+          type: string
+        email:
+          type:
+          - string
+          - 'null'
+        idp_issuer:
+          type: string
+        idp_subject:
+          type: string
+        status:
+          type: string
+        tenant_roles:
+          type: array
+        memberships:
+          type: array
+    GrantResult:
+      type: object
+      required:
+      - outcome
+      properties:
+        outcome:
+          enum:
+          - granted
+          - pending_approval
+        binding:
+          type: object
+        request:
+          type: object

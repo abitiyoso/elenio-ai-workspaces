@@ -1,0 +1,23 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://schemas.example.invalid/ai-workspace/verified-auth-context-v1",
+  "title":"Server-side verified identity context (internal only)",
+  "description":"This object must be created by trusted Go middleware after verified OIDC session/service token, never accepted as a caller-provided JSON body or untrusted browser header.",
+  "type":"object","additionalProperties":false,
+  "required":["context_version","principal_type","issuer","subject","tenant_id","workspace_id","audience","expires_at","correlation_id"],
+  "properties":{
+    "context_version":{"const":"workspace.authctx.v1"},
+    "principal_type":{"enum":["human","service"]},
+    "issuer":{"type":"string","format":"uri"},
+    "subject":{"type":"string","minLength":1},
+    "tenant_id":{"type":"string","minLength":1},
+    "workspace_id":{"type":"string","minLength":1},
+    "audience":{"type":"string","minLength":1},
+    "scopes":{"type":"array","items":{"type":"string"},"uniqueItems":true},
+    "auth_time":{"type":"string","format":"date-time"},
+    "expires_at":{"type":"string","format":"date-time"},
+    "correlation_id":{"type":"string","minLength":1},
+    "delegated_subject":{"type":["string","null"]},
+    "policy_version":{"type":"string"}
+  }
+}

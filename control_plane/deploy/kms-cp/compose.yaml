@@ -1,0 +1,93 @@
+# KMS instance wired to the Control Plane (AUTH_MODE=control_plane_jwt), UI built for /apps/kms/, loopback only.
+# Separate from the `kms-phase1` project (its own data, index and buckets). Docling is the shared VM service,
+# reached over its existing `docling_default` network.
+name: kms-cp
+
+x-env: &env
+  APP_ENV: development            # http JWKS URL on the tailnet; identity is the verified Control Plane token
+  LOG_LEVEL: info
+  DATABASE_URL: postgres://kms:${POSTGRES_PASSWORD:?set in .env}@postgres:5432/kms?sslmode=disable
+  ELASTICSEARCH_URL: http://elasticsearch:9200
+  ELASTICSEARCH_INDEX: kms_cp_chunks_v1
+  OBJECT_STORAGE_ENDPOINT: http://seaweedfs:8333
+  OBJECT_STORAGE_ACCESS_KEY: kmscp
+  OBJECT_STORAGE_SECRET_KEY: ${S3_SECRET_KEY:?set in .env}
+  OBJECT_STORAGE_BUCKET: kms-cp-documents
+  DOCLING_BASE_URL: http://docling:5001
+  DOCLING_API_KEY: ${DOCLING_API_KEY:-}
+  MIGRATIONS_DIR: /migrations
+  AUTH_MODE: control_plane_jwt
+  AUTH_ISSUER: ${CP_PUBLIC_URL:?set in .env}
+  AUTH_AUDIENCE: kms
+  AUTH_JWKS_URL: ${CP_PUBLIC_URL}/.well-known/jwks.json
+  AUTH_TENANT_MAP: acme-demo=${KMS_TENANT_ID:?set in .env}
+  # Development-only: these Control Plane user ids may approve their own submissions (walkthrough account `demo`).
+  SELF_APPROVAL_EXEMPT_SUBJECTS: ${SELF_APPROVAL_EXEMPT_SUBJECTS:-}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment: { POSTGRES_DB: kms, POSTGRES_USER: kms, POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}" }
+    volumes: [postgres_data:/var/lib/postgresql/data]
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U kms -d kms"], interval: 3s, timeout: 3s, retries: 30 }
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.3
+    restart: unless-stopped
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: -Xms384m -Xmx384m
+    volumes: [elasticsearch_data:/usr/share/elasticsearch/data]
+    healthcheck: { test: ["CMD-SHELL", "curl -fsS http://localhost:9200 >/dev/null"], interval: 10s, timeout: 5s, retries: 24 }
+
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.46
+    restart: unless-stopped
+    command: ["mini", "-dir=/data"]
+    environment:
+      AWS_ACCESS_KEY_ID: kmscp
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY}
+      S3_BUCKET: kms-cp-documents
+    volumes: [object_storage_data:/data]
+
+  api:
+    build: { context: ./kms-src/backend }
+    image: kms-cp-api:${KMS_RELEASE:-latest}
+    restart: unless-stopped
+    environment: *env
+    ports: ["127.0.0.1:${KMS_API_PORT:-8380}:8080"]
+    networks: [default, docling]
+    depends_on:
+      postgres: { condition: service_healthy }
+      elasticsearch: { condition: service_healthy }
+      seaweedfs: { condition: service_started }
+
+  worker:
+    build: { context: ./kms-src/backend, dockerfile: Dockerfile.worker }
+    image: kms-cp-worker:${KMS_RELEASE:-latest}
+    restart: unless-stopped
+    environment: *env
+    networks: [default, docling]
+    depends_on:
+      postgres: { condition: service_healthy }
+      elasticsearch: { condition: service_healthy }
+      seaweedfs: { condition: service_started }
+
+  web:
+    build: { context: ./kms-src/frontend, dockerfile: Dockerfile.cp }
+    image: kms-cp-web:${KMS_RELEASE:-latest}
+    restart: unless-stopped
+    ports: ["127.0.0.1:${KMS_WEB_PORT:-5380}:8080"]
+    depends_on: [api]
+
+networks:
+  docling:
+    name: docling_default
+    external: true
+
+volumes:
+  postgres_data:
+  elasticsearch_data:
+  object_storage_data:

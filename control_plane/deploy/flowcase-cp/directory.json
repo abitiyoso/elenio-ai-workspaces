@@ -1,0 +1,44 @@
+{
+  "disclaimer": "Flowcase-side role assignments for Control Plane subjects (fictional demo users). These are Flowcase's own grants; Control Plane roles are never copied. Nadia (platform admin) and Sari are intentionally absent: Flowcase denies them even though the Control Plane may let them open the route. Demo All Access holds every Flowcase role for walkthroughs; Flowcase still refuses self-approval.",
+  "tenant_key": "acme-demo",
+  "users": [
+    {
+      "subject": "7f3c1a52-0d1e-4c71-9a0b-5b1e2f3a4c01",
+      "roles": [
+        "workspace_member",
+        "workflow_designer",
+        "workflow_publisher",
+        "tenant_admin"
+      ]
+    },
+    {
+      "subject": "7f3c1a52-0d1e-4c71-9a0b-5b1e2f3a4c03",
+      "roles": [
+        "workspace_member",
+        "case_owner"
+      ],
+      "copy_domain_roles_from": "00000000-0000-4000-8000-000000000101"
+    },
+    {
+      "subject": "7f3c1a52-0d1e-4c71-9a0b-5b1e2f3a4c04",
+      "roles": [
+        "workspace_member",
+        "domain_approver"
+      ],
+      "copy_delegations_from": "00000000-0000-4000-8000-000000000102"
+    },
+    {
+      "subject": "7f3c1a52-0d1e-4c71-9a0b-5b1e2f3a4c06",
+      "roles": [
+        "workspace_member",
+        "workflow_designer",
+        "workflow_publisher",
+        "tenant_admin",
+        "case_owner",
+        "domain_approver"
+      ],
+      "copy_domain_roles_from": "00000000-0000-4000-8000-000000000101",
+      "copy_delegations_from": "00000000-0000-4000-8000-000000000102"
+    }
+  ]
+}
