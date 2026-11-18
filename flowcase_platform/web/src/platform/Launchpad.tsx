@@ -230,7 +230,7 @@ export function Launchpad({
           <Workflow size={22} />
           <span>
             <strong>Build manually</strong>
-            <small>Edit the current workflow draft</small>
+            <small>Start with a blank workflow</small>
           </span>
           <ArrowRight size={16} />
         </button>
@@ -242,17 +242,14 @@ export function Launchpad({
           </span>
           <ArrowRight size={16} />
         </button>
-        <button
-          disabled
-          title="Agent authoring requires the Phase 2 Agent Studio integration"
-        >
+        <Link to="/connected/catalog">
           <Boxes size={22} />
           <span>
             <strong>Create an agent</strong>
-            <small>Agent Studio connection · Phase 2</small>
+            <small>Open the governed capability workspace</small>
           </span>
           <ArrowRight size={16} />
-        </button>
+        </Link>
       </section>
       <div className="section-title">
         <div>
@@ -319,9 +316,23 @@ export function Launchpad({
             <>
               <Notice>
                 {modal === "manual"
-                  ? "You can edit the current draft or import a native Flowcase definition. Creating independent projects is not connected yet."
-                  : "Vendor Payment is available as an editable design example. Recruitment and SIM Tender remain proposed/source-backed packs, not executable deployments."}
+                  ? "Create a blank server draft with a verified workspace session, or continue exploring the local example offline."
+                  : "Browse templates returned by the authorized Flowcase registry. Template dependencies are validated by the server; local examples remain available offline."}
               </Notice>
+              <Link
+                className="e-button primary"
+                to={
+                  modal === "manual"
+                    ? "/connected?create=blank"
+                    : "/connected?create=template"
+                }
+              >
+                {" "}
+                {modal === "manual"
+                  ? "Create a blank server draft"
+                  : "Browse server templates"}
+                <ArrowRight size={15} />
+              </Link>
               <div className="template-preview">
                 <GitBranch size={24} />
                 <div>

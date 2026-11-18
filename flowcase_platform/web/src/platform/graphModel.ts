@@ -103,6 +103,7 @@ export function patchNode(
 }
 export function inspectGraph(
   def: WorkflowDefinition,
+  supportedTypes?: string[],
 ): { node: string; message: string }[] {
   const issues: { node: string; message: string }[] = [],
     ids = new Set(def.nodes.map((n) => n.id));
@@ -116,7 +117,7 @@ export function inspectGraph(
     for (const next of n.next)
       if (!ids.has(next))
         issues.push({ node: n.id, message: `Missing target: ${next}.` });
-    if (n.type === "subworkflow")
+    if (n.type === "subworkflow" && !supportedTypes?.includes(n.type))
       issues.push({
         node: n.id,
         message: "Subworkflow is not supported by runtime 1.0.",

@@ -285,7 +285,7 @@
   gap: 13px;
   margin-top: 20px;
 }
-.creation-paths > button {
+.creation-paths > :is(button, a) {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -296,15 +296,15 @@
   text-align: left;
   color: var(--e-ink);
 }
-.creation-paths > button:hover {
+.creation-paths > :is(button, a):hover {
   border-color: #a7bfe4;
   background: #fbfdff;
 }
-.creation-paths > button > svg:first-child {
+.creation-paths > :is(button, a) > svg:first-child {
   color: #4d76b3;
   flex-shrink: 0;
 }
-.creation-paths > button > svg:last-child {
+.creation-paths > :is(button, a) > svg:last-child {
   margin-left: auto;
   flex-shrink: 0;
 }
@@ -500,14 +500,14 @@
   .capability-orbit strong {
     font-size: 11px;
   }
-  .creation-paths > button {
+  .creation-paths > :is(button, a) {
     padding: 16px 13px;
     gap: 10px;
   }
   .creation-paths small {
     font-size: 12px;
   }
-  .creation-paths > button > svg:last-child {
+  .creation-paths > :is(button, a) > svg:last-child {
     display: none;
   }
 }
@@ -538,7 +538,7 @@
   .creation-paths {
     grid-template-columns: 1fr;
   }
-  .creation-paths > button > svg:last-child {
+  .creation-paths > :is(button, a) > svg:last-child {
     display: block;
   }
   .architect-columns {
@@ -603,7 +603,7 @@
   .capability-map > footer {
     padding: 15px 8px 0;
   }
-  .creation-paths > button {
+  .creation-paths > :is(button, a) {
     padding: 18px;
   }
   .architect-requirement,

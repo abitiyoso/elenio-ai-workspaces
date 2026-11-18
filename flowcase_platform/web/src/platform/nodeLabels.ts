@@ -10,5 +10,5 @@ export const labels: Record<NodeType, string> = {
   parallel_split: "Parallel split",
   parallel_join: "Join · all",
   timer: "Timer",
-  subworkflow: "Unavailable",
+  subworkflow: "Subworkflow",
 };
