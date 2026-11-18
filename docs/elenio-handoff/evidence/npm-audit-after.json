@@ -1,0 +1,373 @@
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "@typescript-eslint/eslint-plugin": {
+      "name": "@typescript-eslint/eslint-plugin",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "@typescript-eslint/parser",
+        "@typescript-eslint/type-utils",
+        "@typescript-eslint/utils"
+      ],
+      "effects": [
+        "typescript-eslint"
+      ],
+      "range": ">=8.47.1-alpha.0",
+      "nodes": [
+        "node_modules/@typescript-eslint/eslint-plugin"
+      ],
+      "fixAvailable": true
+    },
+    "@typescript-eslint/parser": {
+      "name": "@typescript-eslint/parser",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "@typescript-eslint/typescript-estree"
+      ],
+      "effects": [
+        "@typescript-eslint/eslint-plugin",
+        "typescript-eslint"
+      ],
+      "range": ">=8.47.1-alpha.0",
+      "nodes": [
+        "node_modules/@typescript-eslint/parser"
+      ],
+      "fixAvailable": true
+    },
+    "@typescript-eslint/type-utils": {
+      "name": "@typescript-eslint/type-utils",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "@typescript-eslint/typescript-estree",
+        "@typescript-eslint/utils"
+      ],
+      "effects": [
+        "@typescript-eslint/eslint-plugin"
+      ],
+      "range": ">=8.47.1-alpha.0",
+      "nodes": [
+        "node_modules/@typescript-eslint/type-utils"
+      ],
+      "fixAvailable": true
+    },
+    "@typescript-eslint/typescript-estree": {
+      "name": "@typescript-eslint/typescript-estree",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "tinyglobby"
+      ],
+      "effects": [
+        "@typescript-eslint/parser",
+        "@typescript-eslint/type-utils",
+        "@typescript-eslint/utils",
+        "typescript-eslint"
+      ],
+      "range": ">=8.47.1-alpha.0",
+      "nodes": [
+        "node_modules/@typescript-eslint/typescript-estree"
+      ],
+      "fixAvailable": true
+    },
+    "@typescript-eslint/utils": {
+      "name": "@typescript-eslint/utils",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "@typescript-eslint/typescript-estree"
+      ],
+      "effects": [
+        "@typescript-eslint/eslint-plugin",
+        "@typescript-eslint/type-utils",
+        "typescript-eslint"
+      ],
+      "range": ">=8.47.1-alpha.0",
+      "nodes": [
+        "node_modules/@typescript-eslint/utils"
+      ],
+      "fixAvailable": true
+    },
+    "@vitest/mocker": {
+      "name": "@vitest/mocker",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1193684,
+          "name": "@vitest/mocker",
+          "dependency": "@vitest/mocker",
+          "title": "Vitest: Path Traversal / Arbitrary File Read via @vitest/mocker Redirect Mock",
+          "url": "https://github.com/advisories/GHSA-82fw-gwwq-j7x9",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-22"
+          ],
+          "cvss": {
+            "score": 5.9,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N"
+          },
+          "range": ">=2.1.0 <4.1.11"
+        },
+        {
+          "source": 1242767,
+          "name": "@vitest/mocker",
+          "dependency": "@vitest/mocker",
+          "title": "Vitest: Code injection via unauthenticated manual mock registration",
+          "url": "https://github.com/advisories/GHSA-qxg6-89mg-rqv8",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-94",
+            "CWE-116",
+            "CWE-306"
+          ],
+          "cvss": {
+            "score": 4.7,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:C/C:L/I:L/A:N"
+          },
+          "range": ">=2.1.0-beta.7 <4.1.12"
+        }
+      ],
+      "effects": [
+        "vitest"
+      ],
+      "range": "<=4.1.11",
+      "nodes": [
+        "node_modules/@vitest/mocker"
+      ],
+      "fixAvailable": {
+        "name": "vitest",
+        "version": "5.1.1",
+        "isSemVerMajor": true
+      }
+    },
+    "fdir": {
+      "name": "fdir",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "picomatch"
+      ],
+      "effects": [
+        "tinyglobby",
+        "vite"
+      ],
+      "range": ">=5.2.1",
+      "nodes": [
+        "node_modules/fdir"
+      ],
+      "fixAvailable": {
+        "name": "vitest",
+        "version": "5.1.1",
+        "isSemVerMajor": true
+      }
+    },
+    "picomatch": {
+      "name": "picomatch",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1247710,
+          "name": "picomatch",
+          "dependency": "picomatch",
+          "title": "picomatch vulnerable to ReDoS through single-branch repeated extglobs",
+          "url": "https://github.com/advisories/GHSA-fc5q-39xc-vjpf",
+          "severity": "high",
+          "cwe": [
+            "CWE-1333"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<=4.0.7"
+        }
+      ],
+      "effects": [
+        "fdir",
+        "tinyglobby",
+        "vite",
+        "vitest"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/picomatch"
+      ],
+      "fixAvailable": {
+        "name": "vitest",
+        "version": "5.1.1",
+        "isSemVerMajor": true
+      }
+    },
+    "tinyglobby": {
+      "name": "tinyglobby",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "fdir",
+        "picomatch"
+      ],
+      "effects": [
+        "@typescript-eslint/typescript-estree",
+        "vite",
+        "vitest"
+      ],
+      "range": "*",
+      "nodes": [
+        "node_modules/tinyglobby"
+      ],
+      "fixAvailable": {
+        "name": "vitest",
+        "version": "5.1.1",
+        "isSemVerMajor": true
+      }
+    },
+    "tinypool": {
+      "name": "tinypool",
+      "severity": "critical",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1241260,
+          "name": "tinypool",
+          "dependency": "tinypool",
+          "title": "Tinypool: Prototype Pollution gadget in worker options leads to Remote Code Execution",
+          "url": "https://github.com/advisories/GHSA-5gmw-xhrv-c9v3",
+          "severity": "critical",
+          "cwe": [
+            "CWE-1321"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<=2.1.0"
+        },
+        {
+          "source": 1241261,
+          "name": "tinypool",
+          "dependency": "tinypool",
+          "title": "Tinypool: Prototype Pollution Gadget to RCE in run() options",
+          "url": "https://github.com/advisories/GHSA-85c8-ppgw-ccpr",
+          "severity": "critical",
+          "cwe": [
+            "CWE-94",
+            "CWE-1321"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<2.1.2"
+        }
+      ],
+      "effects": [
+        "vitest"
+      ],
+      "range": "<=2.1.1",
+      "nodes": [
+        "node_modules/tinypool"
+      ],
+      "fixAvailable": {
+        "name": "vitest",
+        "version": "5.1.1",
+        "isSemVerMajor": true
+      }
+    },
+    "typescript-eslint": {
+      "name": "typescript-eslint",
+      "severity": "high",
+      "isDirect": true,
+      "via": [
+        "@typescript-eslint/eslint-plugin",
+        "@typescript-eslint/parser",
+        "@typescript-eslint/typescript-estree",
+        "@typescript-eslint/utils"
+      ],
+      "effects": [],
+      "range": ">=8.47.1-alpha.0",
+      "nodes": [
+        "node_modules/typescript-eslint"
+      ],
+      "fixAvailable": true
+    },
+    "vite": {
+      "name": "vite",
+      "severity": "high",
+      "isDirect": true,
+      "via": [
+        "fdir",
+        "picomatch",
+        "tinyglobby"
+      ],
+      "effects": [],
+      "range": ">=6.3.0-beta.0",
+      "nodes": [
+        "node_modules/vite"
+      ],
+      "fixAvailable": {
+        "name": "vite",
+        "version": "6.2.7",
+        "isSemVerMajor": true
+      }
+    },
+    "vitest": {
+      "name": "vitest",
+      "severity": "critical",
+      "isDirect": true,
+      "via": [
+        "@vitest/mocker",
+        {
+          "source": 1193683,
+          "name": "vitest",
+          "dependency": "vitest",
+          "title": "Vitest: Path Traversal / Arbitrary File Read via @vitest/mocker Redirect Mock",
+          "url": "https://github.com/advisories/GHSA-82fw-gwwq-j7x9",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-22"
+          ],
+          "cvss": {
+            "score": 5.9,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N"
+          },
+          "range": ">=2.1.0 <4.1.11"
+        },
+        "picomatch",
+        "tinyglobby",
+        "tinypool"
+      ],
+      "effects": [],
+      "range": ">=0.0.95",
+      "nodes": [
+        "node_modules/vitest"
+      ],
+      "fixAvailable": {
+        "name": "vitest",
+        "version": "5.1.1",
+        "isSemVerMajor": true
+      }
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 1,
+      "high": 10,
+      "critical": 2,
+      "total": 13
+    },
+    "dependencies": {
+      "prod": 61,
+      "dev": 306,
+      "optional": 53,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 366
+    }
+  }
+}

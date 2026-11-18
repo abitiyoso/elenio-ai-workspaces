@@ -1,0 +1,163 @@
+[
+  {
+    "module": "control_plane",
+    "command": "go test -json ./...",
+    "exitCode": 0,
+    "passedTopLevel": 17,
+    "failedTopLevel": [],
+    "skippedTopLevel": [
+      "TestLoginHappyPathMeHasNoTokens",
+      "TestStateReplayAndLoginCSRF",
+      "TestCallbackRejectsMixUpTamperedTokensAndCodeReplay",
+      "TestOpenRedirectRejected",
+      "TestSessionRotationLogoutAndExpiry",
+      "TestForgedHeadersAndCorruptCookiesNeverAuthenticate",
+      "TestCSRFAndOriginOnMutations",
+      "TestIdPUnavailableFailsClosedForNewLogins",
+      "TestTokenExchangeIssuesDelegatedTokenWithinUserAccess",
+      "TestTokenExchangeRejectsBadClientsTokensAndPolicy",
+      "TestTokenExchangeDisabledWithoutClients",
+      "TestCatalogLeastPrivilegeAndDirectRouteDenied",
+      "TestWorkspaceSwitchRequiresMembership",
+      "TestCaseWorkerCannotAdminister",
+      "TestSelfGrantForbiddenAndDualControl",
+      "TestRevocationSuspensionAndOverridesApplyImmediately",
+      "TestAuthzCheckIsCallerScopedAndAuditIsAppendOnly",
+      "TestRegistryValidationLifecycleAndImmutability",
+      "TestProxyForwardsAudienceBoundTokenAndStripsForgedIdentity",
+      "TestDevSeedUpgradesExistingDraftAppIdempotently"
+    ],
+    "failures": []
+  },
+  {
+    "module": "flowcase_platform",
+    "command": "go test -json ./...",
+    "exitCode": 0,
+    "passedTopLevel": 59,
+    "failedTopLevel": [],
+    "skippedTopLevel": [
+      "TestPermissionMatrix",
+      "TestCaseRuntimeOverHTTP",
+      "TestAgentCallbackEndpoint",
+      "TestDraftReviewOverHTTP",
+      "TestWorkflowLifecycleOverHTTP",
+      "TestTrustedHostTokenEndToEnd",
+      "TestSIMCaseRunsThroughAgentStudioClient",
+      "TestAgentStudioRejectionIsTerminal",
+      "TestPoCRunsWithGatedApprovalAndSoD",
+      "TestDatabaseRefusesServicePrincipalDecisions",
+      "TestConditionFalseSkipsGateAndSubmitterCannotApprove",
+      "TestReturnAndRevisionCreateReworkIterations",
+      "TestRejectionClosesCase",
+      "TestRetriesWithBackoffThenFailsCase",
+      "TestCrashedWorkerLeaseIsReclaimedOnce",
+      "TestConcurrentWorkersProcessEachStepOnce",
+      "TestPauseHoldsCaseAndResumeContinues",
+      "TestRunningCaseStaysOnPinnedVersion",
+      "TestCaseCreationGuards",
+      "TestOutboxRetriesAndDeadLetters",
+      "TestSIMv4AcceptsCaseWithoutCRMIDs",
+      "TestAuthorReviewHoldsAgentDraftForCaseOwner",
+      "TestDraftRevisionLimit",
+      "TestAuthorReviewViaCallbackAndCancelledOnClose",
+      "TestAgentStepWithoutAuthorReviewSchedulesNextStep",
+      "TestSIMRunsEndToEndWithPermissionScopedEvidence",
+      "TestAgentOutputCannotApproveOrChangeCaseData",
+      "TestJoinFiresOnceWithDuplicateAndOutOfOrderCallbacks",
+      "TestFailedAgentRunRetriesWithFreshRun",
+      "TestChangeInvalidationBlocksG5AndReopensOnlyAffectedReviews",
+      "TestWithdrawnEvidenceIsNeverAcceptedAsProof",
+      "TestServiceSideEffectAppliedOnceAcrossCrash",
+      "TestTimerSurvivesRestartAndFiresOnce",
+      "TestPolicySoDAndAgentMappingComeFromBindings",
+      "TestUAT10SIMGateOrder",
+      "TestMigrationsUpDownAndChecksum",
+      "TestPublishedWorkflowVersionIsImmutable",
+      "TestCasesArePinnedToPublishedVersions",
+      "TestTenantIsolationByCompositeForeignKeys",
+      "TestAuditEventsAreAppendOnly",
+      "TestExecutionAndInboxDedupConstraints",
+      "TestPostgresDirectoryResolvesOnlyActiveMembers",
+      "TestSeedDevelopmentIsIdempotent",
+      "TestSeedImportsBothPacks",
+      "TestUpgradeSeededDatabaseToCaseBriefVersion",
+      "TestCasePinnedToV1AfterV2Publish",
+      "TestPublishedVersionsCannotBeEdited",
+      "TestDraftLifecycleWithConcurrencyAndValidation",
+      "TestAuthorization",
+      "TestIdempotentCreateAndDuplicate",
+      "TestPublishWritesAuditAndOutbox"
+    ],
+    "failures": []
+  },
+  {
+    "module": "ai_agent_studio",
+    "command": "go test -json ./...",
+    "exitCode": 1,
+    "passedTopLevel": 65,
+    "failedTopLevel": [
+      "TestFileVaultEncryptsScopesAndRevokes"
+    ],
+    "skippedTopLevel": [
+      "TestAgentCloneStartsUnconfiguredWithoutBindingsAndPaginationCounts",
+      "TestAcceptanceSIMBootstrapIsIdempotentAndTenantLocal",
+      "TestAcceptanceCrossTenantLeakAttempts",
+      "TestAcceptancePublishedVersionIsImmutable",
+      "TestAcceptanceUnauthorizedEditingIsDenied",
+      "TestAcceptanceConcurrentPublishHasOneWinner",
+      "TestAcceptanceReleaseWorkflowGatesAndPinning",
+      "TestAcceptanceProductionRunIdempotencyOutboxAndLeases",
+      "TestAcceptanceRunsAndTraceAreTenantIsolatedAndAppendOnly",
+      "TestAcceptanceSIMPackConfiguresDraftsOnly",
+      "TestAcceptanceWorkerExecutesSandboxRunWithEino",
+      "TestAcceptanceConcurrentInvocationAndReleaseDecision",
+      "TestAcceptanceWorkerPoolLoad",
+      "TestAcceptanceDelegatedUserIsPersistedAndFingerprinted",
+      "TestAcceptanceSelfApprovalExemptionIsExplicitAndAudited",
+      "TestAcceptanceTenantToolDraftsStayIsolatedAndUnpublished"
+    ],
+    "failures": [
+      "    file_test.go:19: vault directory must be a non-symlink private directory with mode 0700\n"
+    ]
+  },
+  {
+    "module": "kms_go_package/backend",
+    "command": "go test -json ./...",
+    "exitCode": 0,
+    "passedTopLevel": 103,
+    "failedTopLevel": [],
+    "skippedTopLevel": [
+      "TestSQLPrincipalDirectoryAgainstPostgres",
+      "TestSelfApprovalExemptionAgainstPostgres",
+      "TestDelegatedRetrievalAgainstPostgres",
+      "TestEveryStaticStatementPreparesAgainstMigratedSchema"
+    ],
+    "failures": []
+  },
+  {
+    "module": "universal_case_workspace",
+    "command": "go test -json ./...",
+    "exitCode": 1,
+    "passedTopLevel": 24,
+    "failedTopLevel": [
+      "TestSanitizeFilename",
+      "TestSPAServing"
+    ],
+    "skippedTopLevel": [
+      "TestMeContext",
+      "TestCasesComposition",
+      "TestDraftForwarding",
+      "TestPacksLibrary",
+      "TestIntakeFlow",
+      "TestIntakeFailuresAndLimits",
+      "TestPackChecksumDrift",
+      "TestIntakeDocuments"
+    ],
+    "failures": [
+      "=== RUN   TestSanitizeFilename\n",
+      "    documents_test.go:47: SanitizeFilename(\"/\") = \"\\\\\", want \"\"\n",
+      "--- FAIL: TestSanitizeFilename (0.00s)\n",
+      "    testing.go:1619: TempDir RemoveAll cleanup: unlinkat C:\\Users\\metan\\AppData\\Local\\Temp\\TestSPAServing2822177027\\001: The process cannot access the file because it is being used by another process.\n"
+    ]
+  }
+]

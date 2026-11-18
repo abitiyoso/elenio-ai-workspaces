@@ -242,4 +242,3 @@ test("real drag, connector edits, resizable inspector and position undo preserve
   await page.getByRole("button", { name: "Enter focus mode" }).click();
   await expect(page.locator(".platform-sidebar")).toBeHidden();
 });
-

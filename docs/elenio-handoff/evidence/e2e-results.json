@@ -1,0 +1,319 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\metan\\.codex\\.chatgpt-projects\\g-p-6ab646d9842081918f21f99d9ecd1726\\elenio-ai-workspaces\\flowcase_platform\\web\\node_modules\\@playwright\\test\\cli.js",
+      "test"
+    ],
+    "configFile": "C:\\Users\\metan\\.codex\\.chatgpt-projects\\g-p-6ab646d9842081918f21f99d9ecd1726\\elenio-ai-workspaces\\flowcase_platform\\web\\playwright.config.ts",
+    "rootDir": "C:/Users/metan/.codex/.chatgpt-projects/g-p-6ab646d9842081918f21f99d9ecd1726/elenio-ai-workspaces/flowcase_platform/web/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/metan/.codex/.chatgpt-projects/g-p-6ab646d9842081918f21f99d9ecd1726/elenio-ai-workspaces/flowcase_platform/web/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "C:/Users/metan/.codex/.chatgpt-projects/g-p-6ab646d9842081918f21f99d9ecd1726/elenio-ai-workspaces/flowcase_platform/web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "C:\\Users\\metan\\.codex\\.chatgpt-projects\\g-p-6ab646d9842081918f21f99d9ecd1726\\elenio-ai-workspaces\\flowcase_platform\\web\\test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "C:\\Users\\metan\\.codex\\.chatgpt-projects\\g-p-6ab646d9842081918f21f99d9ecd1726\\elenio-ai-workspaces\\flowcase_platform\\web\\e2e",
+        "snapshotDir": "C:\\Users\\metan\\.codex\\.chatgpt-projects\\g-p-6ab646d9842081918f21f99d9ecd1726\\elenio-ai-workspaces\\flowcase_platform\\web\\e2e",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 30000,
+        "use": {
+          "baseURL": "http://127.0.0.1:5173",
+          "headless": true,
+          "trace": "retain-on-failure"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "../../docs/elenio-handoff/evidence/e2e-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.65.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev",
+      "url": "http://127.0.0.1:5173/elenio.html",
+      "reuseExistingServer": true
+    }
+  },
+  "suites": [
+    {
+      "title": "platform.spec.ts",
+      "file": "platform.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "home → project → graph; edit, persist, role boundary and knowledge evidence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1307,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T16:36:39.958Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "310f5d38cd89ad55ea3f-a6071f8d60c8cb59aede",
+          "file": "platform.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "node palette, invalid diagnostic, undo/redo and canonical import preview",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1145,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T16:36:41.441Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "310f5d38cd89ad55ea3f-887aef7651fa403314ce",
+          "file": "platform.spec.ts",
+          "line": 69,
+          "column": 1
+        },
+        {
+          "title": "responsive pages have no horizontal overflow and mobile graph remains readable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 14504,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T16:36:42.596Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "310f5d38cd89ad55ea3f-038113702c6dcfed92f1",
+          "file": "platform.spec.ts",
+          "line": 98,
+          "column": 1
+        },
+        {
+          "title": "keyboard command navigation and accessible dialog focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 467,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T16:36:57.106Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "310f5d38cd89ad55ea3f-c25b7291c0d42d595b59",
+          "file": "platform.spec.ts",
+          "line": 140,
+          "column": 1
+        },
+        {
+          "title": "core pages pass serious/critical accessibility checks",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3837,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T16:36:57.580Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "310f5d38cd89ad55ea3f-246258c3e7d88dd97c81",
+          "file": "platform.spec.ts",
+          "line": 162,
+          "column": 1
+        },
+        {
+          "title": "real drag, connector edits, resizable inspector and position undo preserve semantics",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1877,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T16:37:01.425Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "310f5d38cd89ad55ea3f-6fef22804da5aaf28f9c",
+          "file": "platform.spec.ts",
+          "line": 188,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-18T16:36:38.618Z",
+    "duration": 25103.144,
+    "expected": 6,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
