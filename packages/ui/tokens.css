@@ -1,0 +1,230 @@
+:root {
+  --e-canvas: #f5f7fa;
+  --e-surface: #fff;
+  --e-ink: #112b4d;
+  --e-muted: #58677c;
+  --e-brand: #2864ec;
+  --e-line: #dfe5ee;
+  --e-soft: #edf3ff;
+  --e-violet: #7253bf;
+  --e-teal: #147b83;
+  --e-amber: #865b12;
+  --e-green: #157351;
+  --e-red: #b82e42;
+  --e-radius: 10px;
+  --e-shadow: 0 8px 28px #112b4d0b;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  color: var(--e-ink);
+  background: var(--e-canvas);
+  font-synthesis: none;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+button,
+a {
+  touch-action: manipulation;
+}
+button {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+:focus-visible {
+  outline: 3px solid var(--e-brand);
+  outline-offset: 3px;
+}
+button:focus:not(:focus-visible) {
+  outline: none;
+}
+.e-button {
+  border: 1px solid var(--e-line);
+  background: #fff;
+  color: var(--e-ink);
+  border-radius: 8px;
+  min-height: 38px;
+  padding: 8px 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.e-button:hover:not(:disabled) {
+  background: #f0f4fa;
+}
+.e-button.primary {
+  background: var(--e-brand);
+  color: #fff;
+  border-color: var(--e-brand);
+}
+.e-button.primary:hover:not(:disabled) {
+  background: #1e52c7;
+}
+.e-button.quiet {
+  background: transparent;
+  border-color: transparent;
+}
+.e-button.danger {
+  color: var(--e-red);
+}
+.e-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 5px;
+  padding: 4px 7px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  background: #eef1f5;
+  color: var(--e-muted);
+  white-space: nowrap;
+}
+.e-badge.blue {
+  background: #eaf1ff;
+  color: #2253af;
+}
+.e-badge.green {
+  background: #e8f5ee;
+  color: var(--e-green);
+}
+.e-badge.amber {
+  background: #fff3da;
+  color: var(--e-amber);
+}
+.e-badge.red {
+  background: #fdecef;
+  color: var(--e-red);
+}
+.e-overlay {
+  position: fixed;
+  inset: 0;
+  background: #10223a44;
+  z-index: 100;
+}
+.e-dialog {
+  position: fixed;
+  z-index: 101;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border: 1px solid var(--e-line);
+  border-radius: 14px;
+  padding: 24px;
+  width: min(520px, calc(100vw - 32px));
+  max-height: 85dvh;
+  overflow: auto;
+  box-shadow: 0 24px 90px #112b4d33;
+}
+.e-dialog.wide {
+  width: min(780px, calc(100vw - 32px));
+}
+.e-dialog-head {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+.e-dialog h2 {
+  font-size: 21px;
+  letter-spacing: -0.5px;
+  margin: 0 0 8px;
+}
+.e-dialog p {
+  color: var(--e-muted);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+.e-notice {
+  padding: 12px 15px;
+  background: var(--e-soft);
+  border: 1px solid #cfdef8;
+  border-radius: 8px;
+  color: #294b7a;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.e-notice.error {
+  background: #fff0f2;
+  border-color: #f3bdc7;
+  color: var(--e-red);
+}
+.e-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 16px 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+.e-field input,
+.e-field textarea,
+.e-field select,
+.e-input {
+  border: 1px solid #cbd4e2;
+  border-radius: 7px;
+  padding: 10px 11px;
+  background: #fff;
+  color: var(--e-ink);
+  width: 100%;
+  min-width: 0;
+  font-size: 14px;
+}
+.e-field textarea {
+  resize: vertical;
+  min-height: 100px;
+  font-family: Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.e-field small {
+  color: var(--e-muted);
+  font-weight: 400;
+  line-height: 1.5;
+}
+.e-empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--e-muted);
+}
+.e-empty h3 {
+  color: var(--e-ink);
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
