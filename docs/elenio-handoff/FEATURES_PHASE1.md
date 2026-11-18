@@ -33,3 +33,5 @@ The production build includes two HTML entries; `elenio.html` is explicitly a de
 Home → sample project → Workflow Studio. Pan/zoom or find a node, inspect true/false branches, drag/connect, add/delete steps, undo/redo and inspect diagnostics. Save locally, navigate away and reload. Export/import native JSON. Switch to Reviewer and verify editing is unavailable. Knowledge → search/filter → preview source → Escape; inspect unpublished/revoked status. On mobile review nodes and select an inspector rather than shrinking a whole desktop graph.
 
 No Phase 2 implementation, production branch merge or deployment occurs before owner acceptance. See STATUS for actual results and blockers.
+
+Owner-review correction: `Launchpad.tsx` restores the final V10 Home content; `ProjectSections.tsx` holds contextual project tabs; AI Architect at `#/architect` preserves the current brief across navigation. Inter Variable loads from bundled Fontsource assets. Actual AI generation, independent new-project creation and Agent Studio authoring are not connected; unavailable actions explain these limits. See KIT_ALIGNMENT_PHASE1.md.

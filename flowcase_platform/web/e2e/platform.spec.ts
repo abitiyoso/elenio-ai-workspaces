@@ -9,7 +9,7 @@ test("home → project → graph; edit, persist, role boundary and knowledge evi
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/elenio.html#/");
   await expect(
-    page.getByRole("heading", { name: /Turn business intent/ }),
+    page.getByRole("heading", { name: /Build AI that works/ }),
   ).toBeVisible();
   await page
     .getByRole("button", { name: /Vendor payment assurance Draft/ })
@@ -241,4 +241,45 @@ test("real drag, connector edits, resizable inspector and position undo preserve
   await page.getByRole("button", { name: "Undo", exact: true }).click();
   await page.getByRole("button", { name: "Enter focus mode" }).click();
   await expect(page.locator(".platform-sidebar")).toBeHidden();
+});
+
+test("kit launchpad uses bundled typography, scenario brief and contextual project sections", async ({
+  page,
+}) => {
+  await page.goto("/elenio.html#/");
+  await expect(
+    page.getByRole("heading", { name: "Build AI that works." }),
+  ).toBeVisible();
+  await page.evaluate(() => document.fonts.ready);
+  const typography = await page.evaluate(() => ({
+    family: getComputedStyle(document.body).fontFamily,
+    loaded: [...document.fonts].some(
+      (f) => f.family.includes("Inter Variable") && f.status === "loaded",
+    ),
+  }));
+  expect(typography.family).toContain("Inter Variable");
+  expect(typography.loaded).toBe(true);
+  await page.getByRole("button", { name: "Recruitment", exact: true }).click();
+  await expect(page.getByLabel("Solution brief")).toHaveValue(/HR/);
+  await page
+    .getByRole("button", { name: "Create with AI", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "AI Solution Architect", exact: true }),
+  ).toBeVisible();
+  await expect(page.getByLabel("Business requirement")).toHaveValue(/HR/);
+  await expect(
+    page.getByRole("button", { name: "Generate blueprint" }),
+  ).toBeDisabled();
+  await page.goto("/elenio.html#/projects/vendor-payment");
+  await page.getByRole("button", { name: "Dependencies", exact: true }).click();
+  await expect(page.getByRole("table")).toContainText(
+    "fixture.document-intelligence@1",
+  );
+  await page.getByRole("button", { name: "Versions", exact: true }).click();
+  await expect(page.getByRole("table")).toContainText("Local design preview");
+  await page.getByRole("button", { name: "Economics", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Open cost scenario" }),
+  ).toBeDisabled();
 });

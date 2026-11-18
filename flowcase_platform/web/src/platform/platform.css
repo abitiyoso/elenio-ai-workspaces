@@ -28,7 +28,7 @@
   object-fit: contain;
 }
 .platform-brand > span {
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 2.7px;
   color: #58677c;
   font-weight: 600;
@@ -61,7 +61,7 @@
 }
 .workspace-switch small {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--e-muted);
 }
 .workspace-switch > svg {
@@ -82,7 +82,7 @@
   margin-left: auto;
   border: 1px solid var(--e-line);
   border-radius: 4px;
-  font-size: 10px;
+  font-size: 12px;
   padding: 0 4px;
   background: #fafbfc;
 }
@@ -113,7 +113,7 @@
   margin-left: auto;
 }
 .nav-section {
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 1.3px;
   color: #5f6d82;
   font-weight: 650;
@@ -143,7 +143,7 @@
   color: var(--e-ink);
 }
 .preview-scope p {
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.7;
   margin: 5px 0 0;
 }
@@ -163,7 +163,7 @@
   display: grid;
   place-items: center;
   color: #545b99;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 650;
 }
 .user-block strong {
@@ -172,7 +172,7 @@
 .user-block small {
   display: block;
   color: var(--e-muted);
-  font-size: 11px;
+  font-size: 12px;
 }
 .platform-body {
   margin-left: 228px;
@@ -215,7 +215,7 @@
   justify-content: space-between;
   padding: 0 32px;
   border-bottom: 1px solid var(--e-line);
-  font-size: 11px;
+  font-size: 12px;
   color: #58677c;
 }
 .fixture-bar > span {
@@ -230,7 +230,7 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 11px;
+  font-size: 12px;
 }
 .canvas-dot {
   display: inline-block;
@@ -261,7 +261,7 @@
   margin: auto;
 }
 .eyebrow {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 650;
   letter-spacing: 1.7px;
   color: #5f6d82;
@@ -316,7 +316,7 @@
   align-items: center;
 }
 .section-title > span:not(.e-badge) {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--e-muted);
 }
 .home-intro {
@@ -364,7 +364,7 @@
 }
 .brief-title .e-badge {
   margin-left: auto;
-  font-size: 10px;
+  font-size: 12px;
 }
 .brief-panel textarea {
   border: 0;
@@ -390,7 +390,7 @@
   padding-bottom: 18px;
 }
 .brief-actions > span {
-  font-size: 10px;
+  font-size: 12px;
   color: #5f6d82;
   max-width: 140px;
 }
@@ -403,7 +403,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 0;
-  font-size: 11px;
+  font-size: 12px;
   color: #58677c;
   gap: 10px;
 }
@@ -414,7 +414,7 @@
   border: 0;
   background: none;
   color: #305f9f;
-  font-size: 11px;
+  font-size: 12px;
 }
 .intelligence-map {
   background:
@@ -432,11 +432,11 @@
   gap: 10px;
 }
 .map-heading > span:last-child {
-  font-size: 10px;
+  font-size: 12px;
   color: #5f6d82;
 }
 .map-heading .eyebrow {
-  font-size: 9px;
+  font-size: 12px;
 }
 .agent-network {
   position: relative;
@@ -466,7 +466,7 @@
   border: 0;
   padding: 8px;
   color: #58677c;
-  font-size: 9px;
+  font-size: 12px;
   transform: translate(-50%, -50%);
   min-width: 90px;
 }
@@ -576,12 +576,12 @@
   padding-top: 13px;
 }
 .agent-summary .e-badge {
-  font-size: 10px;
+  font-size: 12px;
 }
 .agent-summary p {
   margin: 0;
   color: #5d6c87;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.6;
 }
 .recent-project {
@@ -630,7 +630,7 @@
 .project-progress {
   margin-left: auto;
   padding-right: 25px;
-  font-size: 10px;
+  font-size: 12px;
   color: #58677c;
 }
 .project-progress > div {
@@ -675,7 +675,7 @@
   font-weight: 650;
 }
 .starting-points p {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--e-muted);
   margin: 0;
   line-height: 1.6;
@@ -685,7 +685,7 @@
   flex-shrink: 0;
 }
 .template-number {
-  font-size: 11px;
+  font-size: 12px;
   color: #5f6d82;
   border: 1px solid var(--e-line);
   border-radius: 5px;
@@ -736,7 +736,7 @@
   border-bottom: 2px solid transparent;
 }
 .lifecycle > div > span {
-  font-size: 10px;
+  font-size: 12px;
   background: #f0f3f8;
   border-radius: 50%;
   width: 21px;
@@ -790,7 +790,7 @@
   flex-direction: column;
   align-items: center;
   gap: 13px;
-  font-size: 10px;
+  font-size: 12px;
   text-align: center;
   color: #526c94;
 }
@@ -821,7 +821,7 @@
   border: 0;
   background: none;
   color: #2864b0;
-  font-size: 11px;
+  font-size: 12px;
   margin-left: auto;
   text-align: left;
 }
@@ -851,13 +851,13 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 11px;
+  font-size: 12px;
   border-top: 1px solid #edf0f5;
   padding: 13px 0;
 }
 .readiness > div .e-badge {
   margin-left: auto;
-  font-size: 9px;
+  font-size: 12px;
 }
 .readiness-dot {
   width: 6px;
@@ -957,7 +957,7 @@
   letter-spacing: -0.7px;
 }
 .studio-heading .eyebrow {
-  font-size: 9px;
+  font-size: 12px;
 }
 .studio-status {
   display: flex;
@@ -965,7 +965,7 @@
   gap: 11px;
 }
 .studio-status > span:last-child {
-  font-size: 11px;
+  font-size: 12px;
   color: #5f6d82;
 }
 .studio-tabs {
@@ -991,7 +991,7 @@
   gap: 6px;
 }
 .toolbar-group .e-button {
-  font-size: 11px;
+  font-size: 12px;
   padding: 7px 10px;
   min-height: 34px;
 }
@@ -1060,7 +1060,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 10px;
+  font-size: 12px;
   color: #58677c;
   margin-bottom: 8px;
 }
@@ -1077,7 +1077,7 @@
   text-overflow: ellipsis;
 }
 .node-foot {
-  font-size: 9px;
+  font-size: 12px;
   color: #5f6d82;
   margin-top: 6px;
 }
@@ -1131,7 +1131,7 @@
   align-items: center;
   gap: 8px;
   color: #5f6d82;
-  font-size: 10px;
+  font-size: 12px;
   background: #f8fafcee;
   padding: 6px 8px;
   border-radius: 5px;
@@ -1142,7 +1142,7 @@
   top: 16px;
   right: 17px;
   box-shadow: 0 2px 6px #1a345608;
-  font-size: 11px;
+  font-size: 12px;
 }
 .studio-footer {
   display: flex;
@@ -1151,7 +1151,7 @@
   align-items: center;
   padding: 9px 22px;
   border-top: 1px solid var(--e-line);
-  font-size: 10px;
+  font-size: 12px;
   color: #5f6d82;
   background: #fff;
 }
@@ -1190,7 +1190,7 @@
   gap: 10px;
 }
 .inspector-head .eyebrow {
-  font-size: 9px;
+  font-size: 12px;
 }
 .node-inspector h2 {
   font-size: 19px;
@@ -1232,7 +1232,7 @@
   margin: 16px 0 21px;
 }
 .node-inspector .e-field {
-  font-size: 11px;
+  font-size: 12px;
 }
 .node-inspector .e-field input,
 .node-inspector .e-field select {
@@ -1257,7 +1257,7 @@
   background: none;
   width: 100%;
   text-align: left;
-  font-size: 11px;
+  font-size: 12px;
   color: #5b708f;
 }
 .connection-row strong {
@@ -1340,7 +1340,7 @@
 }
 .palette-list small {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--e-muted);
   margin-top: 3px;
 }
@@ -1401,7 +1401,7 @@
 .disabled-reason {
   display: block;
   text-align: center;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--e-muted);
   margin-top: 7px;
 }
@@ -1413,7 +1413,7 @@
 .collections > .eyebrow {
   display: block;
   margin: 8px 0 15px 10px;
-  font-size: 9px;
+  font-size: 12px;
 }
 .collections > button {
   display: flex;
@@ -1432,7 +1432,7 @@
 .collections > button small {
   margin-left: auto;
   color: #5f6d82;
-  font-size: 10px;
+  font-size: 12px;
 }
 .collections > button.active {
   background: #e9f0fd;
@@ -1446,12 +1446,12 @@
 }
 .knowledge-scope strong {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
   margin: 8px 0;
   color: #546a89;
 }
 .knowledge-scope p {
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.7;
   margin: 0;
 }
@@ -1476,7 +1476,7 @@
   padding: 8px;
 }
 .filter-select {
-  font-size: 11px;
+  font-size: 12px;
   border: 1px solid var(--e-line);
   border-radius: 6px;
   background: #fff;
@@ -1493,7 +1493,7 @@
   font-weight: 600;
 }
 .document-list-heading small {
-  font-size: 10px;
+  font-size: 12px;
   color: #5f6d82;
   font-weight: 400;
 }
@@ -1504,7 +1504,7 @@
   white-space: nowrap;
 }
 .document-table th {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 500;
   color: #5f6d82;
   padding: 10px 13px;
@@ -1517,7 +1517,7 @@
 .document-table td {
   padding: 18px 13px;
   border-bottom: 1px solid #edf0f5;
-  font-size: 11px;
+  font-size: 12px;
   color: #5f6d82;
 }
 .document-table td:first-child {
@@ -1546,7 +1546,7 @@
 .document-open small {
   display: block;
   color: #5f6d82;
-  font-size: 10px;
+  font-size: 12px;
   margin-top: 5px;
 }
 .file-icon {
@@ -1561,7 +1561,7 @@
   flex-shrink: 0;
 }
 .document-table .e-badge {
-  font-size: 10px;
+  font-size: 12px;
 }
 .row-open {
   display: grid;
@@ -1578,7 +1578,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 9px;
+  font-size: 12px;
   color: #5f6d82;
   gap: 10px;
   background: #fcfdff;
@@ -1613,7 +1613,7 @@
   margin-top: 20px;
 }
 .preview-actions small {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--e-muted);
 }
 .surface {
@@ -1659,7 +1659,7 @@
   display: flex;
   flex-direction: column;
   gap: 7px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--e-muted);
 }
 .token-swatches i {
@@ -1707,14 +1707,14 @@
   margin-bottom: 10px;
 }
 .node-foot {
-  font-size: 11px;
+  font-size: 12px;
   margin-top: 8px;
 }
 .document-open strong {
   font-size: 14px;
 }
 .document-open small {
-  font-size: 11px;
+  font-size: 12px;
 }
 .document-table td {
   font-size: 12px;
@@ -1729,7 +1729,7 @@
   font-size: 12px;
 }
 .document-footer {
-  font-size: 11px;
+  font-size: 12px;
 }
 .collections > button {
   font-size: 13px;
@@ -1749,20 +1749,20 @@
   font-size: 12px;
 }
 .agent-orbit {
-  font-size: 11px;
+  font-size: 12px;
 }
 .agent-summary p {
   font-size: 12px;
 }
 .agent-summary .e-badge {
-  font-size: 11px;
+  font-size: 12px;
 }
 .map-heading > span:last-child {
-  font-size: 11px;
+  font-size: 12px;
 }
 .studio-footer,
 .canvas-caption {
-  font-size: 11px;
+  font-size: 12px;
 }
 .studio-status > span:last-child {
   font-size: 12px;
@@ -1822,32 +1822,32 @@
     align-items: flex-end;
   }
   .brief-actions > span {
-    font-size: 9px;
+    font-size: 12px;
     max-width: 110px;
   }
   .brief-actions .e-button {
-    font-size: 11px;
+    font-size: 12px;
     padding: 7px 9px;
   }
   .manual-entry {
-    font-size: 10px;
+    font-size: 12px;
   }
   .manual-entry button {
-    font-size: 10px;
+    font-size: 12px;
   }
   .agent-orbit {
-    font-size: 8px;
+    font-size: 12px;
     min-width: 80px;
   }
   .intelligence-map {
     padding: 15px 12px;
   }
   .map-heading .eyebrow {
-    font-size: 8px;
+    font-size: 12px;
     letter-spacing: 1px;
   }
   .agent-summary p {
-    font-size: 10px;
+    font-size: 12px;
   }
   .project-overview {
     grid-template-columns: minmax(0, 1fr) 285px;
@@ -1872,7 +1872,7 @@
     display: none;
   }
   .document-open strong {
-    font-size: 11px;
+    font-size: 12px;
   }
   .document-table td {
     padding: 18px 11px;
@@ -1906,10 +1906,10 @@
     gap: 7px;
   }
   .workspace-switch strong {
-    font-size: 11px;
+    font-size: 12px;
   }
   .workspace-switch small {
-    font-size: 10px;
+    font-size: 12px;
   }
   .page {
     padding: 28px 24px;
@@ -1933,7 +1933,7 @@
     display: inline-flex;
   }
   .brief-actions > span {
-    font-size: 11px;
+    font-size: 12px;
     max-width: 240px;
   }
   .brief-actions .e-button {
@@ -1941,10 +1941,10 @@
     padding: 9px 12px;
   }
   .manual-entry {
-    font-size: 11px;
+    font-size: 12px;
   }
   .manual-entry button {
-    font-size: 11px;
+    font-size: 12px;
   }
   .project-overview {
     grid-template-columns: 1fr;
@@ -1972,7 +1972,7 @@
     align-items: flex-start;
   }
   .page-heading > .e-button {
-    font-size: 11px;
+    font-size: 12px;
   }
   .studio-heading h1 {
     font-size: 20px;
@@ -2010,7 +2010,7 @@
     width: auto;
     white-space: nowrap;
     margin: 0;
-    font-size: 11px;
+    font-size: 12px;
   }
   .collections > button small {
     padding-left: 5px;
@@ -2064,15 +2064,15 @@
     display: none;
   }
   .platform-topbar .e-badge {
-    font-size: 10px;
+    font-size: 12px;
   }
   .role-label select {
-    font-size: 11px;
+    font-size: 12px;
   }
   .fixture-bar {
     height: 34px;
     padding: 0 20px;
-    font-size: 10px;
+    font-size: 12px;
   }
   .nav-backdrop {
     position: fixed;
@@ -2096,7 +2096,7 @@
     font-size: 13px;
   }
   .home-intro .eyebrow {
-    font-size: 9px;
+    font-size: 12px;
   }
   .launch-composition {
     margin-top: 6px;
@@ -2108,7 +2108,7 @@
     font-size: 13px;
   }
   .brief-title .e-badge {
-    font-size: 9px;
+    font-size: 12px;
   }
   .brief-panel textarea {
     font-size: 13px;
@@ -2121,10 +2121,10 @@
     justify-content: flex-end;
   }
   .manual-entry {
-    font-size: 10px;
+    font-size: 12px;
   }
   .manual-entry button {
-    font-size: 10px;
+    font-size: 12px;
   }
   .section-title {
     margin-top: 28px;
@@ -2136,7 +2136,7 @@
     display: none;
   }
   .section-title a {
-    font-size: 11px;
+    font-size: 12px;
   }
   .recent-project {
     padding: 17px 14px;
@@ -2152,11 +2152,11 @@
     flex-wrap: wrap;
   }
   .project-name .e-badge {
-    font-size: 9px;
+    font-size: 12px;
     padding: 3px 5px;
   }
   .recent-project p {
-    font-size: 10px;
+    font-size: 12px;
     line-height: 1.7;
   }
   .recent-project > svg {
@@ -2172,7 +2172,7 @@
     font-size: 12px;
   }
   .starting-points p {
-    font-size: 10px;
+    font-size: 12px;
   }
   .page-heading {
     flex-direction: column;
@@ -2193,7 +2193,7 @@
   .lifecycle > div {
     min-width: 100px;
     padding: 13px 9px;
-    font-size: 11px;
+    font-size: 12px;
   }
   .project-description {
     font-size: 13px;
@@ -2209,7 +2209,7 @@
     padding: 18px 10px;
   }
   .workflow-summary > div {
-    font-size: 9px;
+    font-size: 12px;
   }
   .workflow-summary > svg {
     width: 11px;
@@ -2218,14 +2218,14 @@
     width: 19px;
   }
   .project-detail-row {
-    font-size: 11px;
+    font-size: 12px;
     gap: 9px;
   }
   .readiness h2 {
     font-size: 22px;
   }
   .breadcrumbs {
-    font-size: 11px;
+    font-size: 12px;
   }
   .studio {
     height: auto;
@@ -2240,10 +2240,10 @@
     line-height: 1.4;
   }
   .studio-heading .eyebrow {
-    font-size: 8px;
+    font-size: 12px;
   }
   .studio-status .e-badge {
-    font-size: 10px;
+    font-size: 12px;
     margin-top: 6px;
   }
   .studio-tabs {
@@ -2251,7 +2251,7 @@
     gap: 10px;
   }
   .studio-tabs > .subtle {
-    font-size: 9px;
+    font-size: 12px;
     max-width: 105px;
     text-align: right;
   }
@@ -2270,7 +2270,7 @@
     gap: 4px;
   }
   .toolbar-group .e-button {
-    font-size: 10px;
+    font-size: 12px;
     padding: 6px 8px;
     min-height: 32px;
   }
@@ -2291,7 +2291,7 @@
     padding: 5px 16px 18px;
   }
   .mobile-node-list > p {
-    font-size: 11px;
+    font-size: 12px;
     color: #5f6d82;
     margin: 12px 2px 14px;
   }
@@ -2318,7 +2318,7 @@
   }
   .mobile-node-list small {
     display: block;
-    font-size: 10px;
+    font-size: 12px;
     color: #5f6d82;
     max-width: 245px;
     overflow: hidden;
@@ -2350,7 +2350,7 @@
     max-height: 45dvh;
   }
   .studio-footer {
-    font-size: 9px;
+    font-size: 12px;
     padding: 12px 18px;
   }
   .trace-empty {
@@ -2377,7 +2377,7 @@
     gap: 12px;
   }
   .disabled-reason {
-    font-size: 10px;
+    font-size: 12px;
     margin: 0;
   }
   .knowledge-tabs {
@@ -2385,7 +2385,7 @@
     gap: 22px;
   }
   .knowledge-tabs button {
-    font-size: 11px;
+    font-size: 12px;
   }
   .knowledge-layout {
     gap: 14px;
@@ -2407,7 +2407,7 @@
     padding: 14px;
   }
   .document-list-heading small {
-    font-size: 9px;
+    font-size: 12px;
   }
   .document-table th:nth-child(4),
   .document-table td:nth-child(4),
@@ -2431,14 +2431,14 @@
     gap: 8px;
   }
   .document-open strong {
-    font-size: 10px;
+    font-size: 12px;
     display: block;
     max-width: 180px;
     white-space: normal;
     line-height: 1.6;
   }
   .document-open small {
-    font-size: 9px;
+    font-size: 12px;
   }
   .file-icon {
     width: 25px;
@@ -2448,12 +2448,12 @@
     width: 17px;
   }
   .document-table .e-badge {
-    font-size: 9px;
+    font-size: 12px;
     padding: 4px 5px;
   }
   .document-footer {
     padding: 12px;
-    font-size: 9px;
+    font-size: 12px;
   }
   .document-preview {
     padding: 22px;
@@ -2483,18 +2483,18 @@
     font-size: 12px;
   }
   .e-dialog .e-field textarea {
-    font-size: 11px;
+    font-size: 12px;
   }
   .palette-list strong {
     font-size: 12px;
   }
   .palette-list small {
-    font-size: 10px;
+    font-size: 12px;
   }
   .gallery-grid article {
     padding: 20px;
   }
   .user-block small {
-    font-size: 10px;
+    font-size: 12px;
   }
 }

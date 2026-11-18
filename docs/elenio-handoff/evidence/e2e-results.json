@@ -116,12 +116,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1307,
+                  "duration": 2081,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-18T16:36:39.958Z",
+                  "startTime": "2026-11-18T19:12:50.231Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -150,12 +150,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1145,
+                  "duration": 1193,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-18T16:36:41.441Z",
+                  "startTime": "2026-11-18T19:12:52.570Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -184,12 +184,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 14504,
+                  "duration": 14902,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-18T16:36:42.596Z",
+                  "startTime": "2026-11-18T19:12:53.771Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -218,12 +218,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 467,
+                  "duration": 644,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-18T16:36:57.106Z",
+                  "startTime": "2026-11-18T19:13:08.680Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -252,12 +252,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 3837,
+                  "duration": 4033,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-18T16:36:57.580Z",
+                  "startTime": "2026-11-18T19:13:09.330Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -286,12 +286,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1877,
+                  "duration": 3918,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-18T16:37:01.425Z",
+                  "startTime": "2026-11-18T19:13:13.372Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -303,15 +303,49 @@
           "file": "platform.spec.ts",
           "line": 188,
           "column": 1
+        },
+        {
+          "title": "kit launchpad uses bundled typography, scenario brief and contextual project sections",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 714,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T19:13:17.296Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "310f5d38cd89ad55ea3f-34ecf67a1a91ace7a71d",
+          "file": "platform.spec.ts",
+          "line": 246,
+          "column": 1
         }
       ]
     }
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-18T16:36:38.618Z",
-    "duration": 25103.144,
-    "expected": 6,
+    "startTime": "2026-11-18T19:12:49.662Z",
+    "duration": 28516.913,
+    "expected": 7,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

@@ -15,7 +15,7 @@ Commands run in each application's own directory, using its locked dependencies 
 
 Flowcase: `npm test -- --reporter=json --outputFile=../../docs/elenio-handoff/evidence/unit-results.json`, `npm run lint`, `npm run typecheck`, `npm run build`, `npx playwright test`. Existing React `act(...)` warnings occurred in the baseline persona test; no failing frontend assertions.
 
-Six browser tests pass: primary journey/persistence/role preview/knowledge; palette/diagnostics/undo/import; four routes across six viewport sizes; keyboard command/dialog focus; axe desktop checks across five routes; actual node drag, port drag, inspector resizing and position undo. Fit View animates; port test waits for the animation before using screen coordinates. No execution is simulated. Source and targets are verified through exported canonical JSON.
+Seven browser tests pass: primary journey/persistence/role preview/knowledge; palette/diagnostics/undo/import; four routes across six viewport sizes; keyboard command/dialog focus; axe desktop checks across five routes; actual node drag, port drag, inspector resizing and position undo; bundled Inter loading, scenario brief continuity and Project context sections. Fit View animates; port test waits for the animation before using screen coordinates. No execution is simulated. Source and targets are verified through exported canonical JSON.
 
 Screenshots are browser captures of the actual implementation, not HTML prototypes or generated mockups. 24 viewport screenshots plus inspector. Browser primary journey captured no uncaught page errors. Axe checked WCAG A/AA rules tagged through 2.2, serious/critical only; manual keyboard paths also tested. This is not a blanket conformance or production security claim.
 
@@ -48,3 +48,5 @@ Changed app production dependency audit reports zero advisories; full dev audit 
 ELK is lazy-loaded separately (~1.47 MB, ~449 KB gzip) and still emits a large-chunk warning. The review entry itself is ~105.5 KB + shared runtime chunk, rather than bundling the layout engine into Home. No performance SLA inferred from bundle sizes. No external fonts/CDN assets are required.
 
 No backend, schema, tenant header, credential vault, approval gate or production deployment was modified. Brand PNG hash matches the original handoff asset. Only the private owner repository receives development commits; upstream push disabled; main preserved as original baseline.
+
+The owner-requested typography/content correction re-ran changed-app lint, typecheck, 52 tests, multi-entry build and seven browser tests. The earlier first-slice content was replaced by final-kit Home composition; the owner visual gate remains reopened. Fontsource Inter 5.3.0 is bundled and its OFL notice retained. See KIT_ALIGNMENT_PHASE1.md for intentionally missing later-phase features.

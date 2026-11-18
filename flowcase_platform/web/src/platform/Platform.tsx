@@ -40,27 +40,8 @@ import { type Positions } from "./graphModel";
 import { Knowledge } from "./Knowledge";
 import { Studio } from "./Studio";
 import { layoutDefinition } from "./layout";
-
-const agents = [
-  {
-    name: "Document intelligence",
-    role: "Extract structured invoice fields and source evidence.",
-    shape: "document",
-    tag: "Evidence",
-  },
-  {
-    name: "Exception analyst",
-    role: "Investigate mismatches using scoped policy knowledge.",
-    shape: "exception",
-    tag: "Reasoning",
-  },
-  {
-    name: "Finance reviewer",
-    role: "A human makes the independent payment decision.",
-    shape: "reviewer",
-    tag: "Human authority",
-  },
-];
+import { Launchpad, ArchitectBrief } from "./Launchpad";
+import { ProjectSections } from "./ProjectSections";
 
 export function Platform() {
   const location = useLocation(),
@@ -79,7 +60,8 @@ export function Platform() {
     [focus, setFocus] = useState(false),
     [command, setCommand] = useState(false),
     [commandQuery, setCommandQuery] = useState(""),
-    [help, setHelp] = useState(false);
+    [help, setHelp] = useState(false),
+    [brief, setBrief] = useState("");
   const workflow = location.pathname.endsWith("/workflow"),
     editable = role === "Builder",
     value = JSON.stringify({ definition, positions }),
@@ -262,15 +244,68 @@ export function Platform() {
             <Home size={18} />
             Home
           </NavLink>
+          <NavLink to="/architect" onClick={() => setMenu(false)}>
+            <Sparkles size={18} />
+            AI Architect
+          </NavLink>
           <NavLink to="/projects" onClick={() => setMenu(false)}>
             <FolderOpen size={18} />
             Projects
           </NavLink>
+          <span className="nav-section">ENGINEERING</span>
+          <NavLink
+            to="/projects/vendor-payment/workflow"
+            onClick={() => setMenu(false)}
+          >
+            <GitBranch size={18} />
+            Workflow Studio
+          </NavLink>
+          <button
+            className="planned-nav"
+            disabled
+            title="Agent Studio integration: Phase 2–3"
+          >
+            <Boxes size={18} />
+            Agent Studio <small>Phase 2</small>
+          </button>
           <span className="nav-section">CAPABILITY LIBRARY</span>
           <NavLink to="/knowledge" onClick={() => setMenu(false)}>
             <BookOpen size={18} />
             Knowledge
           </NavLink>
+          <button
+            className="planned-nav"
+            disabled
+            title="Template dependency resolution: Phase 2"
+          >
+            <Layers size={18} />
+            Templates <small>Phase 2</small>
+          </button>
+          <button
+            className="planned-nav"
+            disabled
+            title="Skills & Tools integration: Phase 2"
+          >
+            <Boxes size={18} />
+            Skills &amp; Tools <small>Phase 2</small>
+          </button>
+          <button
+            className="planned-nav"
+            disabled
+            title="Approved model registry: Phase 3"
+          >
+            <Layers size={18} />
+            Models &amp; Providers <small>Phase 3</small>
+          </button>
+          <span className="nav-section">MANAGEMENT</span>
+          <button
+            className="planned-nav"
+            disabled
+            title="Economics ledger and scenarios: Phase 4"
+          >
+            <GitBranch size={18} />
+            AI Economics <small>Phase 4</small>
+          </button>
           <a href="./">
             <GitBranch size={18} />
             Existing Flowcase
@@ -353,7 +388,7 @@ export function Platform() {
         <div className="fixture-bar">
           <span>
             <span className="canvas-dot" />
-            Phase 1 preview · synthetic data · no live AI or runtime
+            Local preview · sample data · services not connected
           </span>
           <button onClick={() => setHelp(true)}>
             What is connected? <ArrowRight size={13} />
@@ -388,9 +423,13 @@ export function Platform() {
               <Route
                 path="/"
                 element={
-                  <HomePage
+                  <Launchpad
                     onOpen={() => go("/projects/vendor-payment")}
                     onBuild={() => go("/projects/vendor-payment/workflow")}
+                    onArchitect={(value) => {
+                      setBrief(value);
+                      go("/architect");
+                    }}
                   />
                 }
               />
@@ -424,6 +463,16 @@ export function Platform() {
                     saved={saved}
                     focus={focus}
                     onFocus={() => setFocus((v) => !v)}
+                  />
+                }
+              />
+              <Route
+                path="/architect"
+                element={
+                  <ArchitectBrief
+                    brief={brief}
+                    onBrief={setBrief}
+                    onBuild={() => go("/projects/vendor-payment/workflow")}
                   />
                 }
               />
@@ -504,176 +553,6 @@ export function Platform() {
   );
 }
 
-function HomePage({
-  onOpen,
-  onBuild,
-}: {
-  onOpen: () => void;
-  onBuild: () => void;
-}) {
-  const [agent, setAgent] = useState(0),
-    [brief, setBrief] = useState(""),
-    [architect, setArchitect] = useState(false);
-  return (
-    <section className="page home-page">
-      <div className="home-intro">
-        <span className="eyebrow">YOUR ENGINEERING WORKSPACE</span>
-        <h1>
-          Turn business intent
-          <br />
-          into intelligent systems.
-        </h1>
-        <p>
-          Design with clarity. Orchestrate with control.
-          <br />
-          Build something your business can trust.
-        </p>
-      </div>
-      <div className="launch-composition">
-        <div className="brief-panel">
-          <div className="brief-title">
-            <Sparkles size={18} />
-            <strong>What would you like to build?</strong>
-            <Badge>AI Architect</Badge>
-          </div>
-          <textarea
-            aria-label="Solution brief"
-            placeholder="Describe a process, its decisions and what success looks like…"
-            value={brief}
-            onChange={(e) => setBrief(e.target.value)}
-          />
-          <div className="brief-actions">
-            <span>Start with a goal, SOP or business challenge</span>
-            <Button variant="primary" onClick={() => setArchitect(true)}>
-              <ArrowRight size={17} /> Explore a solution
-            </Button>
-          </div>
-          <div className="manual-entry">
-            <span>Prefer to start hands-on?</span>
-            <button onClick={onBuild}>
-              Open sample canvas <ArrowRight size={14} />
-            </button>
-          </div>
-        </div>
-        <div className="intelligence-map">
-          <div className="map-heading">
-            <span className="eyebrow">INTELLIGENCE, CONNECTED</span>
-            <span>Explore roles</span>
-          </div>
-          <div className="agent-network">
-            <svg viewBox="0 0 420 200" aria-hidden="true">
-              <path d="M95 90 C145 90 160 50 215 65 S280 135 335 95" />
-              <path d="M95 90 C180 190 265 185 335 95" />
-            </svg>
-            {agents.map((a, i) => (
-              <button
-                key={a.name}
-                className={`agent-orbit orbit-${i} ${agent === i ? "selected" : ""}`}
-                aria-label={`Inspect ${a.name}`}
-                aria-pressed={agent === i}
-                onClick={() => setAgent(i)}
-              >
-                <span className={`agent-object ${a.shape}`}>
-                  <i />
-                  <i />
-                  <i />
-                </span>
-                <span>{a.name}</span>
-              </button>
-            ))}
-          </div>
-          <div className="agent-summary">
-            <Badge tone="blue">{agents[agent]?.tag}</Badge>
-            <p>{agents[agent]?.role}</p>
-          </div>
-        </div>
-      </div>
-      <div className="section-title">
-        <h2>Continue building</h2>
-        <Link to="/projects">
-          All projects <ArrowRight size={14} />
-        </Link>
-      </div>
-      <button className="recent-project" onClick={onOpen}>
-        <span className="project-icon">
-          <GitBranch size={24} />
-        </span>
-        <div>
-          <div className="project-name">
-            Vendor payment assurance <Badge tone="amber">Draft</Badge>
-          </div>
-          <p>Finance · Evidence, exceptions and independent approval</p>
-        </div>
-        <div className="project-progress">
-          <span>Design</span>
-          <div>
-            <i />
-            <i />
-            <i className="pending" />
-            <i className="pending" />
-            <i className="pending" />
-          </div>
-        </div>
-        <ArrowRight size={18} />
-      </button>
-      <div className="section-title">
-        <h2>Build from a clear starting point</h2>
-        <span>Synthetic examples · no active deployments</span>
-      </div>
-      <div className="starting-points">
-        <button onClick={onBuild}>
-          <span className="template-number">01</span>
-          <div>
-            <h3>Vendor payment</h3>
-            <p>Parallel checks, conditional routing and a human decision.</p>
-          </div>
-          <ArrowRight size={17} />
-        </button>
-        <Link to="/knowledge">
-          <span className="template-number">02</span>
-          <div>
-            <h3>Explore trusted knowledge</h3>
-            <p>Browse source versions, publication status and evidence.</p>
-          </div>
-          <ArrowRight size={17} />
-        </Link>
-      </div>
-      {architect && (
-        <DialogPanel
-          title="AI Architect needs a model connection"
-          description="Your brief is preserved here. No AI output has been generated."
-          onClose={() => setArchitect(false)}
-        >
-          <Notice>
-            {brief ||
-              "Describe the process, intended outcome and decision authority before creating a blueprint."}
-          </Notice>
-          <div className="help-content">
-            <h3>Clarify before building</h3>
-            <p>
-              Which input starts the process? Who approves irreversible actions?
-              What data must stay private? What baseline cost and quality define
-              success?
-            </p>
-            <p>
-              A configured, approved model and authorized draft API are required
-              for proposal generation and diff-confirm apply.
-            </p>
-          </div>
-          <Button
-            onClick={() => {
-              setArchitect(false);
-              onBuild();
-            }}
-          >
-            Explore the labelled sample instead
-          </Button>
-        </DialogPanel>
-      )}
-    </section>
-  );
-}
-
 function Projects({ onOpen }: { onOpen: () => void }) {
   const [query, setQuery] = useState("");
   return (
@@ -747,110 +626,112 @@ function Project({
           Open Workflow Studio <ArrowRight size={16} />
         </Button>
       </header>
-      <div className="lifecycle" aria-label="Project lifecycle">
-        {[
-          "Discover",
-          "Design",
-          "Configure",
-          "Validate",
-          "Release",
-          "Operate",
-          "Optimize",
-        ].map((s, i) => (
-          <div
-            key={s}
-            className={i === 1 ? "current" : i === 0 ? "complete" : ""}
-          >
-            <span>
-              {i === 0 ? <Check size={13} /> : String(i + 1).padStart(2, "0")}
-            </span>
-            {s}
-          </div>
-        ))}
-      </div>
-      <div className="project-overview">
-        <div>
-          <div className="section-title">
-            <h2>Design a safer payment process</h2>
-            <Badge tone="amber">Draft v{definition.version}</Badge>
-          </div>
-          <p className="project-description">
-            Keep deterministic verification fast, use agents where reasoning
-            helps, and leave payment authority with people.
-          </p>
-          <div className="workflow-summary">
-            <div>
-              <FileText size={21} />
-              <span>Invoice & PO</span>
-            </div>
-            <ChevronRight size={16} />
-            <div>
-              <GitBranch size={21} />
-              <span>Parallel checks</span>
-            </div>
-            <ChevronRight size={16} />
-            <div>
-              <Layers size={21} />
-              <span>Resolve exceptions</span>
-            </div>
-            <ChevronRight size={16} />
-            <div>
-              <ShieldCheck size={21} />
-              <span>Finance approval</span>
-            </div>
-          </div>
-          <div className="project-detail-row">
-            <span>Workflow</span>
-            <strong>
-              {definition.nodes.length} nodes · explicit true / false · parallel
-              join
-            </strong>
-            <button onClick={onOpen}>
-              Inspect topology <ArrowRight size={14} />
-            </button>
-          </div>
-          <div className="project-detail-row">
-            <span>Knowledge</span>
-            <strong>Finance policy and vendor verification</strong>
-            <Link to="/knowledge">
-              Browse sources <ArrowRight size={14} />
-            </Link>
-          </div>
-          <div className="project-detail-row">
-            <span>AI Economics</span>
-            <strong>Unpriced · no measured usage</strong>
-            <Badge>Rate card required</Badge>
-          </div>
-          <Notice>
-            Rejection / revision returns to an authorized review loop. Posting
-            must remain blocked until approval is verified by the runtime.
-          </Notice>
-        </div>
-        <aside className="readiness">
-          <span className="eyebrow">BEFORE VALIDATION</span>
-          <h2>Make dependencies real.</h2>
-          <p>
-            This design is a fixture. Connect and verify each authority before a
-            sandbox run.
-          </p>
+      <ProjectSections definition={definition} onWorkflow={onOpen}>
+        <div className="lifecycle" aria-label="Project lifecycle">
           {[
-            "Approved agent versions",
-            "Scoped ERP sandbox connector",
-            "Published KMS sources",
-            "Independent Finance policy",
-            "Server validation & capability probe",
-          ].map((s) => (
-            <div key={s}>
-              <span className="readiness-dot" />
+            "Discover",
+            "Design",
+            "Configure",
+            "Validate",
+            "Release",
+            "Operate",
+            "Optimize",
+          ].map((s, i) => (
+            <div
+              key={s}
+              className={i === 1 ? "current" : i === 0 ? "complete" : ""}
+            >
+              <span>
+                {i === 0 ? <Check size={13} /> : String(i + 1).padStart(2, "0")}
+              </span>
               {s}
-              <Badge tone="amber">Pending</Badge>
             </div>
           ))}
-          <Button onClick={onOpen}>
-            Continue designing <ArrowRight size={15} />
-          </Button>
-        </aside>
-      </div>
+        </div>
+        <div className="project-overview">
+          <div>
+            <div className="section-title">
+              <h2>Design a safer payment process</h2>
+              <Badge tone="amber">Draft v{definition.version}</Badge>
+            </div>
+            <p className="project-description">
+              Keep deterministic verification fast, use agents where reasoning
+              helps, and leave payment authority with people.
+            </p>
+            <div className="workflow-summary">
+              <div>
+                <FileText size={21} />
+                <span>Invoice & PO</span>
+              </div>
+              <ChevronRight size={16} />
+              <div>
+                <GitBranch size={21} />
+                <span>Parallel checks</span>
+              </div>
+              <ChevronRight size={16} />
+              <div>
+                <Layers size={21} />
+                <span>Resolve exceptions</span>
+              </div>
+              <ChevronRight size={16} />
+              <div>
+                <ShieldCheck size={21} />
+                <span>Finance approval</span>
+              </div>
+            </div>
+            <div className="project-detail-row">
+              <span>Workflow</span>
+              <strong>
+                {definition.nodes.length} nodes · explicit true / false ·
+                parallel join
+              </strong>
+              <button onClick={onOpen}>
+                Inspect topology <ArrowRight size={14} />
+              </button>
+            </div>
+            <div className="project-detail-row">
+              <span>Knowledge</span>
+              <strong>Finance policy and vendor verification</strong>
+              <Link to="/knowledge">
+                Browse sources <ArrowRight size={14} />
+              </Link>
+            </div>
+            <div className="project-detail-row">
+              <span>AI Economics</span>
+              <strong>Unpriced · no measured usage</strong>
+              <Badge>Rate card required</Badge>
+            </div>
+            <Notice>
+              Rejection / revision returns to an authorized review loop. Posting
+              must remain blocked until approval is verified by the runtime.
+            </Notice>
+          </div>
+          <aside className="readiness">
+            <span className="eyebrow">BEFORE VALIDATION</span>
+            <h2>Make dependencies real.</h2>
+            <p>
+              This design is a fixture. Connect and verify each authority before
+              a sandbox run.
+            </p>
+            {[
+              "Approved agent versions",
+              "Scoped ERP sandbox connector",
+              "Published KMS sources",
+              "Independent Finance policy",
+              "Server validation & capability probe",
+            ].map((s) => (
+              <div key={s}>
+                <span className="readiness-dot" />
+                {s}
+                <Badge tone="amber">Pending</Badge>
+              </div>
+            ))}
+            <Button onClick={onOpen}>
+              Continue designing <ArrowRight size={15} />
+            </Button>
+          </aside>
+        </div>
+      </ProjectSections>
     </section>
   );
 }

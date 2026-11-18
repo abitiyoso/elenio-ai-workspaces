@@ -1,6 +1,6 @@
 # Elenio development status
 
-Phase 0 audit/baseline verification completed with the blockers below. Phase 1 frontend slice is implemented and tested; STOPPED at the owner visual/UX acceptance gate. Acceptance is pending, not self-approved. Phase 2+ remains prohibited until owner acceptance.
+Phase 0 audit/baseline verification completed with the blockers below. The owner requested Phase 1 corrections to font, page structure and content; the visual gate is REOPENED. Final V10 Home content, locally bundled Inter, a dedicated Architect page and project contextual sections are implemented. Acceptance remains pending; Phase 2+ remains prohibited until owner acceptance. See [KIT_ALIGNMENT_PHASE1.md](KIT_ALIGNMENT_PHASE1.md).
 
 * Branch: `feat/elenio-platform-foundation`
 * Upstream source: `8bfae869e8ad3adaf10b496428ffbcf22c196db9`
@@ -21,7 +21,7 @@ Phase 0 audit/baseline verification completed with the blockers below. Phase 1 f
 Shared tokens/primitives and accessible gallery; responsive global/project shell; Home → Project → Workflow Studio; functional selectable agent identities; React Flow + lazy ELK layout; canonical branching/parallel adapter, port connection/edge editing, draggable positions, undo/redo, native import/export, type-specific/resizable inspector and graph search; local draft persistence separated from execution; document-centric Knowledge explorer. All fixture data labelled. See [FEATURES_PHASE1.md](FEATURES_PHASE1.md) and [DESIGN_DECISIONS.md](DESIGN_DECISIONS.md).
 
 * Flowcase frontend: 52/52 unit/component tests (44 existing + 8 canonical graph tests); lint, typecheck, production multi-entry build pass.
-* Browser: 6/6 Playwright tests pass, including actual drag/port connection, position undo, inspector resize, local save/reload, reviewer preview, native import errors, keyboard/focus, document preview and responsive pages. Axe serious/critical checks pass on five desktop routes; this is bounded automated evidence, not full accessibility certification.
+* Browser: 7/7 Playwright tests pass, including actual drag/port connection, position undo, inspector resize, local save/reload, reviewer preview, native import errors, keyboard/focus, document preview, loaded Inter font, scenario-to-Architect continuity, project sections and responsive pages. Axe serious/critical checks pass on five desktop routes; this is bounded automated evidence, not full accessibility certification.
 * Screenshots: 25 actual Chromium captures; four routes at 1440×900,1280×800,1024×768,768×1024,390×844,360×800 plus desktop inspector. No page horizontal overflow in tested routes/sizes. Representative captures inspected at every tested width. [Evidence index](evidence/README.md).
 * Other frontend baselines: Control Plane 17 tests + lint/build pass; UCW 37 tests + lint/build pass; Agent Studio and KMS build pass (no standalone lint/unit scripts defined). Total frontend tests run: 106 passing.
 * Go baseline top-level test events: 268 passed, 99 skipped, 3 failed across five modules. Details in [QA_RESULTS.md](QA_RESULTS.md), [JSON summary](evidence/go-baseline-summary.json). No configured disposable DB, so DB/security acceptance is not claimed.
@@ -38,3 +38,7 @@ Shared tokens/primitives and accessible gallery; responsive global/project shell
 6. Server project ownership, capability probing, version history, connected save/validate, real traces, model economics and deployment are later-phase work. No run/publish/approval/deployment simulated or claimed.
 
 Next authorized step: owner reviews Phase 1 evidence. After explicit acceptance, Phase 2 should integrate the shared shell with actual service contracts and disposable sandbox security tests. No main merge or deployment has occurred.
+
+## Owner-requested Phase 1 correction
+
+The previous visual submission was not accepted. Final V10 Home overrides were re-read; a new Launchpad restores the kit content hierarchy, four scenarios and six-capability map. Inter Variable is now actually bundled locally (previously only a CSS fallback name). A dedicated Architect page carries the entered brief and exposes the missing-model state. Contextual Project sections read canonical references and show only actual local version information. Later capabilities remain phase-labelled/unavailable. The frontend remains a fixture; no Phase 2 runtime integration or owner acceptance is claimed. Regression evidence has been refreshed.

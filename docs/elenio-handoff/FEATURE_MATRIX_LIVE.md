@@ -20,4 +20,6 @@ Statuses reflect this session only. Source implementation is not a live deployme
 
 ## Phase 1 acceptance checkpoint
 
-UX-01/02/03/04/05 and FLOW-01 have fixture-backed browser/unit evidence: 6 E2E, 52 changed-app frontend tests, 25 screenshots. Human visual acceptance remains pending. FLOW-02 path semantics are tested as configuration, not executed payment runs. FLOW-03/04, AI/KMS live governance, SEC live integration, economics ledger and deployment acceptance remain unverified/deferred. Full final results and exact limits: QA_RESULTS.md and STATUS.md.
+UX-01/02/03/04/05 and FLOW-01 have fixture-backed browser/unit evidence: 7 E2E, 52 changed-app frontend tests, 25 screenshots. Human visual acceptance remains pending. FLOW-02 path semantics are tested as configuration, not executed payment runs. FLOW-03/04, AI/KMS live governance, SEC live integration, economics ledger and deployment acceptance remain unverified/deferred. Full final results and exact limits: QA_RESULTS.md and STATUS.md.
+
+Owner feedback reopened Phase 1 visual gate. Typography, Home structure/content and contextual Project navigation corrected; full HTML feature parity remains explicitly unclaimed. Architect requirement entry is now a functional fixture page, while model generation remains blocked pending approved configuration.
