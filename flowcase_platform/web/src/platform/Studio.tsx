@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
@@ -51,6 +51,7 @@ function CloseInspector({ onClick }: { onClick: () => void }) {
 }
 
 interface Props {
+  executionTrace?: ReactNode;
   mode?: "fixture" | "connected";
   versionStatus?: string;
   supportedTypes?: NodeType[];
@@ -68,6 +69,7 @@ interface Props {
   onFocus: () => void;
 }
 export function Studio({
+  executionTrace,
   mode = "fixture",
   versionStatus = "draft",
   supportedTypes,
@@ -261,20 +263,22 @@ export function Studio({
         </span>
       </div>
       {tab === "Execution trace" ? (
-        <div className="trace-empty">
-          <GitBranch size={32} />
-          <h2>No execution connected</h2>
-          <p>
-            Step status, input/output, evidence and cost will appear here from
-            runtime events.
-          </p>
-          <Notice>
-            {mode === "fixture"
-              ? "This is a design fixture. No provider calls, payment posting or workflow execution occurs."
-              : "No execution has been started here. Runtime event integration is required before displaying step status or cost."}
-          </Notice>
-          <Button onClick={() => setTab("Design")}>Return to design</Button>
-        </div>
+        (executionTrace ?? (
+          <div className="trace-empty">
+            <GitBranch size={32} />
+            <h2>No execution connected</h2>
+            <p>
+              Step status, input/output, evidence and cost will appear here from
+              runtime events.
+            </p>
+            <Notice>
+              {mode === "fixture"
+                ? "This is a design fixture. No provider calls, payment posting or workflow execution occurs."
+                : "No execution has been started here. Runtime event integration is required before displaying step status or cost."}
+            </Notice>
+            <Button onClick={() => setTab("Design")}>Return to design</Button>
+          </div>
+        ))
       ) : (
         <>
           <div className="studio-toolbar">

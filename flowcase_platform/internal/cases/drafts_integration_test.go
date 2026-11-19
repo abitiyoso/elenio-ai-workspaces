@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/elenio/flowcase/internal/cases"
 	"github.com/elenio/flowcase/internal/integrations/agent"
@@ -191,14 +192,28 @@ func TestDraftRevisionLimit(t *testing.T) {
 	e := newEnv(t)
 	rt := &testRuntime{autoComplete: true}
 	id, _ := e.startSIMv3(rt)
+	// A drain can finish before the asynchronous agent poll's next_attempt_at.
+	// Wait for the next review instead of dereferencing a transient nil read model.
+	waitDraft := func() *cases.DraftReview {
+		deadline := time.Now().Add(3 * time.Second)
+		for time.Now().Before(deadline) {
+			e.drain()
+			if draft := pendingDraft(e.detail(id)); draft != nil {
+				return draft
+			}
+			time.Sleep(time.Millisecond)
+		}
+		t.Fatal("agent did not produce the next pending draft")
+		return nil
+	}
 	for i := range 10 {
-		draft := pendingDraft(e.detail(id))
+		draft := waitDraft()
 		if err := e.eng.ReviseDraft(e.ctx, e.owner, draft.ID, draft.VersionNum, "Another round of edits"); err != nil {
 			t.Fatalf("revision %d: %v", i+1, err)
 		}
 		e.drain()
 	}
-	draft := pendingDraft(e.detail(id))
+	draft := waitDraft()
 	if draft.CanRevise || !draft.CanSubmit || draft.Revisions != 10 || draft.ArtifactVersion != 11 {
 		t.Fatalf("after 10 revisions only submit remains: %+v", draft)
 	}

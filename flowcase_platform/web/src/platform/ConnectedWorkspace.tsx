@@ -59,6 +59,7 @@ import {
 import { parseDefinition, inspectGraph, type Positions } from "./graphModel";
 import { layoutDefinition } from "./layout";
 import { Studio } from "./Studio";
+import { ConnectedExecution } from "./ConnectedExecution";
 import { ConnectedCatalog } from "./ConnectedCatalog";
 import { readLayout, writeLayout } from "./layoutStore";
 
@@ -868,6 +869,12 @@ function EditorDocument({
         </details>
       )}
       <Studio
+        executionTrace={
+          <ConnectedExecution
+            workflowKey={workflowKey}
+            version={loaded.version}
+          />
+        }
         definition={document}
         positions={positions}
         editable={editable}

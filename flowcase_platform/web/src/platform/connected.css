@@ -343,3 +343,31 @@
     flex-shrink: 0;
   }
 }
+.connected-execution {
+  padding: 24px;
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+}
+.connected-execution header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.connected-execution h2,
+.connected-execution h3 {
+  margin: 0;
+  font-size: 20px;
+}
+.connected-execution p {
+  color: var(--e-muted);
+  font-size: 13px;
+}
+.execution-detail {
+  margin-top: 20px;
+  border-top: 1px solid var(--e-line);
+  padding-top: 20px;
+}
