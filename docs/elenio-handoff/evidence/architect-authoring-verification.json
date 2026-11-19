@@ -1,0 +1,68 @@
+{
+  "date": "2026-11-19",
+  "branch": "feat/elenio-architect-authoring",
+  "base_commit": "c3b17a7a2b071f15c763bfed561741bf76fb6637",
+  "scope": "development Architect requirement to explicit native Flowcase draft; not production business execution",
+  "backend": {
+    "failed": 0,
+    "provider_idp_doubles": "existing harnesses where specified",
+    "report": "architect-backend-results.json",
+    "skipped": 0,
+    "passed": 374
+  },
+  "frontend": {
+    "browser_regression_passed": 34,
+    "unit_component_passed": 77,
+    "real_local_browser_passed": 9,
+    "lint": "passed",
+    "typecheck_build": "passed"
+  },
+  "model": {
+    "version_id": "f0b88bda-1104-4e5f-877f-008f2445f9e5",
+    "semver": "0.3.0",
+    "stored_proposal_cases_passed_separately": 1,
+    "run_id": "09cc6182-b661-414d-ae2d-9709ea7b5231",
+    "tool_calls": 0,
+    "status": "succeeded",
+    "report": "architect-ai-results.json",
+    "tokens_out": 1130,
+    "fresh_provider_cases_passed": 1,
+    "schema_valid": true,
+    "tokens_in": 4460,
+    "model": "cx/gpt-6-luna",
+    "authoring_completions_during_development": 4,
+    "mode": "provider",
+    "monetary_cost": null
+  },
+  "workflow": {
+    "nodes": 6,
+    "key": "purchase-request-review-09cc6182",
+    "policy_warning": "poc.budget provisional; no business signoff",
+    "status": "draft",
+    "published": false,
+    "executed": false,
+    "connections": 6,
+    "version": 1
+  },
+  "responsive": {
+    "widths": [
+      1440,
+      1024,
+      768,
+      390
+    ],
+    "axe_serious_critical": "passed desktop/mobile",
+    "stored_case_new_model_requests": 0
+  },
+  "portability": {
+    "linux_vault": "cross-compiled only; runtime not tested",
+    "windows_vault": "tested"
+  },
+  "limitations": [
+    "human visual acceptance open",
+    "production CP route/identity unverified",
+    "no production model or agent release",
+    "no model-backed business execution pilot",
+    "general hierarchy, capability authoring, actual Economics ledger and portable delivery remain open"
+  ]
+}

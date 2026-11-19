@@ -381,6 +381,27 @@
 .blueprint-outline { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
 .blueprint-outline span { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #526c91; }
 .blueprint-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+.architect-answer { margin-top: 20px; padding: 18px; border: 1px solid #dce6f4; border-radius: 12px; background: #fbfdff; }
+.architect-answer :is(h3,h4) { margin: 12px 0 8px; font-size: 14px; }
+.architect-answer :is(p,li) { font-size: 13px; color: var(--e-muted); line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+.authoring-status { display: grid; gap: 5px; margin-top: 18px; color: var(--e-muted); font-size: 12px; }
+.authoring-status strong { color: var(--e-ink); text-transform: capitalize; }
+.authoring-identity { display: block; margin-top: 15px; color: var(--e-muted); font-size: 11px; overflow-wrap: anywhere; line-height: 1.8; }
+.proposal-details { border-top: 1px solid var(--e-line); margin-top: 22px; padding-top: 5px; }
+.proposal-details h3 { display: flex; gap: 7px; align-items: center; font-size: 14px; margin: 20px 0 12px; }
+.proposal-details :is(p,li) { font-size: 13px; color: var(--e-muted); line-height: 1.8; overflow-wrap: anywhere; }
+.proposal-details small { display: block; font-size: 12px; color: var(--e-muted); }
+.proposal-details ul { padding-left: 20px; }
+.proposal-nodes { list-style: none; padding: 0; margin: 12px 0 18px; display: grid; gap: 8px; }
+.proposal-nodes li { padding: 11px 13px; border: 1px solid var(--e-line); border-radius: 7px; background: #fafcff; }
+.proposal-nodes strong { color: var(--e-ink); font-size: 13px; }
+.authoring-history { padding: 20px; }
+.authoring-history h2 { font-size: 15px; margin: 0; }
+.authoring-history > p { font-size: 12px; color: var(--e-muted); }
+.authoring-history button { display: flex; flex-direction: column; gap: 6px; text-align: left; border: 0; border-top: 1px solid var(--e-line); background: none; padding: 13px 0; width: 100%; color: var(--e-ink); font-size: 13px; overflow-wrap: anywhere; }
+.authoring-history button small { font-size: 11px; color: var(--e-muted); }
+.e-dialog .e-field .architect-json { min-height: 260px; font-family: ui-monospace, monospace; font-size: 12px; line-height: 1.7; }
+.proposal-diff { font-size: 12px; color: var(--e-muted); line-height: 1.8; overflow-wrap: anywhere; }
 .architecture-map { border: 1px solid #1f3c67; border-radius: 12px; background: radial-gradient(ellipse at 50% 45%, #234777 0, #10294c 50%, #0d203e 100%); padding: 21px; }
 .architecture-map > header .eyebrow { color: #d4e4fc; letter-spacing: 1px; font-size: 11px; }
 .architecture-map > header > span:last-child { display: none; }

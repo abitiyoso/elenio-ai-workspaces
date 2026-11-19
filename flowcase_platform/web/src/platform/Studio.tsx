@@ -492,7 +492,7 @@ export function Studio({
                 {node.type === "condition" &&
                   (["true", "false"] as const).map((b) => (
                     <label className="e-field" key={b}>
-                      {b === "true" ? "True · matched" : "False · exception"}
+                      {b === "true" ? "True branch" : "False branch"}
                       <select
                         disabled={!editable}
                         aria-label={`${b} branch target`}

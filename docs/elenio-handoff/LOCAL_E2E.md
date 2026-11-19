@@ -13,7 +13,7 @@ Commands from the repository root (adjust binary paths for your checkout):
 ./scripts/Test-LocalServices.ps1 -PostgresBin ../tools/postgresql/pgsql/bin -GoExe ../tools/go/bin/go.exe
 ```
 
-The second command intentionally exits nonzero on the unresolved Windows FileVault test; it does not hide the failure. Raw test logs and a sanitized summary are stored under ignored `.local-e2e/`.
+The current full suite passes 374 tests with zero failures/skips, including the native Windows vault checks. The prior vault failure below is historical. Raw test logs and a sanitized summary are stored under ignored `.local-e2e/`.
 
 In the frontend directory:
 
@@ -71,3 +71,19 @@ One existing failure remains: `TestFileVaultEncryptsScopesAndRevokes` requires P
 ## Gate limits
 
 The requested local manual engineering/runtime flow is verified. The complete Elenio product and all phases are not declared complete. AI Architect/model evaluation/agent release need an approved configured provider (owner confirmed absent). Production IdP/CP app mount, KMS search/Docling/storage, external connectors, many-workflow project registry, economics ledger and portable production acceptance remain open according to the kit. No mock was promoted to a real provider. No remote environment, upstream repository, production branch or deployment was modified.
+
+## Authorized model authoring continuation
+
+The earlier no-provider statements describe the original checkpoint. The owner
+subsequently authorized 9Router. [ARCHITECT_AUTHORING.md](ARCHITECT_AUTHORING.md)
+documents the separate loopback Agent Studio startup/provision scripts, private
+vault and development identity, and opt-in model E2E. Agent preview uses its own
+`agent_live` database; backend tests keep their separate `agent_tests` database.
+The ordinary nine-case live suite excludes model tests and makes no provider
+calls; `playwright.ai.config.ts` requires explicit AI/local flags.
+
+Current verification: 374 backend tests, nine normal real local browser cases,
+one fresh-provider authoring case and one separately run stored-proposal UI case
+pass. The last case makes no model call. Flowcase's external runtime agent/KMS/
+connector execution remains disabled in this disposable sandbox. Architect can
+generate a manual review draft without claiming those missing capabilities.

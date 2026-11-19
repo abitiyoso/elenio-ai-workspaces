@@ -2,8 +2,6 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
-  ArrowUp,
-  Check,
   Boxes,
   GitBranch,
   Layers,
@@ -74,7 +72,7 @@ const capabilities = [
       "Versioned documents, scoped access and governed evidence. Explore the document workspace.",
   },
 ];
-function CapabilityMap({
+export function CapabilityMap({
   onBuild,
   onArchitect,
   dark = false,
@@ -219,7 +217,7 @@ export function Launchpad({
         <div><span className="eyebrow">FROM IDEA TO CUSTOMER OUTCOME</span><h2>Deliver an operating workspace.</h2><p>Customer-ready applications, model flexibility and cost visibility.</p></div>
         <div className="outcome-actions">
           <Link to="/connected/operations"><Boxes size={18} /><span>Business Apps</span><ArrowRight size={14} /></Link>
-          <button disabled title="The governed model registry is not connected to this workspace"><Layers size={18} /><span>Model Hub</span><small>Not connected</small></button>
+          <button disabled title="The model registry editor is not available in this workspace shell"><Layers size={18} /><span>Model Hub</span><small>Not connected</small></button>
           <Link to="/economics"><GitBranch size={18} /><span>AI Economics</span><ArrowRight size={14} /></Link>
         </div>
       </section>
@@ -329,63 +327,6 @@ export function Launchpad({
           )}
         </DialogPanel>
       )}
-    </section>
-  );
-}
-
-export function ArchitectBrief({
-  brief,
-  onBrief,
-  onBuild,
-}: {
-  brief: string;
-  onBrief: (value: string) => void;
-  onBuild: () => void;
-}) {
-  const [submitted, setSubmitted] = useState("");
-  function appendConstraint(text: string) {
-    onBrief([brief.trim(), text].filter(Boolean).join("\n\n"));
-  }
-  return (
-    <section className="page architect-page">
-      <header className="page-heading">
-        <div>
-          <span className="eyebrow">AI-ASSISTED SOLUTION ENGINEERING</span>
-          <h1>AI Solution Architect</h1>
-          <p>From business intent to a governed, working solution.</p>
-        </div>
-        <Button onClick={onBuild}>Open Workflow Studio <ArrowRight size={16} /></Button>
-      </header>
-      <div className="architect-columns">
-        <section className="surface architect-conversation" aria-label="Solution conversation">
-          <header><div><Sparkles size={18} /><h2>Solution conversation</h2></div><Badge>Local planning</Badge></header>
-          <div className="conversation-history" role="log" aria-label="Requirement history">
-            <div className="conversation-intro"><span className="architect-avatar"><Sparkles size={19} /></span><div><strong>Start with the outcome.</strong><p>Describe the process you want to improve. Include its trigger, inputs, decisions and the people responsible for review.</p><p>We will bring workflows, agents, knowledge and enterprise systems into one solution.</p></div></div>
-            {submitted && <div className="requirement-message"><span className="eyebrow">YOUR REQUIREMENT</span><p>{submitted}</p><small><Check size={13} /> Captured for this session</small></div>}
-          </div>
-          <form className="architect-composer" onSubmit={(event) => {event.preventDefault(); if (brief.trim()) setSubmitted(brief.trim());}}>
-            <div className="scenario-chips" aria-label="Add a constraint">
-              <button type="button" onClick={() => appendConstraint("Require independent human approval before any controlled action.")}>Add approval</button>
-              <button type="button" onClick={() => appendConstraint("Run in the customer environment with approved data residency and endpoints.")}>Customer-hosted</button>
-              <button type="button" onClick={() => appendConstraint("Reuse approved workflows, agents and capabilities before creating new ones.")}>Reuse capabilities</button>
-            </div>
-            <label className="sr-only" htmlFor="architect-requirement">Business requirement</label>
-            <textarea id="architect-requirement" rows={4} value={brief} onChange={(event) => onBrief(event.target.value)} placeholder="Describe your requirement or refine the solution…" />
-            <div><span>Requirement stays in this browser session</span><Button type="submit" variant="primary" disabled={!brief.trim()} aria-label="Capture requirement"><ArrowUp size={17} /></Button></div>
-          </form>
-        </section>
-        <section className="architect-discovery" aria-label="Solution discovery">
-          <div className="surface architect-blueprint">
-            <span className="eyebrow">SOLUTION DISCOVERY</span>
-            <h2>{submitted ? "Your requirement is ready to refine" : "Start with a requirement"}</h2>
-            <p>Build an editable blueprint with the minimum viable agents, explicit process connections, knowledge, integrations and human controls.</p>
-            <div className="blueprint-outline"><span><GitBranch size={16} /> Workflow & decisions</span><span><Boxes size={16} /> Agents & capabilities</span><span><ShieldCheck size={16} /> Governance & economics</span></div>
-            <Notice>Blueprint authoring is not connected to this workspace. Capturing a requirement does not call a model or change a workflow.</Notice>
-            <div className="blueprint-actions"><Button disabled>Generate blueprint</Button><Button variant="quiet" onClick={onBuild}>Explore example <ArrowRight size={14} /></Button></div>
-          </div>
-          <CapabilityMap dark onBuild={onBuild} onArchitect={() => document.getElementById("architect-requirement")?.focus()} />
-        </section>
-      </div>
     </section>
   );
 }

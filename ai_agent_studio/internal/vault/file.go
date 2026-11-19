@@ -98,7 +98,7 @@ func (v *FileVault) Put(ctx context.Context, scope string, secret []byte) (strin
 	}
 	id := hex.EncodeToString(idBytes)
 	path := filepath.Join(v.directory, id)
-	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
+	file, err := createPrivateFile(path)
 	if err != nil {
 		return "", fmt.Errorf("create encrypted credential: %w", err)
 	}
@@ -212,17 +212,17 @@ func newAEAD(key []byte) (cipher.AEAD, error) {
 }
 
 func ensurePrivateDirectory(path string) error {
-	if err := os.MkdirAll(path, 0o700); err != nil {
+	if err := createPrivateDirectory(path); err != nil {
 		return fmt.Errorf("create vault directory: %w", err)
 	}
 	info, err := os.Lstat(path)
 	if err != nil {
 		return fmt.Errorf("inspect vault directory: %w", err)
 	}
-	if !info.IsDir() || info.Mode()&os.ModeSymlink != 0 || info.Mode().Perm()&0o077 != 0 {
-		return errors.New("vault directory must be a non-symlink private directory with mode 0700")
+	if !info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
+		return errors.New("vault directory must be a non-symlink private directory")
 	}
-	return nil
+	return verifyPrivatePath(path, info, true)
 }
 
 func readMasterKey(path string) ([]byte, error) {
@@ -230,8 +230,11 @@ func readMasterKey(path string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("inspect master key file: %w", err)
 	}
-	if !info.Mode().IsRegular() || info.Mode()&os.ModeSymlink != 0 || info.Mode().Perm()&0o077 != 0 || info.Mode().Perm()&0o400 == 0 {
+	if !info.Mode().IsRegular() || info.Mode()&os.ModeSymlink != 0 {
 		return nil, errors.New("master key must be a readable regular file with no group/other permissions")
+	}
+	if err := verifyPrivatePath(path, info, false); err != nil {
+		return nil, err
 	}
 	file, err := os.Open(path)
 	if err != nil {

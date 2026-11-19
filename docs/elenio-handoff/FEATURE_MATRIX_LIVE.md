@@ -2,20 +2,22 @@
 
 Statuses reflect verified checkpoints, not a live deployment claim. The latest update below supersedes earlier model-absence statements.
 
-## Latest update — 2026-11-19
+## Latest update — Architect authoring, 2026-11-19
+
+This section supersedes earlier blocked-model/vault/authoring statements below. Historical checkpoints remain as an audit trail.
 
 | Capability | Current status | Evidence / authority | Acceptance |
 |---|---|---|---|
-| 9Router catalog + JSON completion | enhancement, real endpoint verified | Existing OpenAI-compatible probe; fixed approved endpoint/model; NINE_ROUTER.md | AI-01, SEC-02 |
-| Existing Eino provider execution | existing integration, synthetic live diagnostic tested | Schema-valid result, zero tools; scoped process-only diagnostic credential | AI-01 |
-| API/worker vault + governed provider deployment | blocked on Windows host / registry not imported | POSIX FileVault preserved; diagnostic does not create a release | AI-02/03, SEC-03 |
-| General Architect authoring | blocked contract; provider connectivity available | Functional local requirement capture, no generated blueprint or workflow mutations | AI-01, UX-02 |
-| V10 Home / Architect composition | enhancement, browser-tested | Original capability SVGs, shared map, conversation/discovery and actual screenshots | UX-01/02/05 |
-| Local workflow workspace | enhancement, browser-tested | Full-width drawer shell, readable native entry, Fit View, early selection priority, keyboard focus | UX-03, FLOW-01 |
+| 9Router inside Agent API/worker | real development integration tested | Encrypted server vault, capability-backed deployment approval, existing queue/Eino; ARCHITECT_AUTHORING.md | AI-01, SEC-02 |
+| Windows private FileVault | enhancement, tested | Owner-only native DACL, insecure/shared path rejection; 86 Agent tests | SEC-03 |
+| Architect requirement → proposal | new, real provider tested | Bounded tool-free 0.3.0 contract, durable run/history/tokens, explicit send/cancel/retry | AI-01, UX-02 |
+| Proposal → native workflow draft | new, real local E2E tested | Editable JSON/diff, native validation, explicit confirmation, stable idempotency; Flowcase authority | FLOW-01, SEC-03 |
+| Responsive Architect / V10 composition | enhancement, tested | Shared design and original logo, actual real-proposal captures at 1440/1024/768/390; human visual approval open | UX-01/02/05 |
+| Evaluated production agent release / model-backed business pilot | open | No production release or business-policy signoff; current provider run is authoring only | AI-02/03, APP-01 |
+| Full product / later-phase acceptance | open | Hierarchy, general capability authoring, actual Economics ledger and release packaging still pending | See STATUS.md |
 
-Current validation: 66 frontend unit, 29 browser regressions, nine real local browser E2E, adapter/runtime Go packages and two diagnostic boundary tests pass. Details: UI_V10_COMPARISON.md and NINE_ROUTER.md. Human visual and full-product acceptance remain open.
-
-## Earlier checkpoints
+Validation: 374 backend, 77 frontend unit/component, 34 browser regressions, nine real local runtime/operations cases, one fresh-provider authoring case and one separately run stored-proposal responsive/axe case pass. Lint/typecheck/build pass. Linux vault cross-compiles only. Details and scope: ARCHITECT_AUTHORING.md and QA_RESULTS.md.
+\n## Earlier checkpoints
 
 | Capability | Status | Evidence / owner | Acceptance |
 |---|---|---|---|

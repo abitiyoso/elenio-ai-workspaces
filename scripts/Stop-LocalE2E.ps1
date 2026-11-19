@@ -2,11 +2,11 @@ param([Parameter(Mandatory)][string]$PostgresBin)
 $ErrorActionPreference='Stop'
 $repo=Split-Path $PSScriptRoot -Parent
 $state=[IO.Path]::GetFullPath((Join-Path $repo '.local-e2e'))
-foreach($name in @('api','worker')){
+foreach($name in @('api','worker','agent')){
  $pidFile=Join-Path $state "$name.pid"
  if(Test-Path $pidFile){
   $process=Get-Process -Id ([int](Get-Content $pidFile)) -ErrorAction SilentlyContinue
-  $expected=Join-Path $state "flowcase-$name.exe"
+  $expected=Join-Path $state $(if($name -eq 'agent'){'agent-studio.exe'}else{"flowcase-$name.exe"})
   if($process -and $process.Path -eq $expected){Stop-Process -Id $process.Id}
  }
 }

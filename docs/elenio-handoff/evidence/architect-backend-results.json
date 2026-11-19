@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-19",
+  "database": "PostgreSQL 16.16, loopback-only disposable databases",
+  "test_kind": "real database integration; provider/IdP doubles remain where existing tests specify them",
+  "modules": [
+    {
+      "module": "flowcase",
+      "exit_code": 0,
+      "passed": 110,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "module": "control-plane",
+      "exit_code": 0,
+      "passed": 37,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "module": "agent",
+      "exit_code": 0,
+      "passed": 86,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "module": "kms",
+      "exit_code": 0,
+      "passed": 107,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    },
+    {
+      "module": "ucw",
+      "exit_code": 0,
+      "passed": 34,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    }
+  ]
+}

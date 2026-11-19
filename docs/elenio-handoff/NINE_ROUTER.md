@@ -51,18 +51,19 @@ documents or external mutations. Provider output bodies are not logged.
 - Adapter/runtime Go suites and two diagnostic credential boundary tests pass.
 - Machine-readable safe record: [nine-router-verification.json](evidence/nine-router-verification.json).
 
-## Remaining application integration
+## Current application integration (supersedes diagnostic checkpoint)
 
-The key is staged in a server-only environment file and consumed by the test
-launcher. It has **not** been imported into a running Agent Studio API/worker
-vault or approved model registry. That service's FileVault still requires POSIX
-0700 permissions and cannot start on this Windows host; that protection was not
-bypassed or replaced. Its existing supported deployment environment must be used
-for the vault, provider registration, capability evidence and approved deployment.
+The key is now imported into the running Agent Studio API/worker encrypted vault.
+The Windows vault uses native owner-only ACL checks; the original POSIX checks
+remain on other platforms. The API registers a capability-probed development
+model deployment and the bounded tool-free Architect agent version 0.3.0.
 
-The general Architect blueprint authoring API also remains unimplemented. The
-Architect screen captures and refines a local requirement, and explicitly states
-that it does not call a model or change workflows. The prior blanket message
-“Model not configured” was removed: provider connectivity is now proven, while
-workspace authoring integration remains incomplete. Do not claim a model-backed
-Architect → workflow → evaluation → release pilot from this diagnostic.
+Actual browser → Agent API/queue/Eino → 9Router → persisted proposal → native
+Flowcase validation → explicitly confirmed draft creation passed. The final
+fresh run used 4,460 input / 1,130 output tokens with zero tools. This is separate
+from the original 299/9-token diagnostic recorded above. Model rates and monetary
+costs are not invented.
+
+See [ARCHITECT_AUTHORING.md](ARCHITECT_AUTHORING.md) for setup, exact API/trust
+boundaries, tests, screenshots and outstanding gates. No production model/agent
+release or model-backed business execution pilot was approved by this delivery.
