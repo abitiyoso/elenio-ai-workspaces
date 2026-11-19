@@ -264,7 +264,15 @@ export function Platform() {
             Projects
           </NavLink>
           <span className="nav-section">ENGINEERING</span>
-          <NavLink to="/connected/operations" onClick={() => setMenu(false)}>
+          <NavLink
+            to="/connected/operations"
+            className={({ isActive }) =>
+              isActive || location.pathname.startsWith("/connected/cases/")
+                ? "active"
+                : ""
+            }
+            onClick={() => setMenu(false)}
+          >
             <FolderOpen size={18} />
             Cases &amp; reviews
           </NavLink>
@@ -390,13 +398,16 @@ export function Platform() {
             <span className="topbar-workspace">Workspace</span>
             <ChevronRight size={14} />
             <span>
-              {workflow
-                ? "Workflow Studio"
-                : location.pathname.includes("projects")
-                  ? "Projects"
-                  : location.pathname.includes("knowledge")
-                    ? "Knowledge"
-                    : "Overview"}
+              {location.pathname.startsWith("/connected/cases/") ||
+              location.pathname === "/connected/operations"
+                ? "Cases & reviews"
+                : workflow
+                  ? "Workflow Studio"
+                  : location.pathname.includes("projects")
+                    ? "Projects"
+                    : location.pathname.includes("knowledge")
+                      ? "Knowledge"
+                      : "Overview"}
             </span>
           </div>
           <div>
