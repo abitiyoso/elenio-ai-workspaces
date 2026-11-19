@@ -76,5 +76,21 @@
     "main_merge": false,
     "deployment": false,
     "standalone_install": "unverified"
+  },
+  "delivery": {
+    "base_branch": "feat/elenio-solution-delivery",
+    "private_owner": "abitiyoso",
+    "upstream_push": "DISABLED",
+    "implementation_sha": "46081c719006a43bf1259e4de84cbd154e598090",
+    "main_sha": "8bfae869e8ad3adaf10b496428ffbcf22c196db9",
+    "draft_pr": "https://github.com/abitiyoso/elenio-ai-workspaces/pull/8"
+  },
+  "security": {
+    "named_credential_absent": "changed tracked files and frontend build",
+    "outside_original_ancestry": 0,
+    "history_findings": 9,
+    "staged_findings": 0,
+    "brand_assets": "unchanged",
+    "history_scope": "25 commits through implementation"
   }
 }

@@ -44,3 +44,11 @@ base feat/elenio-architect-authoring. Validation: 42 CP tests, 84 frontend unit,
 37 full browser regressions plus final targeted three; lint/build/vet pass.
 Full-history scan retains only nine reviewed original non-secret matches;
 no new secret findings. Whole-product/Phase 2/Publisher completion remains open.
+
+Publisher candidate delivery: implementation
+46081c719006a43bf1259e4de84cbd154e598090, draft PR
+https://github.com/abitiyoso/elenio-ai-workspaces/pull/8,
+base feat/elenio-solution-delivery. Final static/build/vet checks pass; OpenAPI
+YAML and 250 local refs validate. History retains only nine reviewed original
+non-secret matches. Candidate capture/preview is delivered; independent solution
+approval, operational runtime pages and installation are not complete.

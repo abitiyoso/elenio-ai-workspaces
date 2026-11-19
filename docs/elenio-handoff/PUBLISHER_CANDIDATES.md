@@ -46,3 +46,20 @@ Safe reports: `evidence/publisher-control-plane-results.json`, `publisher-unit-r
 Through a configured CP session, open elenio.html#/solutions, edit a UI/both plan, configure pages and save. Preview application, then capture a Publisher candidate for the saved revision and inspect its blockers. Local standalone preview still lacks a persistent CP login and shows unavailable rather than fixtures. Go tests run a real temporary CP server/DB with the mock IdP.
 
 Owner confirmed no Docker sandbox. No clean customer install, dedicated URL, upgrade, restart, backup/restore, rollback or independent two-department scenario is claimed. Next: authoritative transitive resolution, operational page/schema mapping and independent solution approval, then pinned OCI/configuration bundles and real Compose lifecycle verification. Whole-product/master-prompt acceptance remains open. No upstream write, main merge or deployment.
+
+## Private delivery checkpoint
+
+Tested implementation/evidence commit:
+46081c719006a43bf1259e4de84cbd154e598090.
+Draft PR: https://github.com/abitiyoso/elenio-ai-workspaces/pull/8
+(base feat/elenio-solution-delivery). The branch tip also includes this delivery
+metadata; compare git rev-parse HEAD and the remote feature ref for its final SHA.
+
+Owner abitiyoso and private origin verified. Staged scan: zero findings.
+Full history through implementation: 25 commits / 8.04 MB; same nine reviewed
+original non-secret matches, zero outside original source ancestry, no new
+findings or exclusions. Exact credential absent from changed tracked files and
+frontend build; original brand assets unchanged. OpenAPI YAML parses with all
+250 local refs resolved; changed-package Go vet passes. Main remains
+8bfae869e8ad3adaf10b496428ffbcf22c196db9, upstream push DISABLED.
+No main merge or deployment; whole master prompt and installation gates remain open.
