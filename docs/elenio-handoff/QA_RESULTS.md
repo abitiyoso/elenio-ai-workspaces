@@ -50,3 +50,20 @@ ELK is lazy-loaded separately (~1.47 MB, ~449 KB gzip) and still emits a large-c
 No backend, schema, tenant header, credential vault, approval gate or production deployment was modified. Brand PNG hash matches the original handoff asset. Only the private owner repository receives development commits; upstream push disabled; main preserved as original baseline.
 
 The owner-requested typography/content correction re-ran changed-app lint, typecheck, 52 tests, multi-entry build and seven browser tests. The earlier first-slice content was replaced by final-kit Home composition; the owner visual gate remains reopened. Fontsource Inter 5.3.0 is bundled and its OFL notice retained. See KIT_ALIGNMENT_PHASE1.md for intentionally missing later-phase features.
+
+## Phase 2 contract checkpoint — 2026-11-19 Asia/Jakarta
+
+Tested implementation `e6c6b7b072d469c22b5d2b95c980038ca5db021a` on `feat/elenio-core-engineering`. Same locked dependencies and existing authenticated backend routes; no Go/SQL/OpenAPI/backend changes.
+
+- `npm run lint`: passed (zero warnings permitted).
+- `npm run build`: passed TypeScript and production builds for original `index.html` and new `elenio.html`. Existing lazy ELK warning remains (1,474.15 kB / 449.25 kB gzip).
+- `npm test -- --reporter=json --outputFile=../../docs/elenio-handoff/evidence/unit-results.json`: **60 passed, 0 failed**.
+- `npm run test:e2e`: **22 passed, 0 failed/skipped/flaky**, Chromium, one worker, 39.0 seconds. JSON report retained in evidence.
+
+Service API responses are intercepted by browser tests and explicitly label identity **Contract test fixture**, environment **test**, auth **dev_mock**. They verify request/response behavior, not server database isolation. Cases include 401/malformed session, forbidden creation, viewer restrictions, unknown runtime capabilities, published immutability, stable create retry Idempotency-Key, native blank/template/import requests, exact If-Match, 412 edit retention, diff confirmation, validation diagnostics, canonical branch/schema/policy preservation, scoped layout reload and unsaved browser Back. Additional unit coverage rejects invalid result contracts and unsafe app routes, and verifies that CP calls do not forward a Flowcase bearer token.
+
+Serious/critical axe A/AA rules tagged through WCAG 2.2 pass on five local routes plus connected registry/catalog/editor. Manual keyboard/dialog tests and focus canvas expansion pass; this is not blanket accessibility conformance. Responsive overflow regression passes local routes at 1440/1280/1024/768/390/360 px, service registry/editor at 1440/768/390 px. The newly introduced 360 px topbar overflow was reproduced and corrected. Templates navigation from an already mounted registry has a dedicated regression case.
+
+Screenshots: 25 refreshed local captures plus eight service captures, all of the actual implementation. Connected captures are contract-test evidence. Desktop and mobile editor screenshots inspected after the compact validation header/focus changes. Official logo SHA256 remains `00e7cb514b48a4e5e52db62552397263b6aef2b914595afc714ea13711ecb254`.
+
+All-history Gitleaks through this implementation scanned six commits / 7.23 MB: nine matches, all at original upstream SHA, same individually reviewed checksum/sentinel/test-literal findings. No new findings, suppressions or ignored matches. Backend baseline above remains historical; unchanged services were not rerun. No sandbox was supplied (owner explicitly confirmed), so live authorization/concurrency/KMS/launch/provider acceptance stays open. General Architect generation and many-workflow project orchestration are not delivered by these contract tests.

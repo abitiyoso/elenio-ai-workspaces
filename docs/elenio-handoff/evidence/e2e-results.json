@@ -95,6 +95,524 @@
   },
   "suites": [
     {
+      "title": "connected.spec.ts",
+      "file": "connected.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "unavailable/invalid identity never falls back to editable fixture data",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 412,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T23:58:52.660Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b8dfe90c693c2730a610-6cde870f0265e9dee0a8",
+          "file": "connected.spec.ts",
+          "line": 290,
+          "column": 1
+        },
+        {
+          "title": "connected create blank uses native registry and keeps a stable retry idempotency key",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 796,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T23:58:53.246Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b8dfe90c693c2730a610-fb66271c67103588ecd9",
+          "file": "connected.spec.ts",
+          "line": 303,
+          "column": 1
+        },
+        {
+          "title": "server save uses version token; validation displays actual server diagnostics and native import requires a diff",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1226,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T23:58:54.048Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b8dfe90c693c2730a610-b957eaa1038ae565fd36",
+          "file": "connected.spec.ts",
+          "line": 333,
+          "column": 1
+        },
+        {
+          "title": "412 conflict preserves edits; navigation requires an explicit discard and reload never auto-overwrites",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1116,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T23:58:55.283Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b8dfe90c693c2730a610-0b08f1a0b65c7e3dc4fd",
+          "file": "connected.spec.ts",
+          "line": 382,
+          "column": 1
+        },
+        {
+          "title": "runtime capabilities and server roles gate edits; published version stays immutable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 629,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T23:58:56.409Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b8dfe90c693c2730a610-734257173175d3595d48",
+          "file": "connected.spec.ts",
+          "line": 417,
+          "column": 1
+        },
+        {
+          "title": "a server viewer cannot create or edit, including when a draft route is opened directly",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 793,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T23:58:57.043Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b8dfe90c693c2730a610-1e98fa4b75cfb4333fed",
+          "file": "connected.spec.ts",
+          "line": 431,
+          "column": 1
+        },
+        {
+          "title": "published graph is immutable and template creation names only a registered source",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 897,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T23:58:57.843Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b8dfe90c693c2730a610-26a21279844cbe90779e",
+          "file": "connected.spec.ts",
+          "line": 449,
+          "column": 1
+        },
+        {
+          "title": "registered dependency catalog is real response data and standalone CP launch is unavailable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 464,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T23:58:58.746Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b8dfe90c693c2730a610-6fbef34c8dcbb1f3e32b",
+          "file": "connected.spec.ts",
+          "line": 478,
+          "column": 1
+        },
+        {
+          "title": "malformed session payload locks the service route and makes no write requests",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 321,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T23:58:59.216Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b8dfe90c693c2730a610-5e7cad0b2b92571b6674",
+          "file": "connected.spec.ts",
+          "line": 498,
+          "column": 1
+        },
+        {
+          "title": "native create import previews first and retains canonical branch configuration",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 788,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T23:58:59.542Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b8dfe90c693c2730a610-cf0351e7a19cfef3fc9e",
+          "file": "connected.spec.ts",
+          "line": 512,
+          "column": 1
+        },
+        {
+          "title": "connected pages remain responsive on desktop, tablet and mobile",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1080,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T23:59:00.337Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b8dfe90c693c2730a610-881ac9773fee6430cc79",
+          "file": "connected.spec.ts",
+          "line": 543,
+          "column": 1
+        },
+        {
+          "title": "visual positions survive reload in a scoped sidecar that contains no service definition",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1451,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T23:59:01.423Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b8dfe90c693c2730a610-a83b5974ac9778d9bc2c",
+          "file": "connected.spec.ts",
+          "line": 582,
+          "column": 1
+        },
+        {
+          "title": "browser Back also protects an unsaved connected draft",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1134,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T23:59:02.880Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b8dfe90c693c2730a610-b2c1c494164573222651",
+          "file": "connected.spec.ts",
+          "line": 623,
+          "column": 1
+        },
+        {
+          "title": "service pages pass serious/critical accessibility rules and focus expands the canvas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1989,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T23:59:04.020Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b8dfe90c693c2730a610-4466bab647b7135b27b0",
+          "file": "connected.spec.ts",
+          "line": 651,
+          "column": 1
+        },
+        {
+          "title": "Templates can open creation from an already loaded registry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 469,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-18T23:59:06.015Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b8dfe90c693c2730a610-bff6fb1b3ecbe7c0e3d2",
+          "file": "connected.spec.ts",
+          "line": 668,
+          "column": 1
+        }
+      ]
+    },
+    {
       "title": "platform.spec.ts",
       "file": "platform.spec.ts",
       "column": 0,
@@ -116,12 +634,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 2081,
+                  "duration": 1331,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-18T19:12:50.231Z",
+                  "startTime": "2026-11-18T23:59:06.507Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -150,12 +668,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1193,
+                  "duration": 1054,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-18T19:12:52.570Z",
+                  "startTime": "2026-11-18T23:59:07.843Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -184,12 +702,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 14902,
+                  "duration": 14861,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-18T19:12:53.771Z",
+                  "startTime": "2026-11-18T23:59:08.904Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -218,12 +736,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 644,
+                  "duration": 614,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-18T19:13:08.680Z",
+                  "startTime": "2026-11-18T23:59:23.771Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -257,7 +775,7 @@
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-18T19:13:09.330Z",
+                  "startTime": "2026-11-18T23:59:24.390Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -286,12 +804,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 3918,
+                  "duration": 1938,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-18T19:13:13.372Z",
+                  "startTime": "2026-11-18T23:59:28.429Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -320,12 +838,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 714,
+                  "duration": 663,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-18T19:13:17.296Z",
+                  "startTime": "2026-11-18T23:59:30.373Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -343,9 +861,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-18T19:12:49.662Z",
-    "duration": 28516.913,
-    "expected": 7,
+    "startTime": "2026-11-18T23:58:52.139Z",
+    "duration": 39049.16,
+    "expected": 22,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0
