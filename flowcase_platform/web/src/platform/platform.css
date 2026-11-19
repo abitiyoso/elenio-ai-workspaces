@@ -95,7 +95,7 @@
   display: flex;
   align-items: center;
   gap: 11px;
-  padding: 11px 12px;
+  padding: 9px 12px;
   font-size: 13px;
   color: #526077;
   border-radius: 7px;
@@ -117,7 +117,7 @@
   letter-spacing: 1.3px;
   color: #5f6d82;
   font-weight: 650;
-  padding: 25px 11px 6px;
+  padding: 18px 11px 6px;
 }
 .sidebar-bottom {
   margin-top: auto;
@@ -242,6 +242,51 @@
 }
 .platform-topbar .mobile-menu {
   display: none;
+}
+.nav-backdrop {
+  position: fixed;
+  inset: 0;
+  border: 0;
+  background: #10223a55;
+  z-index: 29;
+}
+.editor-route .platform-body {
+  margin-left: 0;
+  width: 100%;
+}
+.editor-route:not(.nav-open) .platform-sidebar {
+  visibility: hidden;
+  transform: translateX(-100%);
+}
+.editor-route .platform-topbar {
+  height: 48px;
+  padding-inline: 20px;
+}
+.editor-route .platform-topbar .mobile-menu {
+  display: flex;
+  padding: 6px;
+  min-height: 32px;
+}
+.editor-route .studio {
+  height: calc(100dvh - 48px);
+}
+.editor-route .studio-heading {
+  padding: 12px 24px;
+}
+.editor-route .studio-heading > div:first-child {
+  display: flex;
+  align-items: baseline;
+  gap: 15px;
+}
+.editor-route .studio-heading h1 {
+  margin: 0;
+  font-size: 18px;
+}
+.editor-route .studio-heading .eyebrow {
+  font-size: 10px;
+}
+.editor-route .studio-toolbar {
+  padding-block: 9px;
 }
 .e-skip {
   position: fixed;
@@ -1384,9 +1429,9 @@
 .focus-mode .graph-issues {
   left: 25px;
 }
-.focus-mode .studio {
-  height: calc(100dvh - 96px);
-}
+.editor-route.focus-mode .studio-heading,
+.editor-route.focus-mode .studio-tabs { display: none; }
+.editor-route.focus-mode .graph-issues { top: 70px; }
 .mobile-node-list {
   display: none;
 }
@@ -2074,13 +2119,6 @@
     padding: 0 20px;
     font-size: 12px;
   }
-  .nav-backdrop {
-    position: fixed;
-    inset: 0;
-    border: 0;
-    background: #10223a55;
-    z-index: 29;
-  }
   .page {
     padding: 28px 20px;
   }
@@ -2365,6 +2403,11 @@
   .focus-mode .studio {
     height: auto;
   }
+  .editor-route .studio { height: auto; min-height: calc(100dvh - 48px); }
+  .editor-route .studio-heading > div:first-child { display: block; }
+  .editor-route .studio-heading h1 { margin-top: 6px; }
+  .editor-route.focus-mode .studio-heading,
+  .editor-route.focus-mode .studio-tabs { display: flex; }
   .focus-mode .platform-sidebar {
     display: flex;
   }

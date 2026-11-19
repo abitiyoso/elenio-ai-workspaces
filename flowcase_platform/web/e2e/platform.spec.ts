@@ -19,10 +19,9 @@ test("home → project → graph; edit, persist, role boundary and knowledge evi
   ).toBeVisible();
   await page.getByRole("button", { name: "Open Workflow Studio" }).click();
   await expect(page.locator(".react-flow__node")).toHaveCount(11);
-  await page
-    .locator(".react-flow__node")
-    .filter({ hasText: "Vendor matched?" })
-    .click();
+  await page.getByRole("button", { name: "Find a node" }).click();
+  await page.getByLabel("Find graph node").fill("Vendor matched?");
+  await page.getByRole("button", { name: /Vendor matched\? Condition/ }).click();
   await expect(page.getByLabel("true branch target")).toHaveValue("review");
   await expect(page.getByLabel("false branch target")).toHaveValue("exception");
   await page
@@ -42,14 +41,14 @@ test("home → project → graph; edit, persist, role boundary and knowledge evi
   await expect(
     page.getByRole("button", { name: "Add node", exact: true }),
   ).toBeDisabled();
-  await page
-    .locator(".react-flow__node")
-    .filter({ hasText: "Finance approval" })
-    .click();
+  await page.getByRole("button", { name: "Find a node" }).click();
+  await page.getByLabel("Find graph node").fill("Finance approval");
+  await page.getByRole("button", { name: /Finance approval Approval/ }).click();
   await expect(page.getByLabel("Node name", { exact: true })).toHaveAttribute(
     "readonly",
     "",
   );
+  await page.getByRole("button", { name: "Open navigation" }).click();
   await page.getByRole("link", { name: "Knowledge", exact: true }).click();
   await page.getByLabel("Search documents").fill("vendor");
   await expect(
@@ -109,6 +108,7 @@ test("responsive pages have no horizontal overflow and mobile graph remains read
     await page.setViewportSize(size);
     for (const route of [
       "",
+      "architect",
       "projects/vendor-payment",
       "projects/vendor-payment/workflow",
       "knowledge",
@@ -159,12 +159,38 @@ test("keyboard command navigation and accessible dialog focus", async ({
   ).toBeFocused();
 });
 
+test("workflow opens in a readable entry context, fits the graph and restores drawer focus", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/elenio.html#/projects/vendor-payment/workflow");
+  await expect(page.locator(".react-flow__node")).toHaveCount(11);
+  await expect(page.locator(".platform-sidebar")).toBeHidden();
+  await expect(page.locator('.react-flow__node[data-id="start"]')).toBeInViewport();
+  await expect.poll(() => page.locator(".react-flow__viewport").evaluate((viewport) => new DOMMatrix(getComputedStyle(viewport).transform).a)).toBeGreaterThanOrEqual(0.85);
+  await page.getByRole("button", { name: "Fit View", exact: true }).click();
+  await expect.poll(() => page.locator(".workflow-canvas").evaluate((canvas) => {
+    const bounds = canvas.getBoundingClientRect();
+    return [...canvas.querySelectorAll(".react-flow__node")].every((node) => {
+      const box = node.getBoundingClientRect();
+      return box.left >= bounds.left && box.right <= bounds.right && box.top >= bounds.top && box.bottom <= bounds.bottom;
+    });
+  })).toBe(true);
+  const canvas = await page.locator(".workflow-canvas").boundingBox();
+  expect(canvas?.width).toBeGreaterThan(1400);
+  expect(canvas?.height).toBeGreaterThan(630);
+  await page.getByRole("button", { name: "Open navigation" }).click();
+  await expect(page.locator(".platform-brand")).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(page.locator(".platform-sidebar")).toBeHidden();
+  await expect(page.getByRole("button", { name: "Open navigation" })).toBeFocused();
+});
+
 test("core pages pass serious/critical accessibility checks", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   for (const route of [
     "",
+    "architect",
     "projects/vendor-payment",
     "projects/vendor-payment/workflow",
     "knowledge",
@@ -259,6 +285,10 @@ test("kit launchpad uses bundled typography, scenario brief and contextual proje
   }));
   expect(typography.family).toContain("Inter Variable");
   expect(typography.loaded).toBe(true);
+  await expect(page.locator(".capability-art img")).toHaveCount(6);
+  await expect.poll(() => page.locator(".capability-art img").evaluateAll(
+    (images) => images.every((image) => image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0),
+  )).toBe(true);
   await page.getByRole("button", { name: "Recruitment", exact: true }).click();
   await expect(page.getByLabel("Solution brief")).toHaveValue(/HR/);
   await page
@@ -271,6 +301,12 @@ test("kit launchpad uses bundled typography, scenario brief and contextual proje
   await expect(
     page.getByRole("button", { name: "Generate blueprint" }),
   ).toBeDisabled();
+  await page.getByRole("button", { name: "Add approval", exact: true }).click();
+  await expect(page.getByLabel("Business requirement")).toHaveValue(/independent human approval/);
+  await page.getByRole("button", { name: "Capture requirement" }).click();
+  await expect(page.getByRole("log", { name: "Requirement history" })).toContainText("independent human approval");
+  await expect(page.getByRole("heading", { name: "Your requirement is ready to refine" })).toBeVisible();
+  await expect(page.getByText("Blueprint authoring is not connected", { exact: false })).toBeVisible();
   await page.goto("/elenio.html#/projects/vendor-payment");
   await page.getByRole("button", { name: "Dependencies", exact: true }).click();
   await expect(page.getByRole("table")).toContainText(

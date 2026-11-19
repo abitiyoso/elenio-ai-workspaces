@@ -202,7 +202,7 @@ export function Platform() {
   ];
   return (
     <div
-      className={`platform-shell ${focus && workflow ? "focus-mode" : ""} ${menu ? "nav-open" : ""}`}
+      className={`platform-shell ${workflow ? "editor-route" : ""} ${focus && workflow ? "focus-mode" : ""} ${menu ? "nav-open" : ""}`}
     >
       <a
         className="e-skip"
@@ -256,7 +256,7 @@ export function Platform() {
             AI Architect
           </NavLink>
           <NavLink
-            end={connectedMode}
+            end={connectedMode || workflow}
             to={connectedMode ? "/connected" : "/projects"}
             onClick={() => setMenu(false)}
           >
@@ -297,10 +297,10 @@ export function Platform() {
           <button
             className="planned-nav"
             disabled
-            title="Agent Studio integration: Phase 2–3"
+            title="Agent authoring is not connected to this workspace"
           >
             <Boxes size={18} />
-            Agent Studio <small>Phase 2</small>
+            Agent Studio
           </button>
           <span className="nav-section">CAPABILITY LIBRARY</span>
           <NavLink
@@ -317,18 +317,18 @@ export function Platform() {
           <button
             className="planned-nav"
             disabled
-            title="Skills & Tools integration: Phase 2"
+            title="Capability authoring is not connected to this workspace"
           >
             <Boxes size={18} />
-            Skills &amp; Tools <small>Phase 2</small>
+            Skills &amp; Tools
           </button>
           <button
             className="planned-nav"
             disabled
-            title="Approved model registry: Phase 3"
+            title="The governed model registry is not connected to this workspace"
           >
             <Layers size={18} />
-            Models &amp; Providers <small>Phase 3</small>
+            Models &amp; Providers
           </button>
           <span className="nav-section">MANAGEMENT</span>
           <NavLink to="/economics" onClick={() => setMenu(false)}>
@@ -407,7 +407,11 @@ export function Platform() {
                     ? "Projects"
                     : location.pathname.includes("knowledge")
                       ? "Knowledge"
-                      : "Overview"}
+                      : location.pathname === "/architect"
+                        ? "AI Architect"
+                        : location.pathname === "/economics"
+                          ? "AI Economics"
+                          : "Overview"}
             </span>
           </div>
           <div>
@@ -444,7 +448,7 @@ export function Platform() {
             )}
           </div>
         </header>
-        <div className="fixture-bar">
+        {!workflow && <div className="fixture-bar">
           <span>
             <span className="canvas-dot" />
             {connectedMode
@@ -454,7 +458,7 @@ export function Platform() {
           <button onClick={() => setHelp(true)}>
             What is connected? <ArrowRight size={13} />
           </button>
-        </div>
+        </div>}
         {error && (
           <div className="global-message">
             <Notice error>{error}</Notice>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Background,
   Controls,
@@ -140,6 +140,7 @@ function Canvas(props: Props) {
     mode = "fixture",
   } = props;
   const flow = useReactFlow();
+  const initializedView = useRef(false);
   const [drag, setDrag] = useState<Positions>({});
   const nodes: CanvasNode[] = useMemo(
     () =>
@@ -194,20 +195,41 @@ function Canvas(props: Props) {
   );
   const ready = Object.keys(positions).length > 0;
   useEffect(() => {
-    if (ready) {
+    if (selected) {
+      initializedView.current = true;
+      return;
+    }
+    if (ready && !initializedView.current) {
+      // Begin at a readable entry context. Fit View remains the explicit whole-
+      // graph overview; large graphs must not open with unreadably small labels.
+      const queue = [definition.nodes.find((node) => node.type === "start")?.id ?? definition.nodes[0]?.id];
+      const visible: { id: string }[] = [];
+      const seen = new Set<string>();
+      while (queue.length && visible.length < 3) {
+        const id = queue.shift();
+        if (!id || seen.has(id)) continue;
+        seen.add(id);
+        const node = definition.nodes.find((item) => item.id === id);
+        if (!node) continue;
+        visible.push({ id });
+        queue.push(...(node.next ?? []));
+      }
       const timer = setTimeout(
-        () =>
+        () => {
+          initializedView.current = true;
           void flow.fitView({
+            nodes: visible,
             padding: 0.13,
             minZoom: 0.85,
-            maxZoom: 0.85,
+            maxZoom: 1,
             duration: 0,
-          }),
+          });
+        },
         80,
       );
       return () => clearTimeout(timer);
     }
-  }, [ready, flow]);
+  }, [ready, flow, definition, selected]);
   useEffect(() => {
     if (selected) {
       void flow.fitView({

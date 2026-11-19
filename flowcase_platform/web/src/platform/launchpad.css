@@ -9,8 +9,8 @@
   margin-bottom: 26px;
 }
 .launch-welcome h1 {
-  font-size: 32px;
-  letter-spacing: -1.1px;
+  font-size: 38px;
+  letter-spacing: -1.4px;
   margin: 8px 0 9px;
   font-weight: 650;
 }
@@ -66,7 +66,7 @@
   border: 0;
   width: 100%;
   padding: 15px;
-  min-height: 110px;
+  min-height: 95px;
   resize: vertical;
   line-height: 1.7;
   font-size: 14px;
@@ -134,7 +134,9 @@
 .capability-world {
   position: relative;
   flex: 1;
-  min-height: 300px;
+  min-height: 295px;
+  color: #6c92c4;
+  margin-bottom: 16px;
 }
 .capability-world > svg {
   position: absolute;
@@ -152,16 +154,19 @@
   flex-direction: column;
   gap: 12px;
 }
-.capability-core img {
-  width: 64px;
-  height: auto;
-  filter: drop-shadow(0 8px 14px #2769bd25);
+.capability-core > div {
+  width: 100px;
+  height: 100px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #d7e4f6;
+  border-radius: 25px;
+  background: linear-gradient(145deg, #ffffffed, #eaf2ffcf);
+  box-shadow: 0 15px 30px #3567ad1a, inset 0 2px 0 white;
+  transform: rotate(-8deg);
 }
-.capability-core > span {
-  font-size: 10px;
-  letter-spacing: 1.8px;
-  color: #597093;
-}
+.capability-core img { width: 68px; height: auto; transform: rotate(8deg); }
+.capability-core > span { font-size: 10px; letter-spacing: 1.8px; color: #597093; }
 .capability-orbit {
   position: absolute;
   display: flex;
@@ -184,46 +189,22 @@
 .capability-orbit.selected strong {
   color: #164ca9;
 }
-.capability-symbol {
-  position: relative;
-  display: block;
-  width: 43px;
-  height: 43px;
-  filter: drop-shadow(0 5px 8px #5275a220);
-  transition: transform 0.15s;
+.capability-art {
+  display: grid;
+  place-items: center;
+  width: 70px;
+  height: 70px;
+  border: 1px solid #dce5f6;
+  border-radius: 19px;
+  background: linear-gradient(145deg, #ffffffcc, #e8f0fc88);
+  box-shadow: 0 8px 18px #38659f0a;
+  transition: transform .15s, border-color .15s;
 }
-.capability-orbit.selected .capability-symbol {
-  transform: scale(1.13);
-}
-.capability-symbol i {
-  position: absolute;
-  inset: 3px;
-  background: linear-gradient(135deg, #eaf4ff, #709bdc);
-  border: 1px solid #ecf4ff;
-  border-radius: 10px;
-  transform: rotate(-24deg);
-}
-.capability-symbol i:nth-child(2) {
-  inset: 10px;
-  background: linear-gradient(135deg, #fff, #bed7fa);
-  border-radius: 7px;
-  transform: rotate(-24deg);
-}
-.capability-symbol.agents i {
-  background: linear-gradient(135deg, #efe2ff, #9a7acb);
-  border-radius: 50% 12px 50% 12px;
-  transform: rotate(35deg);
-}
-.capability-symbol.review i {
-  background: linear-gradient(135deg, #fff1d7, #c4994c);
-  border-radius: 50%;
-}
-.capability-symbol.integrations i {
-  background: linear-gradient(135deg, #e2f9f7, #76b9bd);
-}
-.capability-symbol.knowledge i {
-  background: linear-gradient(135deg, #e3ebfb, #9bade0);
-  transform: rotate(12deg);
+.capability-art img { width: 68px; height: 68px; }
+.capability-orbit:hover .capability-art, .capability-orbit.selected .capability-art {
+  transform: translateY(-3px);
+  border-color: #91b2e5;
+  box-shadow: 0 8px 20px #38659f1a;
 }
 .capability-architect {
   left: 17%;
@@ -351,44 +332,74 @@
   margin: 20px 0;
   color: #52749d;
 }
-.architect-columns {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-  gap: 25px;
-}
-.architect-requirement,
-.architect-blueprint {
-  padding: 27px;
-}
-.architect-columns h2 {
-  font-size: 21px;
-  letter-spacing: -0.5px;
-  margin: 8px 0 19px;
-}
-.architect-columns h3 {
-  font-size: 14px;
+.workspace-outcome {
   margin-top: 24px;
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  border: 1px solid #dbe5f4;
+  border-radius: 12px;
+  background: linear-gradient(115deg, #f7faff, #f1f5ff 60%, #f4f1ff);
 }
-.architect-columns ul {
-  padding-left: 19px;
-  font-size: 14px;
-  line-height: 2;
-  color: var(--e-muted);
-}
-.architect-blueprint > p {
-  font-size: 14px;
-  line-height: 1.8;
-  color: var(--e-muted);
-}
-.architect-blueprint > .e-button {
-  margin-top: 20px;
-}
-.architect-blueprint > small {
-  display: block;
-  color: var(--e-muted);
-  margin-top: 8px;
-  font-size: 12px;
-}
+.workspace-outcome .eyebrow { font-size: 11px; color: #526e9e; }
+.workspace-outcome h2 { font-size: 21px; letter-spacing: -.6px; margin: 10px 0 8px; }
+.workspace-outcome p { font-size: 13px; color: var(--e-muted); margin: 0; line-height: 1.7; }
+.outcome-actions { display: grid; gap: 7px; min-width: 220px; }
+.outcome-actions > * { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid #dce5f3; background: #ffffffbd; border-radius: 7px; color: var(--e-ink); font-size: 12px; text-align: left; }
+.outcome-actions svg:last-child, .outcome-actions small { margin-left: auto; }
+.outcome-actions small { font-size: 11px; }
+.architect-page { padding-top: 26px; }
+.architect-page .page-heading { margin-bottom: 18px; }
+.architect-page .page-heading h1 { font-size: 28px; margin: 7px 0 8px; }
+.architect-page .page-heading p { font-size: 13px; }
+.architect-columns { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.15fr); gap: 22px; align-items: start; }
+.architect-conversation { display: flex; flex-direction: column; min-height: 625px; overflow: hidden; }
+.architect-conversation > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--e-line); }
+.architect-conversation > header > div { display: flex; align-items: center; gap: 9px; color: #4674ba; }
+.architect-conversation h2 { margin: 0; font-size: 14px; color: var(--e-ink); font-weight: 600; }
+.conversation-history { padding: 24px 20px; flex: 1; max-height: 430px; overflow: auto; }
+.conversation-intro { display: flex; gap: 13px; }
+.architect-avatar { display: grid; place-items: center; width: 33px; height: 33px; flex-shrink: 0; background: #edf3ff; color: #4975c1; border: 1px solid #dce7fa; border-radius: 10px; }
+.conversation-intro strong { font-size: 14px; font-weight: 600; }
+.conversation-intro p { color: var(--e-muted); font-size: 13px; line-height: 1.8; margin: 9px 0; }
+.requirement-message { margin: 24px 0 0 45px; border: 1px solid #dce7fa; border-radius: 12px 12px 3px 12px; padding: 16px; background: #f4f7ff; }
+.requirement-message p { font-size: 13px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+.requirement-message .eyebrow { font-size: 10px; }
+.requirement-message small { display: flex; align-items: center; gap: 5px; color: #536a88; font-size: 11px; }
+.architect-composer { margin-top: auto; padding: 17px; border-top: 1px solid var(--e-line); background: #fbfcff; }
+.architect-composer .scenario-chips { margin: 0 0 13px; }
+.architect-composer textarea { width: 100%; resize: vertical; min-height: 110px; border: 1px solid #d2dff0; border-radius: 9px; background: #fff; padding: 13px; color: var(--e-ink); font-size: 13px; line-height: 1.8; }
+.architect-composer > div:last-child { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-top: 10px; }
+.architect-composer > div > span { font-size: 11px; color: var(--e-muted); }
+.architect-composer button[type=submit] { border-radius: 8px; min-width: 36px; padding: 8px; }
+.architect-discovery { display: grid; gap: 18px; min-width: 0; }
+.architect-blueprint { padding: 20px; }
+.architect-blueprint h2 { font-size: 23px; letter-spacing: -.7px; margin: 12px 0 10px; }
+.architect-blueprint > p { font-size: 13px; line-height: 1.8; color: var(--e-muted); margin-bottom: 16px; }
+.blueprint-outline { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+.blueprint-outline span { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #526c91; }
+.blueprint-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+.architecture-map { border: 1px solid #1f3c67; border-radius: 12px; background: radial-gradient(ellipse at 50% 45%, #234777 0, #10294c 50%, #0d203e 100%); padding: 21px; }
+.architecture-map > header .eyebrow { color: #d4e4fc; letter-spacing: 1px; font-size: 11px; }
+.architecture-map > header > span:last-child { display: none; }
+.architecture-map .capability-world { min-height: 240px; color: #9fcaff; margin-bottom: 0; }
+.architecture-map .capability-workflow { top: 17%; }
+.architecture-map .capability-review { top: 85%; }
+.architecture-map .capability-art { width: 57px; height: 57px; border-radius: 16px; border-color: #4c69948f; background: #edf4ff0d; box-shadow: none; }
+.architecture-map .capability-art img { width: 57px; height: 57px; }
+.architecture-map .capability-orbit { gap: 6px; }
+.architecture-map .capability-orbit strong, .architecture-map .capability-core > span { color: #c5d7f3; }
+.architecture-map .capability-orbit.selected strong { color: #fff; }
+.architecture-map .capability-core { gap: 7px; }
+.architecture-map .capability-core > div { width: 58px; height: 58px; border-radius: 17px; }
+.architecture-map .capability-core img { width: 43px; }
+.architecture-map .capability-core > span { font-size: 8px; letter-spacing: 1px; }
+.architecture-map > footer { border-color: #526d903f; min-height: 32px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 12px; }
+.architecture-map > footer strong { color: #d6e5fc; }
+.architecture-map > footer p, .architecture-map > footer > span { color: #b0c5e4; }
+.architecture-map > footer :is(a,button) { color: #a0d5ff; }
 .platform-sidebar nav {
   overflow-y: auto;
   min-height: 0;
@@ -402,7 +413,7 @@
   border: 0;
   border-radius: 7px;
   background: none;
-  padding: 11px 12px;
+  padding: 9px 12px;
   width: 100%;
   text-align: left;
   color: #56677f;
@@ -541,9 +552,9 @@
   .creation-paths > :is(button, a) > svg:last-child {
     display: block;
   }
-  .architect-columns {
-    grid-template-columns: 1fr;
-  }
+  .architect-columns { grid-template-columns: 1fr; }
+  .architect-conversation { min-height: 480px; }
+  .workspace-outcome { flex-direction: column; align-items: stretch; }
 }
 @media (max-width: 767px) {
   .launch-welcome h1 {
@@ -589,10 +600,8 @@
   .capability-orbit strong {
     font-size: 10px;
   }
-  .capability-symbol {
-    width: 34px;
-    height: 34px;
-  }
+  .capability-art { width: 54px; height: 54px; }
+  .capability-art img { width: 52px; height: 52px; }
   .capability-core img {
     width: 48px;
   }
@@ -606,7 +615,6 @@
   .creation-paths > :is(button, a) {
     padding: 18px;
   }
-  .architect-requirement,
   .architect-blueprint {
     padding: 22px;
   }
