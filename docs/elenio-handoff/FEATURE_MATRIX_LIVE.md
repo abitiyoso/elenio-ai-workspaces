@@ -2,7 +2,21 @@
 
 Statuses reflect verified checkpoints, not a live deployment claim. The latest update below supersedes earlier model-absence statements.
 
-## Latest update — Publisher composition and candidates
+## Latest update — existing-service workspace integration
+
+| Capability | Current status | Evidence / authority | Acceptance |
+|---|---|---|---|
+| Persistent local CP session and scoped app proxy | existing + native integration, real browser tested | Original CP server/session/PKCE proxy; explicit loopback fixture IdP, not corporate SSO | SEC-01, APP-01 |
+| Existing Agent/Skills/Tools/Models navigation | existing + integrated launch, real browser tested | Original app registry/entitlement and Agent domain grants; original Agent Registry draft creation persists | AI-01, SEC-01/03 |
+| Cross-service identity agreement | additive fix, Go/unit/real browser tested | Verified issuer+subject rather than comparing separate domain user IDs; no browser role authority | SEC-01 |
+| Workflow→solution→candidate persisted flow | real local API/database/browser tested | Original authoring/validation/publication, CP plans and immutable candidates; remains unapproved | FLOW-01, OS-02/03 partial |
+| Windows Agent Studio assets | existing implementation fixed, regression tested | URL path handling independent of filesystem UNC semantics; missing assets 404 | UX-01, APP-01 |
+| Active workspace/person and change workspace | existing CP flow reused | Read verified session; leave editor before original CP selector mutates scope | UX-02, SEC-01 |
+| Legacy service interior / KMS / UCW integration | open | Main shell design retained; original Agent interior still legacy; KMS/UCW upstreams explicitly pending | UX-01/04, KMS-01, APP-01 |
+
+Current scoped tests: 53 CP, 110 Flowcase, 87 Agent, 88 frontend unit, 40 browser regressions, three real workspace browser cases. Details/provenance and remaining gates: [LOCAL_WORKSPACE.md](LOCAL_WORKSPACE.md).
+
+## Prior update — Publisher composition and candidates
 
 | Capability | Current status | Evidence / authority | Acceptance |
 |---|---|---|---|

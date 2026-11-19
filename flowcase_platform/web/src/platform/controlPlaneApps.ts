@@ -14,7 +14,7 @@ export async function controlPlaneGet<T>(
   path: string,
   signal?: AbortSignal,
 ): Promise<T> {
-  if (!/^\/api\/v1\/apps(?:\/[a-z][a-z0-9-]*\/launch)?$/.test(path))
+  if (!/^\/api\/v1\/(?:me|apps(?:\/[a-z][a-z0-9-]*\/launch)?)$/.test(path))
     throw new Error("Unsupported Control Plane route.");
   const response = await fetch(path, {
     credentials: "same-origin",

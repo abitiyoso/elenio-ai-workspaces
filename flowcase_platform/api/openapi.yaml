@@ -924,6 +924,8 @@ components:
       required: [user_id, tenant_id, display_name, roles, auth_mode, environment, expires_at]
       properties:
         user_id: { type: string, format: uuid }
+        identity_issuer: { type: string, description: Verified JWT issuer (trusted_jwt only); not a browser-supplied identity }
+        identity_subject: { type: string, description: Verified JWT subject (trusted_jwt only); domain user_id remains independent }
         tenant_id: { type: string, format: uuid }
         display_name: { type: string }
         roles:

@@ -1,0 +1,104 @@
+{
+  "date": "2026-11-20",
+  "branch": "feat/elenio-local-workspace-integration",
+  "base": "08ef430701e2c36bc8cf8c5906bb882cf22b3220",
+  "backend": {
+    "database": "real disposable PostgreSQL 16.16",
+    "modules": [
+      {
+        "module": "control-plane",
+        "passed": 53,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "module": "flowcase",
+        "passed": 110,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "module": "agent",
+        "passed": 87,
+        "failed": 0,
+        "skipped": 0
+      }
+    ],
+    "final_targeted_tests": "CP localdev/tool and Agent server tests passed after final browser/asset fixes",
+    "vet": "CP localdev/tool, Agent cmd, Flowcase API/app pass",
+    "unchanged_modules_not_rerun": [
+      "KMS",
+      "UCW"
+    ]
+  },
+  "frontend": {
+    "unit_passed": 88,
+    "regression_stats": {
+      "startTime": "2026-11-19T18:50:04.24Z",
+      "duration": 80218.46500000001,
+      "expected": 40,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "workspace_stats": {
+      "startTime": "2026-11-19T19:06:13.115Z",
+      "duration": 9568.716,
+      "expected": 3,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "lint": "pass",
+    "flowcase_build": "pass",
+    "agent_mounted_build": "pass",
+    "agent_typecheck": "pass",
+    "powershell_parser": "pass",
+    "warnings": [
+      "existing act() warnings",
+      "lazy ELK bundle size warning"
+    ]
+  },
+  "workspace": {
+    "url": "http://127.0.0.1:8200/apps/flowcase/elenio.html",
+    "identity": "explicit loopback fixture IdP; real CP code/PKCE/session/proxy",
+    "route_interception": false,
+    "independent_domain_grants": true,
+    "self_approval_exemptions": false,
+    "new_model_calls": 0,
+    "runtime_services": [
+      "original Control Plane",
+      "original Flowcase API/worker",
+      "original Agent Studio API/worker"
+    ],
+    "screenshots_inspected": [
+      "workspace-existing-agents-1440.png",
+      "workspace-publisher-1440.png",
+      "workspace-publisher-768.png",
+      "workspace-publisher-390.png"
+    ],
+    "candidate_axe_serious_critical": 0
+  },
+  "security": {
+    "staged_findings": 0,
+    "history_findings": 9,
+    "outside_original_ancestry": 0,
+    "history_commits_before_implementation": "26",
+    "named_credential_absent_checked_files": 109,
+    "credential_scope": "staged files, standalone Flowcase dist and both mounted frontend builds",
+    "private_runtime_config_gitignored": true,
+    "upstream_push": "DISABLED",
+    "verified_github_login": "abitiyoso",
+    "owner_repo_visibility": "private",
+    "main": "8bfae869e8ad3adaf10b496428ffbcf22c196db9"
+  },
+  "remaining": [
+    "original Agent Studio interior still legacy UI",
+    "KMS/UCW native adapters pending",
+    "full governed model-backed business pilot",
+    "general Economics event ledger/rates/rollups",
+    "transitive Publisher dependencies and solution approvals",
+    "pinned OCI/configuration installer and both independent installation scenarios; no Docker sandbox",
+    "no main merge or production deployment"
+  ]
+}

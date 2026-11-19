@@ -11,6 +11,8 @@ import type { Session } from "../api/types";
 
 const flow: Session = {
   user_id: "user-1",
+  identity_subject: "cp-user-1",
+  identity_issuer: "https://workspace.example",
   tenant_id: "tenant-1",
   display_name: "Builder",
   roles: ["workflow_designer"],
@@ -19,7 +21,8 @@ const flow: Session = {
   expires_at: null,
 };
 const agent: AgentSession = {
-  subject: "user-1",
+  subject: "cp-user-1",
+  issuer: "https://workspace.example",
   tenant_id: "tenant-1",
   identity_mode: "control-plane",
   permissions: [],
@@ -68,6 +71,14 @@ describe("Architect identity boundary", () => {
     expect(() =>
       assertSharedIdentity({ ...agent, subject: "other" }, flow),
     ).toThrow(/identity/);
+    for(const patch of [{issuer:""},{issuer:"https://foreign.example"},{subject:flow.user_id}]){
+      expect(()=>assertSharedIdentity({...agent,...patch},flow)).toThrow(/identity/);
+    }
+    const missingIssuer={...flow}, missingSubject={...flow}, missingAgentIssuer={...agent};
+    delete missingIssuer.identity_issuer; delete missingSubject.identity_subject; delete missingAgentIssuer.issuer;
+    expect(()=>assertSharedIdentity(agent,missingIssuer)).toThrow(/identity/);
+    expect(()=>assertSharedIdentity(agent,missingSubject)).toThrow(/identity/);
+    expect(()=>assertSharedIdentity(missingAgentIssuer,flow)).toThrow(/identity/);
   });
   it("does not accept a development identity alongside a production identity", () => {
     expect(() =>

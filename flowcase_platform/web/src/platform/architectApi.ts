@@ -12,6 +12,7 @@ export const ARCHITECT_KEY = "elenio.solution-architect";
 export const ARCHITECT_VERSION = "0.3.0";
 export interface AgentSession {
   subject: string;
+  issuer?: string;
   tenant_id: string;
   identity_mode: string;
   permissions: string[];
@@ -114,7 +115,7 @@ export function assertSharedIdentity(agent: AgentSession, flow: Session) {
     !local &&
     (agent.identity_mode !== "control-plane" ||
       flow.auth_mode !== "trusted_jwt" ||
-      agent.subject !== flow.user_id)
+      !agent.issuer || !flow.identity_issuer || agent.issuer !== flow.identity_issuer || !flow.identity_subject || agent.subject !== flow.identity_subject)
   )
     throw new Error(
       "A shared verified Control Plane identity is required across these applications.",

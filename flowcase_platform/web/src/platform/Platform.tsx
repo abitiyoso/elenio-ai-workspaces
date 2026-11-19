@@ -46,6 +46,9 @@ import { ProjectSections } from "./ProjectSections";
 import { ConnectedWorkspace } from "./ConnectedWorkspace";
 import { Economics } from "./Economics";
 import { Solutions } from "./Solutions";
+import {CapabilityWorkspace} from "./CapabilityWorkspace";
+import {WorkspaceIdentity} from "./WorkspaceIdentity";
+import {basePath} from "../api/client";
 
 export function Platform() {
   const location = useLocation(),
@@ -69,7 +72,8 @@ export function Platform() {
   const connectedMode = location.pathname.startsWith("/connected");
   const architectMode = location.pathname === "/architect";
   const solutionMode = location.pathname === "/solutions";
-  const serviceMode = connectedMode || architectMode || solutionMode;
+  const capabilityMode = location.pathname.startsWith("/capabilities/");
+  const serviceMode = connectedMode || architectMode || solutionMode || capabilityMode;
   const workflow = location.pathname.endsWith("/workflow"),
     editable = role === "Builder",
     value = JSON.stringify({ definition, positions }),
@@ -235,14 +239,14 @@ export function Platform() {
           <img src="./brand/elenio-logo.png" alt="Elenio" />
           <span>AI OS</span>
         </Link>
-        <button className="workspace-switch" onClick={() => setHelp(true)}>
+        {basePath==="/apps/flowcase"?<WorkspaceIdentity/>:<button className="workspace-switch" onClick={() => setHelp(true)}>
           <span className="workspace-symbol">E</span>
           <span>
             <strong>Elenio workspace</strong>
             <small>Solution engineering</small>
           </span>
           <ChevronRight size={15} />
-        </button>
+        </button>}
         <button
           className="sidebar-search"
           onClick={() => {
@@ -302,14 +306,10 @@ export function Platform() {
             <GitBranch size={18} />
             Workflow Studio
           </Link>
-          <button
-            className="planned-nav"
-            disabled
-            title="Agent authoring is not connected to this workspace"
-          >
+          <NavLink to="/capabilities/agents" onClick={()=>setMenu(false)}>
             <Boxes size={18} />
             Agent Studio
-          </button>
+          </NavLink>
           <span className="nav-section">CAPABILITY LIBRARY</span>
           <NavLink
             to={connectedMode ? "/connected/catalog" : "/knowledge"}
@@ -322,22 +322,14 @@ export function Platform() {
             <Layers size={18} />
             Templates
           </Link>
-          <button
-            className="planned-nav"
-            disabled
-            title="Capability authoring is not connected to this workspace"
-          >
+          <NavLink to="/capabilities/skills" onClick={()=>setMenu(false)}>
             <Boxes size={18} />
             Skills &amp; Tools
-          </button>
-          <button
-            className="planned-nav"
-            disabled
-            title="The model registry editor is not available in this workspace shell"
-          >
+          </NavLink>
+          <NavLink to="/capabilities/models" onClick={()=>setMenu(false)}>
             <Layers size={18} />
             Models &amp; Providers
-          </button>
+          </NavLink>
           <span className="nav-section">MANAGEMENT</span>
           <NavLink to="/solutions" onClick={() => setMenu(false)}>
             <FolderOpen size={18} />
@@ -381,7 +373,7 @@ export function Platform() {
             <span className="user-avatar">
               {connectedMode
                 ? "WS"
-                : solutionMode
+                : solutionMode || capabilityMode
                   ? "CP"
                   : architectMode
                     ? "AI"
@@ -391,6 +383,8 @@ export function Platform() {
               <strong>
                 {connectedMode
                   ? "Workspace user"
+                  : capabilityMode
+                    ? "Capability workspace"
                   : solutionMode
                     ? "Solution workspace"
                     : architectMode
@@ -400,7 +394,7 @@ export function Platform() {
               <small>
                 {connectedMode
                   ? "Sign in through workspace"
-                  : solutionMode
+                  : solutionMode || capabilityMode
                     ? "Control Plane session permissions"
                     : architectMode
                       ? "Agent Studio session permissions"
@@ -441,6 +435,8 @@ export function Platform() {
                       ? "Knowledge"
                       : location.pathname === "/architect"
                         ? "AI Architect"
+                        : capabilityMode
+                          ? "Capability library"
                         : location.pathname === "/solutions"
                           ? "Solutions"
                           : location.pathname === "/economics"
@@ -488,6 +484,8 @@ export function Platform() {
               <span className="canvas-dot" />
               {connectedMode
                 ? "Service mode · session and permissions required"
+                : capabilityMode
+                  ? "Governed capabilities · verified workspace session required"
                 : solutionMode
                   ? "Control Plane solution plans · verified workspace session required"
                   : architectMode
@@ -528,6 +526,7 @@ export function Platform() {
               <Route path="/connected/*" element={<ConnectedWorkspace />} />
               <Route path="/economics" element={<Economics />} />
               <Route path="/solutions" element={<Solutions />} />
+              <Route path="/capabilities/:capability" element={<CapabilityWorkspace />} />
               <Route
                 path="/"
                 element={

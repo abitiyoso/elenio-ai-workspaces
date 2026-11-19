@@ -23,7 +23,6 @@ const navigation = [
 
 type Page = (typeof navigation)[number]['id'];
 type LoadState = 'loading' | 'ready' | 'error';
-const configuredProbeBaseURL = 'https://9router.kibicode.my.id/v1';
 
 function statusLabel(value: string) {
   return value.replaceAll('_', ' ');
@@ -35,16 +34,19 @@ const simOutcomeLabels: Record<string, string> = {
   no_unconfigured_draft: 'tidak ada draft kosong',
 };
 
-function providerURLMatchesConfiguredHost(value: string) {
-  return value.replace(/\/+$/, '') === configuredProbeBaseURL;
+function providerHasValidHTTPSURL(value: string) {
+  try {const url=new URL(value);return url.protocol==='https:'&&!url.username&&!url.password&&!url.search&&!url.hash;}catch{return false;}
 }
+function pageFromHash():Page {const value=window.location.hash.slice(1);return navigation.some(item=>item.id===value)?value as Page:'models';}
 
 function messageFor(error: unknown) {
   return error instanceof Error ? error.message : 'Permintaan gagal. Coba lagi.';
 }
 
 export default function App() {
-  const [page, setPage] = useState<Page>('models');
+  const [page, setCurrentPage] = useState<Page>(pageFromHash);
+  function setPage(value:Page){setCurrentPage(value);window.history.replaceState(null,'',`#${value}`);}
+  useEffect(()=>{const update=()=>setCurrentPage(pageFromHash());window.addEventListener('hashchange',update);return()=>window.removeEventListener('hashchange',update)},[]);
   const [session, setSession] = useState<Session | null>(null);
   const [selectedAgentKey, setSelectedAgentKey] = useState('');
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -282,7 +284,7 @@ export default function App() {
   async function submitProviderProbe(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const provider = providers.find((item) => item.id === probeProviderId);
-    if (!provider || !probeDeploymentId || !credentialStatuses[provider.id]?.credential_configured || !providerURLMatchesConfiguredHost(provider.base_url)) return;
+    if (!provider || !probeDeploymentId || !credentialStatuses[provider.id]?.credential_configured || !providerHasValidHTTPSURL(provider.base_url)) return;
     const costsTokens = probeJson || probeTools;
     if (costsTokens && !probeCostAcknowledged) return;
     if (costsTokens && !probeJson && !probeTools) return;
@@ -478,13 +480,13 @@ export default function App() {
                 </form>
                 <form className="panel form-panel" onSubmit={submitProviderProbe}>
                   <div className="panel-heading"><div><p className="eyebrow">CONNECTION CHECK</p><h2>Provider probe</h2><p>Probe hanya berjalan setelah tindakan eksplisit. Pemeriksaan konektivitas meminta daftar model tanpa mengirim prompt.</p></div></div>
-                  <p className="scope-banner" role="status"><span className="scope-mark" aria-hidden="true">i</span><span>Target yang dikonfigurasi: <code>{configuredProbeBaseURL}</code>. Endpoint harus cocok; server tetap memeriksa allowlist egress dan izin akun.</span></p>
+                  <p className="scope-banner" role="status"><span className="scope-mark" aria-hidden="true">i</span><span>Probe memakai endpoint provider yang terdaftar. Server memeriksa allowlist egress, izin akun dan persetujuan penggunaan token.</span></p>
                   <label className="field"><span>Provider</span><select value={probeProviderId} onChange={(event) => { setProbeProviderId(event.target.value); setProbeDeploymentId(''); setProbeResult(null); setProbeState('idle'); }} disabled={providerState !== 'ready' || providers.length === 0 || probeState === 'loading'}><option value="">Pilih provider</option>{providers.filter((item) => item.adapter_type === 'openai_compatible').map((item) => <option key={item.id} value={item.id}>{item.display_name}</option>)}</select></label>
                   <label className="field"><span>Deployment</span><select value={probeDeploymentId} onChange={(event) => { setProbeDeploymentId(event.target.value); setProbeResult(null); setProbeState('idle'); }} disabled={!probeProviderId || probeState === 'loading'}><option value="">Pilih deployment provider</option>{deployments.filter((item) => item.provider_id === probeProviderId).map((item) => <option key={item.id} value={item.id}>{item.display_name} · {item.provider_model_id}</option>)}</select></label>
-                  {probeProviderId && <p className="form-hint" role="status">{providerURLMatchesConfiguredHost(providers.find((item) => item.id === probeProviderId)?.base_url ?? '') ? 'Host sesuai konfigurasi.' : 'Host provider tidak cocok dengan target yang dikonfigurasi; probe dinonaktifkan.'} {credentialStatuses[probeProviderId]?.credential_configured ? 'Credential configured pada backend.' : credentialStatusErrors[probeProviderId] ? 'Status credential tidak dapat dibaca; probe tetap dinonaktifkan.' : 'Credential belum dikonfirmasi configured.'}</p>}
+                  {probeProviderId && <p className="form-hint" role="status">{providerHasValidHTTPSURL(providers.find((item) => item.id === probeProviderId)?.base_url ?? '') ? 'Endpoint HTTPS terdaftar; kebijakan host diverifikasi server.' : 'Endpoint HTTPS valid diperlukan; probe dinonaktifkan.'} {credentialStatuses[probeProviderId]?.credential_configured ? 'Credential configured pada backend.' : credentialStatusErrors[probeProviderId] ? 'Status credential tidak dapat dibaca; probe tetap dinonaktifkan.' : 'Credential belum dikonfirmasi configured.'}</p>}
                   <fieldset className="capabilities"><legend>Pengujian tambahan</legend><label><input type="checkbox" checked={probeJson} onChange={(event) => { setProbeJson(event.target.checked); setProbeCostAcknowledged(false); }} disabled={probeState === 'loading'} /> JSON output</label><label><input type="checkbox" checked={probeTools} onChange={(event) => { setProbeTools(event.target.checked); setProbeCostAcknowledged(false); }} disabled={probeState === 'loading'} /> Tool calling</label><p>Pengujian JSON atau tool mengirim prompt sintetis ke provider dan dapat menimbulkan biaya token.</p></fieldset>
                   {(probeJson || probeTools) && <label className="field"><span><input type="checkbox" checked={probeCostAcknowledged} onChange={(event) => setProbeCostAcknowledged(event.target.checked)} disabled={probeState === 'loading'} /> Saya memahami pengujian kapabilitas mengirim prompt sintetis dan dapat menimbulkan biaya provider.</span></label>}
-                  <button className="button primary" type="submit" disabled={!probeProviderId || !probeDeploymentId || !credentialStatuses[probeProviderId]?.credential_configured || !providerURLMatchesConfiguredHost(providers.find((item) => item.id === probeProviderId)?.base_url ?? '') || ((probeJson || probeTools) && !probeCostAcknowledged) || probeState === 'loading'}>{probeState === 'loading' ? 'Menjalankan probe…' : (probeJson || probeTools) ? 'Jalankan probe capability' : 'Jalankan pemeriksaan koneksi'}</button>
+                  <button className="button primary" type="submit" disabled={!probeProviderId || !probeDeploymentId || !credentialStatuses[probeProviderId]?.credential_configured || !providerHasValidHTTPSURL(providers.find((item) => item.id === probeProviderId)?.base_url ?? '') || ((probeJson || probeTools) && !probeCostAcknowledged) || probeState === 'loading'}>{probeState === 'loading' ? 'Menjalankan probe…' : (probeJson || probeTools) ? 'Jalankan probe capability' : 'Jalankan pemeriksaan koneksi'}</button>
                   {probeState === 'error' && <div className="records-state error-state" role="alert">{probeError}</div>}
                   {probeState === 'ready' && probeResult && <div className="records-state" role="status"><strong>Probe {statusLabel(probeResult.status)}</strong><span> · {new Date(probeResult.checked_at).toLocaleString()}</span>{probeResult.may_incur_token_cost && <p>Probe mengirim request yang dapat menimbulkan biaya token.</p>}</div>}
                 </form>

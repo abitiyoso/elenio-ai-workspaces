@@ -52,6 +52,6 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
     restoreMocks: true,
-    exclude: ["**/node_modules/**", "**/dist/**", "e2e/**", "e2e-live/**"],
+    exclude: ["**/node_modules/**", "**/dist/**", "e2e/**", "e2e-live/**", "e2e-workspace/**"],
   },
 });

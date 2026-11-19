@@ -10,7 +10,7 @@ import {
   safeAppRoute,
   type AppSummary,
 } from "./controlPlaneApps";
-function AppLauncher() {
+export function AppLauncher({appKey,view}:{appKey?:string;view?:"agents"|"skills"|"tools"|"models"|"evaluations"|"releases"}={}) {
   const [apps, setApps] = useState<AppSummary[] | null>(null),
     [error, setError] = useState(""),
     [busy, setBusy] = useState("");
@@ -58,7 +58,7 @@ function AppLauncher() {
         result.integration !== "proxy"
       )
         throw new Error("This app has no verified proxied launch route.");
-      window.location.assign(result.route_base);
+      window.location.assign(result.route_base+(app.app_key==="agent-studio"&&view?`#${view}`:""));
     } catch (e) {
       setError(e instanceof Error ? e.message : "App launch failed.");
     } finally {
@@ -82,10 +82,12 @@ function AppLauncher() {
         </Notice>
       ) : apps === null && !error ? (
         <div role="status">Loading entitled apps…</div>
+      ) : apps && !apps.some((a)=>a.app_key!=="flowcase"&&(!appKey||a.app_key===appKey)) ? (
+        <Notice>No entitled workspace is available for this capability. Ask your workspace administrator to check app registration and access.</Notice>
       ) : (
         <div className="app-launch-list">
           {apps
-            ?.filter((a) => a.app_key !== "flowcase")
+            ?.filter((a) => a.app_key !== "flowcase" && (!appKey||a.app_key===appKey))
             .map((app) => (
               <article key={app.app_key}>
                 <div>
