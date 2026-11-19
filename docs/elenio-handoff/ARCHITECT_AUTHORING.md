@@ -2,7 +2,9 @@
 
 The authorized 9Router model now powers the actual Architect screen through the existing Agent Studio service. A requirement becomes a durable sandbox proposal, then an explicitly reviewed and validated native Flowcase draft. This closes the two blockers reported in PR #5: Windows FileVault startup and application authoring. It does not close every development-kit phase or grant production approval.
 
-Branch: `feat/elenio-architect-authoring`, based on `feat/elenio-nine-router` at `c3b17a7a2b071f15c763bfed561741bf76fb6637`. Delivery commit/PR metadata will be appended after push.
+Branch: `feat/elenio-architect-authoring`, based on `feat/elenio-nine-router` at `c3b17a7a2b071f15c763bfed561741bf76fb6637`. Tested implementation/evidence commit: `f9cf6feb7a74fd5680a90a25526402f2e20ccf13`. Delivery: [draft PR #6](https://github.com/abitiyoso/elenio-ai-workspaces/pull/6), stacked on PR #5. The branch tip also includes the delivery-metadata commit; `git rev-parse HEAD` and the remote feature ref give its final SHA.
+
+Owner login `abitiyoso`, private repository and authorized push destination were reverified. The implementation's full-history scan covered 21 commits / 7.74 MB: the same nine reviewed original non-secret matches, all in the original source ancestry. No new findings or suppressions; staged change scan clear. Exact credential absent from tracked files and the frontend build. Server environment/private state remain ignored. Remote main remains `8bfae869e8ad3adaf10b496428ffbcf22c196db9`; upstream push URL is DISABLED.
 
 ## Working journey
 

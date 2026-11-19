@@ -64,5 +64,20 @@
     "no production model or agent release",
     "no model-backed business execution pilot",
     "general hierarchy, capability authoring, actual Economics ledger and portable delivery remain open"
-  ]
+  ],
+  "delivery": {
+    "upstream_push": "DISABLED",
+    "implementation_sha": "f9cf6feb7a74fd5680a90a25526402f2e20ccf13",
+    "base_branch": "feat/elenio-nine-router",
+    "draft_pr": "https://github.com/abitiyoso/elenio-ai-workspaces/pull/6",
+    "private_owner_verified": "abitiyoso",
+    "main_sha": "8bfae869e8ad3adaf10b496428ffbcf22c196db9"
+  },
+  "security": {
+    "scan_scope": "21 commits through implementation f9cf6feb7a74fd5680a90a25526402f2e20ccf13",
+    "history_findings": 9,
+    "staged_gitleaks_findings": 0,
+    "credential_absence_check": "passed tracked files and frontend dist",
+    "outside_original_ancestry": 0
+  }
 }

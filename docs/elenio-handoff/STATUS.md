@@ -2,7 +2,7 @@
 
 Active branch: `feat/elenio-architect-authoring`, based on 9Router/V10 checkpoint `c3b17a7a2b071f15c763bfed561741bf76fb6637`. The owner requested continuation through working application functions with the authorized real model. Current delivery closes the local Windows vault and Architect-to-native-draft blockers. Full product/all-phase acceptance remains open.
 
-Delivery SHA and draft PR are recorded in ARCHITECT_AUTHORING.md after push. Owner repo reverified private and login `abitiyoso`; upstream pushes remain disabled. The prior delivery is [PR #5](https://github.com/abitiyoso/elenio-ai-workspaces/pull/5). Human visual review remains open; no merge or deployment is authorized.
+Tested implementation/evidence SHA: `f9cf6feb7a74fd5680a90a25526402f2e20ccf13`. Delivery: [draft PR #6](https://github.com/abitiyoso/elenio-ai-workspaces/pull/6), stacked on [PR #5](https://github.com/abitiyoso/elenio-ai-workspaces/pull/5). Branch tip additionally includes delivery metadata. Owner repo reverified private and login `abitiyoso`; upstream pushes remain disabled. History scan: same nine reviewed original non-secret matches, zero outside source ancestry; staged scan clear. Human visual review remains open; no merge or deployment is authorized.
 
 ## Current delivery
 
