@@ -6,7 +6,7 @@ Active branch: `feat/elenio-case-operations`, based on Economics checkpoint `87e
 
 Authenticated Cases & reviews now supports real case intake, list search/status/paging, task completion/revision, independent approval, pause/resume/notes, draft review contracts, actual activity/evidence and pinned workflow navigation in the shared UI. All mutations use existing API authorities/If-Match and explicit confirmation; conflicts retain forms. Development persona selection uses only existing server configuration and is absent from production/trusted sessions. No backend or auth rule changes. Details: [CASE_OPERATIONS.md](CASE_OPERATIONS.md).
 
-Validation: 66 unit/component tests; 28 frontend browser regressions; 9 real local API/worker/PostgreSQL browser cases. Lint, typecheck and production build pass. Actual operations screenshots reviewed desktop/mobile; serious/critical axe checks pass. Implementation SHA: `6b8efb2a64bf0098e1896710066697e8dc4e9fc3`. History scan: same nine original non-secret matches, no new findings. Final machine-readable evidence is `operations-verification.json`; exact delivery SHA is `git rev-parse HEAD`.
+Validation: 66 unit/component tests; 28 frontend browser regressions; 9 real local API/worker/PostgreSQL browser cases. Lint, typecheck and production build pass. Actual operations screenshots reviewed desktop/mobile; serious/critical axe checks pass. Implementation SHA: `0993d07ffdf189fe96bfa5655ecf39897ffb0a32`. History scan: same nine original non-secret matches, no new findings. Final machine-readable evidence is `operations-verification.json`; exact delivery SHA is `git rev-parse HEAD`.
 
 ## Retained checkpoints
 
@@ -24,3 +24,5 @@ Validation: 66 unit/component tests; 28 frontend browser regressions; 9 real loc
 5. Connect an approved model last; then run real Architect generation, agent revisions/evals/releases and the full model-backed pilot. Provider absence is confirmed and does not authorize fake success.
 
 Local sandbox remains loopback-only with real PostgreSQL/API/worker, server development identities and external model/KMS/connectors disabled. Original operator mini-app remains distinct; the new operations page is not complete customer workspace acceptance. Inherited development advisories and lazy ELK bundle warning remain. No upstream write, main merge or deployment.
+
+Case operations draft PR: https://github.com/abitiyoso/elenio-ai-workspaces/pull/4 (base: feat/elenio-economics-scenarios). Final navigation labels preserve case context. Nine live cases, lint and typecheck reverified after that correction.
