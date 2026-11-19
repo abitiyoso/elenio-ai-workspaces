@@ -57,3 +57,13 @@ Current evidence: 60 unit/component + 22 browser tests. Fifteen browser cases co
 | General Architect / configured model/eval | blocked configuration, owner confirmed absent | No synthetic provider promoted to live | AI-01–03 |
 
 Full product/all-phase acceptance remains open. The approved local manual/runtime E2E scope is verified. See LOCAL_E2E.md for reproduction and external boundaries.
+
+## Economics planning update
+
+| Capability | Status | Evidence / boundary | Acceptance |
+|---|---|---|---|
+| Vendor scenario IDR cost/baseline/TCO/ROI | new, deterministic-tested | Exact synthetic kit values; editable reach/retry/completion; fixed-point money | ECON-01, scenario subset ECON-02 |
+| Explicit local scenario revisions / JSON portability | new, browser-tested | Append-only IndexedDB revisions; validated import; source/date preserved | UX-02, scenario provenance |
+| Actual costs / approved rate cards / ledger / budget enforcement | new, open | No usage integration, FX, tenant rollup or budget reservation claims | ECON-01–03 open |
+
+See ECONOMICS_SCENARIOS.md. This planner does not cost arbitrary workflows or verify model quality; full Economics gate remains open.
