@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"html"
 	"net/http"
+	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -165,7 +166,9 @@ func CleanExtracted(md string) string {
 // SanitizeFilename keeps the base name without control or path characters, at most 200 characters.
 func SanitizeFilename(name string) string {
 	name = strings.ReplaceAll(name, "\\", "/")
-	name = filepath.Base(name)
+	// Both browser/Windows and POSIX paths were normalized above. Use slash
+	// semantics so a root slash never becomes a Windows backslash filename.
+	name = path.Base(name)
 	name = strings.Map(func(r rune) rune {
 		if unicode.IsControl(r) || r == '/' || r == '"' {
 			return -1

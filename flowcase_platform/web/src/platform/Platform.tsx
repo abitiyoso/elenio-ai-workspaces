@@ -42,6 +42,7 @@ import { Studio } from "./Studio";
 import { layoutDefinition } from "./layout";
 import { Launchpad, ArchitectBrief } from "./Launchpad";
 import { ProjectSections } from "./ProjectSections";
+import { ConnectedWorkspace } from "./ConnectedWorkspace";
 
 export function Platform() {
   const location = useLocation(),
@@ -62,6 +63,7 @@ export function Platform() {
     [commandQuery, setCommandQuery] = useState(""),
     [help, setHelp] = useState(false),
     [brief, setBrief] = useState("");
+  const connectedMode = location.pathname.startsWith("/connected");
   const workflow = location.pathname.endsWith("/workflow"),
     editable = role === "Builder",
     value = JSON.stringify({ definition, positions }),
@@ -151,11 +153,11 @@ export function Platform() {
     return () => window.removeEventListener("keydown", handle);
   }, [menu]);
   useEffect(() => {
-    if (!loaded || saved) return;
+    if (!loaded || saved || connectedMode) return;
     const handler = (e: BeforeUnloadEvent) => e.preventDefault();
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
-  }, [loaded, saved]);
+  }, [loaded, saved, connectedMode]);
   async function save() {
     setSaving(true);
     setError("");
@@ -216,7 +218,11 @@ export function Platform() {
         aria-label="Workspace navigation"
         id="workspace-navigation"
       >
-        <Link to="/" className="platform-brand" onClick={() => setMenu(false)}>
+        <Link
+          to={connectedMode ? "/connected" : "/"}
+          className="platform-brand"
+          onClick={() => setMenu(false)}
+        >
           <img src="./brand/elenio-logo.png" alt="Elenio" />
           <span>AI WORKSPACES</span>
         </Link>
@@ -248,18 +254,33 @@ export function Platform() {
             <Sparkles size={18} />
             AI Architect
           </NavLink>
-          <NavLink to="/projects" onClick={() => setMenu(false)}>
+          <NavLink
+            end={connectedMode}
+            to={connectedMode ? "/connected" : "/projects"}
+            onClick={() => setMenu(false)}
+          >
             <FolderOpen size={18} />
             Projects
           </NavLink>
           <span className="nav-section">ENGINEERING</span>
-          <NavLink
-            to="/projects/vendor-payment/workflow"
+          <Link
+            className={
+              (
+                connectedMode
+                  ? location.pathname.startsWith("/connected/projects/")
+                  : workflow
+              )
+                ? "active"
+                : ""
+            }
+            to={
+              connectedMode ? "/connected" : "/projects/vendor-payment/workflow"
+            }
             onClick={() => setMenu(false)}
           >
             <GitBranch size={18} />
             Workflow Studio
-          </NavLink>
+          </Link>
           <button
             className="planned-nav"
             disabled
@@ -269,18 +290,17 @@ export function Platform() {
             Agent Studio <small>Phase 2</small>
           </button>
           <span className="nav-section">CAPABILITY LIBRARY</span>
-          <NavLink to="/knowledge" onClick={() => setMenu(false)}>
+          <NavLink
+            to={connectedMode ? "/connected/catalog" : "/knowledge"}
+            onClick={() => setMenu(false)}
+          >
             <BookOpen size={18} />
             Knowledge
           </NavLink>
-          <button
-            className="planned-nav"
-            disabled
-            title="Template dependency resolution: Phase 2"
-          >
+          <Link to="/connected?create=template" onClick={() => setMenu(false)}>
             <Layers size={18} />
-            Templates <small>Phase 2</small>
-          </button>
+            Templates
+          </Link>
           <button
             className="planned-nav"
             disabled
@@ -322,9 +342,13 @@ export function Platform() {
             <div>
               <strong>Private by design</strong>
               <p>
-                Local design review.
+                {connectedMode
+                  ? "Server authorization applies."
+                  : "Local design review."}
                 <br />
-                No production connections.
+                {connectedMode
+                  ? "No release or deployment actions."
+                  : "No production connections."}
               </p>
             </div>
           </div>
@@ -333,10 +357,14 @@ export function Platform() {
             Workspace guide
           </Button>
           <div className="user-block">
-            <span className="user-avatar">AB</span>
+            <span className="user-avatar">{connectedMode ? "WS" : "AB"}</span>
             <div>
-              <strong>Abitiyoso</strong>
-              <small>{role} · fixture identity</small>
+              <strong>{connectedMode ? "Workspace user" : "Abitiyoso"}</strong>
+              <small>
+                {connectedMode
+                  ? "Sign in through workspace"
+                  : `${role} · fixture identity`}
+              </small>
             </div>
           </div>
         </div>
@@ -371,24 +399,45 @@ export function Platform() {
             </span>
           </div>
           <div>
-            <Badge tone="amber">Design fixture</Badge>
-            <label className="role-label">
-              <span className="sr-only">Preview role</span>
-              <select
-                aria-label="Preview role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-              >
-                <option>Builder</option>
-                <option>Reviewer</option>
-              </select>
-            </label>
+            <Link
+              className="mode-switch-link"
+              to={connectedMode ? "/" : "/connected"}
+              aria-label={
+                connectedMode ? "Switch to local preview" : "Connect services"
+              }
+              title={
+                connectedMode ? "Switch to local preview" : "Connect services"
+              }
+            >
+              <ExternalLink size={15} />
+              <span className="mode-switch-label">
+                {connectedMode ? "Local preview" : "Connect services"}
+              </span>
+            </Link>
+            <Badge tone="amber">
+              {connectedMode ? "Service mode" : "Design fixture"}
+            </Badge>
+            {!connectedMode && (
+              <label className="role-label">
+                <span className="sr-only">Preview role</span>
+                <select
+                  aria-label="Preview role"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                >
+                  <option>Builder</option>
+                  <option>Reviewer</option>
+                </select>
+              </label>
+            )}
           </div>
         </header>
         <div className="fixture-bar">
           <span>
             <span className="canvas-dot" />
-            Local preview · sample data · services not connected
+            {connectedMode
+              ? "Service mode · session and permissions required"
+              : "Local preview · sample data · services not connected"}
           </span>
           <button onClick={() => setHelp(true)}>
             What is connected? <ArrowRight size={13} />
@@ -414,12 +463,13 @@ export function Platform() {
           </div>
         )}
         <main id="platform-main" tabIndex={-1}>
-          {!loaded ? (
+          {!loaded && !connectedMode ? (
             <div className="e-empty" role="status">
               Loading local review workspace…
             </div>
           ) : (
             <Routes>
+              <Route path="/connected/*" element={<ConnectedWorkspace />} />
               <Route
                 path="/"
                 element={

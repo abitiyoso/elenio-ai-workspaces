@@ -110,6 +110,7 @@ func run(log *slog.Logger) error {
 			return err
 		}
 		web = h
+		defer h.Close()
 	}
 	handler := httpapi.New(httpapi.Deps{Log: log, Verifier: verifier, Workspace: ws, Intake: in, Web: web,
 		Readiness: []httpapi.Check{{Name: "database", Run: st.Ping}}})

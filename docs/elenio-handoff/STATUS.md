@@ -1,44 +1,38 @@
-# Elenio development status
+# Elenio development status — 2026-11-19 Asia/Jakarta
 
-Phase 0 audit/baseline verification completed with the blockers below. The owner requested Phase 1 corrections to font, page structure and content; the visual gate is REOPENED. Final V10 Home content, locally bundled Inter, a dedicated Architect page and project contextual sections are implemented. Acceptance remains pending; Phase 2+ remains prohibited until owner acceptance. See [KIT_ALIGNMENT_PHASE1.md](KIT_ALIGNMENT_PHASE1.md).
+Local end-to-end engineering/runtime acceptance is verified. The owner requested completion end to end, then explicitly chose: no approved model/provider yet; finish the local flow and record the AI blocker. Full Elenio product / all-phase production acceptance remains open.
 
-* Branch: `feat/elenio-platform-foundation`
-* Upstream source: `8bfae869e8ad3adaf10b496428ffbcf22c196db9`
-* Origin: https://github.com/abitiyoso/elenio-ai-workspaces (verified PRIVATE, initially empty)
-* Remotes: upstream push disabled; origin only authorized write destination.
-* Copy rights confirmed by owner in chat. No public license inferred.
-* Kit copied unchanged under this namespace; original source mirror untouched.
-* Audit/ADRs: [AUDIT_PHASE0.md](AUDIT_PHASE0.md).
-* Baseline Flowcase frontend: 44/44 tests, lint and production build passed before edits.
-* History scan: nine individually reviewed non-secret matches; stale upstream CHECKSUMS manifest noted; no scanner exclusions.
-* Audit commit: `029bcd01c48f9487bbd9ccae96d9c74737440775`.
-* Implemented code commit: `5ddcbb1b8f118a3aeb0015d9a8f09081aa29716a`. Final documentation/evidence commit follows on the same branch; resolve delivery HEAD using `git rev-parse HEAD` and compare with `git ls-remote origin refs/heads/feat/elenio-platform-foundation`.
-* Original `main` remains `8bfae869e8ad3adaf10b496428ffbcf22c196db9`. No backend `.go`, migration `.sql` or OpenAPI changes.
-* New review entry: `flowcase_platform/web/elenio.html#/`; original authenticated application remains default `index.html`.
+## Repository checkpoint
 
-## Delivered / verified
+- Branch: `feat/elenio-core-engineering`, draft [PR #2](https://github.com/abitiyoso/elenio-ai-workspaces/pull/2), based on unmerged Phase 1 feature branch.
+- Current implementation: `a4e66edf9366e6521bc7f9ff3ea1007b4c157cd5`; Windows fixes: `ab1d243`. Documentation/evidence follow; delivery SHA is `git rev-parse HEAD`.
+- Origin: verified private `abitiyoso/elenio-ai-workspaces`. Upstream `kawakibireku/ai-workspace` push is `DISABLED`. Main remains original `8bfae869e8ad3adaf10b496428ffbcf22c196db9`.
+- Owner confirmed copying rights. Synced sources and original kit remain untouched. Official Elenio logo unchanged.
 
-Shared tokens/primitives and accessible gallery; responsive global/project shell; Home → Project → Workflow Studio; functional selectable agent identities; React Flow + lazy ELK layout; canonical branching/parallel adapter, port connection/edge editing, draggable positions, undo/redo, native import/export, type-specific/resizable inspector and graph search; local draft persistence separated from execution; document-centric Knowledge explorer. All fixture data labelled. See [FEATURES_PHASE1.md](FEATURES_PHASE1.md) and [DESIGN_DECISIONS.md](DESIGN_DECISIONS.md).
+## Delivered and verified
 
-* Flowcase frontend: 52/52 unit/component tests (44 existing + 8 canonical graph tests); lint, typecheck, production multi-entry build pass.
-* Browser: 7/7 Playwright tests pass, including actual drag/port connection, position undo, inspector resize, local save/reload, reviewer preview, native import errors, keyboard/focus, document preview, loaded Inter font, scenario-to-Architect continuity, project sections and responsive pages. Axe serious/critical checks pass on five desktop routes; this is bounded automated evidence, not full accessibility certification.
-* Screenshots: 25 actual Chromium captures; four routes at 1440×900,1280×800,1024×768,768×1024,390×844,360×800 plus desktop inspector. No page horizontal overflow in tested routes/sizes. Representative captures inspected at every tested width. [Evidence index](evidence/README.md).
-* Other frontend baselines: Control Plane 17 tests + lint/build pass; UCW 37 tests + lint/build pass; Agent Studio and KMS build pass (no standalone lint/unit scripts defined). Total frontend tests run: 106 passing.
-* Go baseline top-level test events: 268 passed, 99 skipped, 3 failed across five modules. Details in [QA_RESULTS.md](QA_RESULTS.md), [JSON summary](evidence/go-baseline-summary.json). No configured disposable DB, so DB/security acceptance is not claimed.
-* `npm audit --omit=dev`: zero reported production dependency vulnerabilities in the changed frontend. Full dev audit: 13 advisories (1 moderate,10 high,2 critical); nonbreaking fixes applied without forcing toolchain migrations.
-* Official logo verified byte-identical; local assets and dependency license notices retained. History rescan through code commit: same nine reviewed original matches, no new findings, no exclusions.
+- Existing contract integration: actual session/roles, workflow registry, blank/template/import drafts, runtime capabilities, dependency catalog, If-Match save, validation, immutable versions and explicit import diff.
+- Real local PostgreSQL + Flowcase API/worker. Six browser scenarios exercise persisted UI editing, concurrency conflict, version pinning/forking, viewer denial, true/false branch execution and a complete task/independent approval/task flow with audit hash.
+- Execution trace now reads actual authorized case records and exact key/version timelines, with bounded polling for active cases and original runtime-workspace link. No fabricated AI usage or monetary cost.
+- Reproducible Start/Test/Stop scripts, ignored local state/secrets, loopback bindings, explicit development identity, external integrations disabled. Startup idempotency verified.
+- Two UCW Windows bugs fixed (filename slash semantics; confined directory handle lifetime). A flaky asynchronous draft-revision test now waits for the next result rather than dereferencing nil. No runtime/security/approval rule changed.
 
-## Remaining blockers / acceptance limits
+## Results
 
-1. Owner visual/UX acceptance required before Phase 2.
-2. No live sandbox credentials, disposable DB, model deployment, KMS identity or ERP connector configuration supplied. The new frontend is a functional fixture slice, not integrated production. Existing authenticated APIs/routes remain preserved.
-3. Existing Windows backend failures: Agent Studio FileVault enforces POSIX private directory permissions; UCW filename sanitizer mishandles `/` on Windows; UCW SPA-serving test hits a Windows file-lock cleanup failure. No bypass or backend rewrite performed. WSL/Linux and Docker runtime unavailable here.
-4. 99 Go DB-dependent tests skipped. Live negative tenant/ACL/approval/concurrency tests need migrated disposable databases and approved sessions.
-5. Development dependency advisories remain, including Vitest/tinypool and transitive globbing. Broader tooling upgrade needs its own regression work. The lazy ELK algorithm bundle still triggers Vite's >500 KB chunk warning; Home does not load it.
-6. Server project ownership, capability probing, version history, connected save/validate, real traces, model economics and deployment are later-phase work. No run/publish/approval/deployment simulated or claimed.
+- **60/60** frontend unit/component, **22/22** contract/fixture browser regressions, **6/6** real local E2E browser tests; lint, TypeScript and both-entry production build pass.
+- Real disposable DB suites: **369 pass / 1 fail / 0 skip**. Flowcase 110 pass, CP 37, Agent 81 pass/1 fail, KMS 107, UCW 34. Existing IdP/provider/Docling test doubles retain their limits.
+- Go vet passes for changed Flowcase case package and UCW. Serious/critical axe rules pass on real execution view; earlier responsive/keyboard/axe regressions retained.
+- History secret scan through implementation: 9 commits, same nine reviewed non-secret matches, all in original upstream; no new findings or suppressions.
+- Screenshots: `live-*.png` are actual local backend captures; `phase2-*.png` are contract mocks. Desktop trace inspected.
 
-Next authorized step: owner reviews Phase 1 evidence. After explicit acceptance, Phase 2 should integrate the shared shell with actual service contracts and disposable sandbox security tests. No main merge or deployment has occurred.
+Runbook and exact scope: [LOCAL_E2E.md](LOCAL_E2E.md). Machine-readable results: [local-e2e-verification.json](evidence/local-e2e-verification.json), [live-e2e-results.json](evidence/live-e2e-results.json). Previous ADRs: [PHASE2_CORE_ENGINEERING.md](PHASE2_CORE_ENGINEERING.md).
 
-## Owner-requested Phase 1 correction
+## Remaining blockers
 
-The previous visual submission was not accepted. Final V10 Home overrides were re-read; a new Launchpad restores the kit content hierarchy, four scenarios and six-capability map. Inter Variable is now actually bundled locally (previously only a CSS fallback name). A dedicated Architect page carries the entered brief and exposes the missing-model state. Contextual Project sections read canonical references and show only actual local version information. Later capabilities remain phase-labelled/unavailable. The frontend remains a fixture; no Phase 2 runtime integration or owner acceptance is claimed. Regression evidence has been refreshed.
+1. No approved model/provider (owner explicitly confirmed). General AI Architect generation, real eval and approved agent release remain unverified/unconfigured.
+2. Agent Studio FileVault POSIX 0700 requirement fails on Windows. It is retained and not skipped; verify credential-backed execution on supported Linux.
+3. No configured production IdP, CP proxy mount/entitlements, external KMS/Docling/search/storage or ERP/API/MCP target. Local DB tests do not prove those production integrations.
+4. Many-workflow project registry, economics ledger and full portable customer deployment remain open kit scope. Current project identity is one canonical Flowcase workflow/version.
+5. Inherited development dependency advisories and large lazy ELK chunk remain; no dependency changes in this delivery.
+
+No upstream writes, main merge or deployment. Review actual local behavior at `http://127.0.0.1:5173/elenio.html#/connected`; services intentionally remain available for review. Next external prerequisite is an approved provider and supported runtime/configuration, rather than more synthetic success.

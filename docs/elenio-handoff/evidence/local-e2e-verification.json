@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-19",
+  "implementation_sha": "a4e66edf9366e6521bc7f9ff3ea1007b4c157cd5",
+  "postgres_version": "16.16",
+  "scope": "Real disposable PostgreSQL; existing test IdP/model/transport doubles retain their documented limits",
+  "modules": [
+    {
+      "module": "flowcase",
+      "passed": 110,
+      "failed": 0,
+      "skipped": 0,
+      "failing_tests": []
+    },
+    {
+      "module": "control-plane",
+      "passed": 37,
+      "failed": 0,
+      "skipped": 0,
+      "failing_tests": []
+    },
+    {
+      "module": "agent",
+      "passed": 81,
+      "failed": 1,
+      "skipped": 0,
+      "failing_tests": [
+        "TestFileVaultEncryptsScopesAndRevokes"
+      ]
+    },
+    {
+      "module": "kms",
+      "passed": 107,
+      "failed": 0,
+      "skipped": 0,
+      "failing_tests": []
+    },
+    {
+      "module": "ucw",
+      "passed": 34,
+      "failed": 0,
+      "skipped": 0,
+      "failing_tests": []
+    }
+  ],
+  "passed": 369,
+  "failed": 1,
+  "skipped": 0,
+  "remaining_failure": "POSIX 0700 FileVault security requirement on Windows; rule retained",
+  "browser_live": 6,
+  "browser_contract_and_fixture": 22,
+  "frontend_unit": 60,
+  "production_deployment": false
+}

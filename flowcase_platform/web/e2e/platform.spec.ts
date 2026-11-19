@@ -91,7 +91,7 @@ test("node palette, invalid diagnostic, undo/redo and canonical import preview",
   await page
     .getByLabel("Definition JSON")
     .fill('{"connections":{},"nodes":[]}');
-  await page.getByRole("button", { name: "Confirm replacement" }).click();
+  await page.getByRole("button", { name: "Preview changes" }).click();
   await expect(page.getByRole("alert")).toContainText("schema 1.0");
 });
 

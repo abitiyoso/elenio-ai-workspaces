@@ -18,6 +18,7 @@ const spaCSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-
 	"connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'self'"
 
 type Handler struct {
+	root  *os.Root
 	fsys  fs.FS
 	index []byte
 	mod   time.Time
@@ -32,15 +33,19 @@ func New(dir string) (*Handler, error) {
 	fsys := root.FS()
 	index, err := fs.ReadFile(fsys, "index.html")
 	if err != nil {
+		_ = root.Close()
 		return nil, errors.New("webui: index.html not found in UCW_WEB_DIR")
 	}
 	st, _ := fs.Stat(fsys, "index.html")
-	h := &Handler{fsys: fsys, index: index}
+	h := &Handler{root: root, fsys: fsys, index: index}
 	if st != nil {
 		h.mod = st.ModTime()
 	}
 	return h, nil
 }
+
+// Close releases the confined directory handle after the HTTP server shuts down.
+func (h *Handler) Close() error { return h.root.Close() }
 
 func headers(w http.ResponseWriter) {
 	h := w.Header()

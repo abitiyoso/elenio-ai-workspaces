@@ -23,3 +23,37 @@ Statuses reflect this session only. Source implementation is not a live deployme
 UX-01/02/03/04/05 and FLOW-01 have fixture-backed browser/unit evidence: 7 E2E, 52 changed-app frontend tests, 25 screenshots. Human visual acceptance remains pending. FLOW-02 path semantics are tested as configuration, not executed payment runs. FLOW-03/04, AI/KMS live governance, SEC live integration, economics ledger and deployment acceptance remain unverified/deferred. Full final results and exact limits: QA_RESULTS.md and STATUS.md.
 
 Owner feedback reopened Phase 1 visual gate. Typography, Home structure/content and contextual Project navigation corrected; full HTML feature parity remains explicitly unclaimed. Architect requirement entry is now a functional fixture page, while model generation remains blocked pending approved configuration.
+
+## Phase 2 contract checkpoint — 2026-11-19
+
+Owner continuation and explicit no-sandbox contract-test authorization supersede the earlier pending-continuation note. This is a tested engineering checkpoint, not full live acceptance.
+
+| Capability | Status | Evidence / authority | Acceptance |
+|---|---|---|---|
+| Session + workflow project registry/search/cursor | enhancement, contract-tested; live unverified | SessionProvider, existing API client, key/version deep link; Flowcase | UX-02, SEC-01 |
+| Blank/template/native import creation | enhancement, contract-tested | POST workflows, stable idempotency key, preview, registered template key | FLOW-01, UX-02 |
+| Save/validate/version editing | enhancement, contract-tested | If-Match + 412 retention, immutable published state, server report; Flowcase | FLOW-01, SEC-03 |
+| Import/diff + canonical roundtrip | enhancement, tested | Native schema/next/config/policy retention, explicit replacement, identity check | FLOW-01 |
+| Capability/agent/skill/connector/policy bindings | enhancement, contract-tested; release readiness unverified | Runtime capabilities + workflow-catalog response, server validation | AI-01, FLOW-01 |
+| Scoped visual layout + unsaved navigation | new, browser-tested | Coordinates-only sidecar, reload, browser Back/stay/discard | UX-02/03, SEC-01 |
+| Governed Agent/KMS/integration app launch | enhancement, unit contract-tested; deployed launch unverified | CP cookie session and exact registered route; existing app authorities | APP-01, KMS-01 |
+| General Architect generation, minimal agents/readiness | blocked configuration/contract | No approved model or generic blueprint API; brief retained, explicit unavailable | AI-01 |
+| Many-workflow solution project lifecycle | new, open contract | One-workflow projection delivered, server registry not invented | UX-02 |
+| KMS ingest/review/publish/ACL retrieval | existing-unverified live | Existing app retained; no new shell claims of ingestion or retrieval | KMS-01 |
+| Arbitrary API/MCP tooling | deferred, assessed separately | No new unapproved execution or egress path | SEC-02 |
+
+Current evidence: 60 unit/component + 22 browser tests. Fifteen browser cases cover service contracts; seven preserve Phase 1 journeys. Axe serious/critical checks cover five local and three connected routes. Full Phase 2 gate remains open for the live/configuration items above; Phase 3 not started. See PHASE2_CORE_ENGINEERING.md for decisions and QA_RESULTS.md for limits.
+
+## Local end-to-end acceptance update — 2026-11-19
+
+| Capability | Current status | Evidence | Acceptance |
+|---|---|---|---|
+| Manual create/edit/save/validate and version conflict | enhancement, real local E2E tested | Browser + actual Flowcase API/PostgreSQL, 412 retention | FLOW-01/03, SEC-03 |
+| Native branch import and true/false execution | enhancement, real local E2E tested | Worker condition evaluations match imported config/schema | FLOW-01/02 |
+| Actual case execution trace | enhancement, real local E2E tested | Server timelines filtered by exact key/version, completed state | FLOW-04 |
+| Human task / distinct approval / completion | existing + integrated trace, real local E2E tested | Unauthorized decision denied; authorized reviewer/hash; six steps complete | APP-01, SEC-03 |
+| Backend tenant/governance/SQL suites | existing-tested on disposable DB | 369 pass, 1 Windows vault fail, 0 DB skips; test IdP/provider doubles disclosed | SEC-01–03, KMS-01 |
+| Agent credential-backed execution | blocked on this Windows host | POSIX 0700 vault requirement retained | AI-01–03 |
+| General Architect / configured model/eval | blocked configuration, owner confirmed absent | No synthetic provider promoted to live | AI-01–03 |
+
+Full product/all-phase acceptance remains open. The approved local manual/runtime E2E scope is verified. See LOCAL_E2E.md for reproduction and external boundaries.

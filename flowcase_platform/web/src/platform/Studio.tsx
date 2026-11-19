@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
@@ -23,6 +23,7 @@ import {
 } from "../../../../packages/ui/primitives";
 import {
   NODE_TYPES,
+  type Catalog,
   type NodeType,
   type WorkflowDefinition,
 } from "../api/workflows";
@@ -37,6 +38,7 @@ import {
   type Positions,
 } from "./graphModel";
 import { labels } from "./nodeLabels";
+import { definitionDiff } from "./definitionDiff";
 const WorkflowCanvas = lazy(() =>
   import("./WorkflowCanvas").then((m) => ({ default: m.WorkflowCanvas })),
 );
@@ -49,6 +51,11 @@ function CloseInspector({ onClick }: { onClick: () => void }) {
 }
 
 interface Props {
+  executionTrace?: ReactNode;
+  mode?: "fixture" | "connected";
+  versionStatus?: string;
+  supportedTypes?: NodeType[];
+  catalog?: Catalog | null;
   definition: WorkflowDefinition;
   positions: Positions;
   editable: boolean;
@@ -62,6 +69,11 @@ interface Props {
   onFocus: () => void;
 }
 export function Studio({
+  executionTrace,
+  mode = "fixture",
+  versionStatus = "draft",
+  supportedTypes,
+  catalog = null,
   definition,
   positions,
   editable,
@@ -84,11 +96,14 @@ export function Studio({
     [text, setText] = useState(""),
     [error, setError] = useState(""),
     [showIssues, setShowIssues] = useState(false),
+    [importPreview, setImportPreview] = useState<WorkflowDefinition | null>(
+      null,
+    ),
     [tab, setTab] = useState("Design");
   type Snapshot = { definition: WorkflowDefinition; positions: Positions };
   const [past, setPast] = useState<Snapshot[]>([]),
     [future, setFuture] = useState<Snapshot[]>([]);
-  const issues = inspectGraph(definition),
+  const issues = inspectGraph(definition, supportedTypes),
     node = definition.nodes.find((n) => n.id === selected),
     selectedEdge = processEdges(definition).find((e) => e.id === edge);
   function change(d: WorkflowDefinition) {
@@ -218,8 +233,16 @@ export function Studio({
           <h1>{definition.name}</h1>
         </div>
         <div className="studio-status">
-          <Badge tone="amber">Draft v{definition.version}</Badge>
-          <span>{saved ? "Saved locally" : "Unsaved draft"}</span>
+          <Badge tone={versionStatus === "published" ? "green" : "amber"}>
+            {versionStatus} v{definition.version}
+          </Badge>
+          <span>
+            {saved
+              ? mode === "connected"
+                ? "Saved on server"
+                : "Saved locally"
+              : "Unsaved draft"}
+          </span>
         </div>
       </div>
       <div className="studio-tabs">
@@ -240,19 +263,22 @@ export function Studio({
         </span>
       </div>
       {tab === "Execution trace" ? (
-        <div className="trace-empty">
-          <GitBranch size={32} />
-          <h2>No execution connected</h2>
-          <p>
-            Step status, input/output, evidence and cost will appear here from
-            runtime events.
-          </p>
-          <Notice>
-            This is a design fixture. No provider calls, payment posting or
-            workflow execution occurs.
-          </Notice>
-          <Button onClick={() => setTab("Design")}>Return to design</Button>
-        </div>
+        (executionTrace ?? (
+          <div className="trace-empty">
+            <GitBranch size={32} />
+            <h2>No execution connected</h2>
+            <p>
+              Step status, input/output, evidence and cost will appear here from
+              runtime events.
+            </p>
+            <Notice>
+              {mode === "fixture"
+                ? "This is a design fixture. No provider calls, payment posting or workflow execution occurs."
+                : "No execution has been started here. Runtime event integration is required before displaying step status or cost."}
+            </Notice>
+            <Button onClick={() => setTab("Design")}>Return to design</Button>
+          </div>
+        ))
       ) : (
         <>
           <div className="studio-toolbar">
@@ -305,6 +331,7 @@ export function Studio({
                 disabled={!editable}
                 onClick={() => {
                   setText("");
+                  setImportPreview(null);
                   setError("");
                   setModal("import");
                 }}
@@ -387,6 +414,7 @@ export function Studio({
                   setSelected(null);
                 }}
                 onLayout={onLayout}
+                mode={mode}
               />
             </Suspense>
             <div className="mobile-node-list">
@@ -434,7 +462,9 @@ export function Studio({
                 </Badge>
                 <p className="inspector-intro">
                   {node.type === "agent_task"
-                    ? "Bind an immutable agent version. No model is connected in this fixture."
+                    ? mode === "fixture"
+                      ? "Bind an immutable agent version. No model is connected in this fixture."
+                      : "Bind an immutable agent version from the registered catalog. Model and release eligibility are governed by Agent Studio."
                     : node.type === "human_approval"
                       ? "An authorized independent reviewer decides. AI cannot approve."
                       : node.type === "condition"
@@ -494,7 +524,17 @@ export function Studio({
                 {node.type === "agent_task" && (
                   <label className="e-field">
                     Agent version reference
+                    <datalist id="registered-agents">
+                      {catalog?.agents.map((a) => (
+                        <option key={a.ref} value={a.ref}>
+                          {a.name} · skill {a.skill_version}
+                        </option>
+                      ))}
+                    </datalist>
                     <input
+                      list={
+                        mode === "connected" ? "registered-agents" : undefined
+                      }
                       value={String(node.config?.agent_ref ?? "")}
                       readOnly={!editable}
                       onChange={(e) =>
@@ -509,14 +549,27 @@ export function Studio({
                       }
                     />
                     <small>
-                      Fixture references are not executable releases.
+                      {mode === "fixture"
+                        ? "Fixture references are not executable releases."
+                        : "Catalog references must resolve to an approved, version-pinned runtime resource."}
                     </small>
                   </label>
                 )}
                 {node.type === "human_approval" && (
                   <label className="e-field">
                     Approval policy reference
+                    <datalist id="registered-policies">
+                      {catalog?.policies.map((p) => (
+                        <option key={p.ref} value={p.ref}>
+                          {p.name}
+                          {p.provisional ? " · provisional" : ""}
+                        </option>
+                      ))}
+                    </datalist>
                     <input
+                      list={
+                        mode === "connected" ? "registered-policies" : undefined
+                      }
                       value={String(node.config?.policy_ref ?? "")}
                       readOnly={!editable}
                       onChange={(e) =>
@@ -564,7 +617,19 @@ export function Studio({
                 {node.type === "service_task" && (
                   <label className="e-field">
                     Connector reference
+                    <datalist id="registered-connectors">
+                      {catalog?.connectors.map((c) => (
+                        <option key={c.ref} value={c.ref}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </datalist>
                     <input
+                      list={
+                        mode === "connected"
+                          ? "registered-connectors"
+                          : undefined
+                      }
                       value={String(node.config?.connector_ref ?? "")}
                       readOnly={!editable}
                       onChange={(e) =>
@@ -758,9 +823,11 @@ export function Studio({
           <footer className="studio-footer">
             <span>
               <span className="canvas-dot" />
-              Design fixture · drag nodes, connect ports, select to inspect
+              {mode === "fixture"
+                ? "Design fixture · drag nodes, connect ports, select to inspect"
+                : `Server ${versionStatus} · visual positions are separate from process semantics`}
             </span>
-            <span>Publish unavailable · server validation required</span>
+            <span>{mode === "connected" ? "Release controls remain in Flowcase" : "Publish unavailable · server validation required"}</span>
           </footer>
         </>
       )}
@@ -812,7 +879,11 @@ export function Studio({
       {palette && (
         <DialogPanel
           title="Add a node"
-          description="Fixture palette based on Flowcase schema 1.0. Live runtime capabilities must be checked before execution."
+          description={
+            mode === "fixture"
+              ? "Fixture palette based on Flowcase schema 1.0. Live runtime capabilities must be checked before execution."
+              : "Node availability comes from the connected runtime capability endpoint. Server validation still governs execution."
+          }
           onClose={() => setPalette(false)}
         >
           <label className="search-input">
@@ -833,7 +904,12 @@ export function Studio({
             ).map((t) => (
               <button
                 key={t}
-                disabled={t === "subworkflow" || !editable}
+                disabled={
+                  !editable ||
+                  (mode === "fixture"
+                    ? t === "subworkflow"
+                    : !supportedTypes?.includes(t))
+                }
                 onClick={() => add(t)}
               >
                 <span className={`node-glyph ${t}`}>
@@ -842,8 +918,14 @@ export function Studio({
                 <div>
                   <strong>{labels[t]}</strong>
                   <small>
-                    {t === "subworkflow"
-                      ? "Unavailable in runtime 1.0"
+                    {(
+                      mode === "fixture"
+                        ? t === "subworkflow"
+                        : !supportedTypes?.includes(t)
+                    )
+                      ? mode === "fixture"
+                        ? "Unavailable in runtime 1.0"
+                        : "Unavailable for this runtime"
                       : t === "agent_task"
                         ? "Reason with a versioned agent"
                         : t === "condition"
@@ -868,7 +950,7 @@ export function Studio({
           }
           description={
             modal === "import"
-              ? "Native schema 1.0 only. Imported content replaces this local draft after confirmation; unknown metadata is preserved."
+              ? "Native schema 1.0 only. Imported content replaces this editor draft after diff review and confirmation; unknown metadata is preserved."
               : "Process semantics only. Visual coordinates are saved separately."
           }
           onClose={() => setModal(null)}
@@ -881,20 +963,72 @@ export function Studio({
               aria-label="Definition JSON"
               value={text}
               readOnly={modal === "json"}
-              onChange={(e) => setText(e.target.value)}
+              onChange={(e) => {
+                setText(e.target.value);
+                setImportPreview(null);
+                setError("");
+              }}
             />
           </label>
           {error && <Notice error>{error}</Notice>}
+          {modal === "import" && importPreview && (
+            <div className="import-preview">
+              <h3>Review definition changes</h3>
+              <p>
+                Added:{" "}
+                {definitionDiff(definition, importPreview).added.join(", ") ||
+                  "none"}
+              </p>
+              <p>
+                Removed:{" "}
+                {definitionDiff(definition, importPreview).removed.join(", ") ||
+                  "none"}
+              </p>
+              <p>
+                Changed:{" "}
+                {definitionDiff(definition, importPreview).changed.join(", ") ||
+                  "none"}
+              </p>
+              <p>
+                Definition fields:{" "}
+                {definitionDiff(definition, importPreview).fields.join(", ") ||
+                  "unchanged"}
+              </p>
+              <Notice>
+                IDs, next targets, node configuration, input schema and policy
+                references are preserved. Visual positions are separate. This
+                replaces only the editor draft; it does not save, publish or
+                execute.
+              </Notice>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  change(importPreview);
+                  onPositions({});
+                  setSelected(null);
+                  setModal(null);
+                  setImportPreview(null);
+                }}
+              >
+                Confirm replacement
+              </Button>
+            </div>
+          )}
           {modal === "import" && (
             <Button
               variant="primary"
               onClick={() => {
                 try {
                   const d = parseDefinition(text);
-                  change(d);
-                  onPositions({});
-                  setSelected(null);
-                  setModal(null);
+                  if (
+                    mode === "connected" &&
+                    (d.key !== definition.key ||
+                      d.version !== definition.version)
+                  )
+                    throw new Error(
+                      "Import key and version must match this server draft. Create a new workflow to import another identity.",
+                    );
+                  setImportPreview(d);
                 } catch (e) {
                   setError(
                     e instanceof Error ? e.message : "Invalid definition",
@@ -902,7 +1036,7 @@ export function Studio({
                 }
               }}
             >
-              Confirm replacement
+              Preview changes
             </Button>
           )}
         </DialogPanel>

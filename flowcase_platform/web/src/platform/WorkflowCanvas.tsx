@@ -43,7 +43,12 @@ const icons = {
   subworkflow: Workflow,
 };
 type CanvasNode = Node<
-  { name: string; kind: NodeType; issue: boolean },
+  {
+    name: string;
+    kind: NodeType;
+    issue: boolean;
+    mode: "fixture" | "connected";
+  },
   "process"
 >;
 function ProcessNode({ data, selected }: NodeProps<CanvasNode>) {
@@ -78,7 +83,9 @@ function ProcessNode({ data, selected }: NodeProps<CanvasNode>) {
               ? "Explicit true / false"
               : data.kind === "parallel_join"
                 ? "Wait for both branches"
-                : "Design fixture"}
+                : data.mode === "fixture"
+                  ? "Design fixture"
+                  : "Process step"}
       </div>
       {data.kind === "condition" ? (
         <>
@@ -106,6 +113,7 @@ function ProcessNode({ data, selected }: NodeProps<CanvasNode>) {
 const nodeTypes = { process: ProcessNode };
 
 interface Props {
+  mode?: "fixture" | "connected";
   definition: WorkflowDefinition;
   positions: Positions;
   selected: string | null;
@@ -129,6 +137,7 @@ function Canvas(props: Props) {
     onSelect,
     onEdge,
     onLayout,
+    mode = "fixture",
   } = props;
   const flow = useReactFlow();
   const [drag, setDrag] = useState<Positions>({});
@@ -142,9 +151,14 @@ function Canvas(props: Props) {
         measured: { width: 238, height: 125 },
         position: drag[n.id] ?? positions[n.id] ?? { x: i * 320, y: 160 },
         selected: n.id === selected,
-        data: { name: n.name, kind: n.type, issue: invalidIds.includes(n.id) },
+        data: {
+          name: n.name,
+          kind: n.type,
+          issue: invalidIds.includes(n.id),
+          mode,
+        },
       })),
-    [definition, positions, drag, selected, invalidIds],
+    [definition, positions, drag, selected, invalidIds, mode],
   );
   const edges = useMemo(
     () =>
