@@ -15,3 +15,12 @@ Extends the original PRD and master prompt; does not remove any FR/UAT requireme
 | OS-09 | Complete full-enterprise scenario | 6/7 | Separate customer install; enterprise admin independently publishes two departmental workspaces with isolated data/access and shared authorized resources |
 
 The current solution registry advances OS-01/02 planning identity only. It does not satisfy solution release, OCI packaging, target install or final UAT. Current audit and blockers: ../AI_OS_DELIVERY.md. Original editable PRD DOCX and synced source materials remain unchanged.
+
+## Publisher candidate increment
+
+OS-02/03 now have declarative page composition/preview and immutable, versioned
+review snapshots. These are planning candidates, not independently approved
+solution releases or installable bundles. Direct native reference discovery
+does not resolve transitive agent/model/tool/KMS dependencies. Exact current
+functions and evidence: ../PUBLISHER_CANDIDATES.md. Final installation and
+runtime scenarios remain required.

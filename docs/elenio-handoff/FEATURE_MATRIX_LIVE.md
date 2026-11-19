@@ -2,7 +2,21 @@
 
 Statuses reflect verified checkpoints, not a live deployment claim. The latest update below supersedes earlier model-absence statements.
 
-## Latest update — AI OS solution planning, 2026-11-19
+## Latest update — Publisher composition and candidates
+
+| Capability | Current status | Evidence / authority | Acceptance |
+|---|---|---|---|
+| Declarative application composition | new, DB/HTTP/unit/browser tested | Optional 1–12 overview/intake/tasks/report pages; server validates components/workflow pins; API-only excludes UI | OS-02, UX-02 |
+| Business UI preview | new, contract-tested | Shared components/tokens, configured navigation, no live data or operational mutation; schema/runtime mapping open | UX-01/05, OS-02 |
+| Direct reference inventory | enhancement, tested | Exact native reference names only; no config/credentials exported; 200 aggregate cap with explicit blocker | SEC-02, OS-02 |
+| Immutable candidates/history | new, real PostgreSQL/HTTP tested | Exact revision/fresh server evidence, stable retry after plan edit, concurrent dedupe, audit, DB UPDATE/DELETE rejection | SEC-03, OS-03 partial |
+| Candidate JSON download | new, browser-tested | Explicit scoped snapshot/checksum; not signed release or installation bundle | OS-03 partial |
+| Transitive readiness / independent solution release | open | Discovered resources blocked, release_ready false; candidates cannot bypass domain gates | OS-02/03 |
+| OCI/Compose install and final scenarios | open / unverified | No Docker sandbox; no new installation/customer-runtime claim | OS-04/05/08/09 |
+
+Current scoped validation: 50 CP, 88 frontend unit/component and 40 browser tests pass; details/limits in PUBLISHER_CANDIDATES.md. Other module/live-provider checkpoints remain historical and were not rerun for this increment.
+
+## Retained update — AI OS solution planning, 2026-11-19
 
 Permanent addendum status by section: [AI_OS_DELIVERY.md](AI_OS_DELIVERY.md). The following extends, rather than replaces, prior verified Architect/runtime work.
 

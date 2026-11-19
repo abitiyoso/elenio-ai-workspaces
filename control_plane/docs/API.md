@@ -126,3 +126,14 @@ Every attempt writes an audit event: `token.exchanged` (decision `allow`) or `to
 # Solution plans extension
 
 Additive routes: GET/POST `/api/v1/solutions`, GET/PATCH `/api/v1/solutions/{id}`, GET `/api/v1/solutions/{id}/readiness`. Exact contract: [solution_registry.openapi.yaml](../contracts/solution_registry.openapi.yaml), referenced by the main OpenAPI. Existing cookie session, Origin/CSRF and rate limits apply. Plans use active workspace and `solution:view`/`solution:author`; no tenant/user/workspace fields are accepted in request bodies. Creation requires Idempotency-Key; PATCH requires the quoted revision ETag. Readiness uses current app permission and existing audience-bound delegation to trusted Flowcase only. It reports partial publication evidence, never solution release/deployment readiness. No new domain approval or licensing authority.
+
+### Publisher candidates
+
+Additive v1.1 planning contract adds optional validated application composition,
+GET/POST /api/v1/solutions/{id}/candidates and scoped GET of a candidate ID.
+POST accepts only numeric version and requires CSRF/Origin, Idempotency-Key and
+the strong plan revision. The server captures fresh evidence and exact plan;
+candidate snapshots are immutable (migration 0005) and checksummed, not signed
+or approved. No publication/deployment permissions or actions are added.
+See ../contracts/solution_registry.openapi.yaml and the handoff
+PUBLISHER_CANDIDATES.md for bounds, retry and trust semantics.

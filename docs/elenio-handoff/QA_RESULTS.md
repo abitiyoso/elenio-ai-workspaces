@@ -167,3 +167,30 @@ are implemented. Transitive dependency resolution, application composition,
 independent solution approval, versioned bundles and installer remain open.
 Owner confirmed no Docker sandbox and authorized continued local work; no clean
 customer install/upgrade/rollback/backup/restore evidence is claimed.
+
+## Publisher composition and candidate checkpoint
+
+Control Plane 50/0/0 pass/fail/skip on real disposable PostgreSQL/HTTP with the
+existing mock OIDC harness and trusted workflow double. Eight new top-level
+tests cover app composition constraints, reference inventory/redaction/bounds,
+canonical checksum precision/JSONB ordering, immutable candidate storage,
+scope, retry after a plan edit, stale/new version conflict and concurrent
+capture producing one snapshot/audit event. Discovered dependencies stay
+blocked; partial metadata can never claim solution release readiness.
+
+Frontend 88 unit/component and 40 browser regressions pass. Three new browser
+journeys compose four pages, preview, capture/download/reopen a candidate,
+reuse the key after a lost response and deny capture to a planning viewer.
+CP browser responses are explicitly intercepted fixtures; actual HTTP/database
+authorization/immutability is tested separately. Screenshots at 1440/768/390,
+desktop/mobile inspected; serious/critical axe and overflow pass on preview.
+Visual inspection exposed undefined color tokens and a hover override hiding
+the selected page; shared primary-button styling fixed both and selected/hover
+states now have regression checks. Final lint/typecheck/build and Go vet are
+recorded in delivery evidence. Existing ELK warning remains.
+
+Other four backend modules, the nine-case local runtime suite and paid provider
+calls were not rerun. The local standalone preview still lacks a persistent CP
+login. No customer app installation, runtime UI execution, independent solution
+approval, OCI bundle or deployment acceptance is claimed. Full scope:
+PUBLISHER_CANDIDATES.md.
