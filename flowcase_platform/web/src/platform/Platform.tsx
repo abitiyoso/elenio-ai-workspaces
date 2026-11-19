@@ -264,6 +264,10 @@ export function Platform() {
             Projects
           </NavLink>
           <span className="nav-section">ENGINEERING</span>
+          <NavLink to="/connected/operations" onClick={() => setMenu(false)}>
+            <FolderOpen size={18} />
+            Cases &amp; reviews
+          </NavLink>
           <Link
             className={
               (

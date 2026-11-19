@@ -23,7 +23,7 @@ import {
   Notice,
 } from "../../../../packages/ui/primitives";
 import { ApiError, newIdempotencyKey } from "../api/client";
-import { onTokenChange } from "../api/hostBridge";
+import { onTokenChange, setPersona } from "../api/hostBridge";
 import { useResource } from "../api/useResource";
 import {
   createDraftVersion,
@@ -61,6 +61,7 @@ import { layoutDefinition } from "./layout";
 import { Studio } from "./Studio";
 import { ConnectedExecution } from "./ConnectedExecution";
 import { ConnectedCatalog } from "./ConnectedCatalog";
+import { CaseOperations, OperationCase } from "./CaseOperations";
 import { readLayout, writeLayout } from "./layoutStore";
 
 function Failure({ error, onRetry }: { error: ApiError; onRetry: () => void }) {
@@ -124,10 +125,33 @@ function Gate() {
           {resource.data.display_name} · {resource.data.environment}
         </span>
         <Link to="/">Local preview</Link>
+        {resource.data.auth_mode === "dev_mock" &&
+          resource.data.environment === "development" &&
+          Array.isArray(resource.data.dev_personas) && (
+            <label className="persona-control">
+              Development identity
+              <select
+                aria-label="Server development identity"
+                value={resource.data.persona ?? "default"}
+                onChange={(e) => setPersona(e.target.value)}
+              >
+                {resource.data.dev_personas.map((p) => (
+                  <option key={p.key} value={p.key}>
+                    {p.display_name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
       </div>
       <Routes>
         <Route index element={<Registry session={resource.data} />} />
         <Route path="catalog" element={<ConnectedCatalog />} />
+        <Route
+          path="operations"
+          element={<CaseOperations session={resource.data} />}
+        />
+        <Route path="cases/:id" element={<OperationCase />} />
         <Route
           path="projects/:key/:version"
           element={<ConnectedEditor session={resource.data} />}
