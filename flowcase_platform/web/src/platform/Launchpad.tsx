@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
+  ArrowUp,
+  Check,
   Boxes,
   GitBranch,
   Layers,
@@ -39,7 +41,7 @@ const capabilities = [
     name: "AI Architect",
     kind: "architect",
     description:
-      "Translate business requirements into an editable blueprint. A model connection is required for generation.",
+      "Define the business outcome, constraints and controls before authoring a solution blueprint.",
   },
   {
     name: "Workflow",
@@ -51,7 +53,7 @@ const capabilities = [
     name: "Agents",
     kind: "agents",
     description:
-      "Reusable intelligence with model, skill, tool and scoped knowledge bindings. Connected catalog follows in Phase 2.",
+      "Reusable intelligence with model, skill, tool and scoped knowledge bindings. Explore the authorized capability catalog.",
   },
   {
     name: "API / MCP",
@@ -72,6 +74,53 @@ const capabilities = [
       "Versioned documents, scoped access and governed evidence. Explore the document workspace.",
   },
 ];
+function CapabilityMap({
+  onBuild,
+  onArchitect,
+  dark = false,
+}: {
+  onBuild: () => void;
+  onArchitect: () => void;
+  dark?: boolean;
+}) {
+  const [selected, setSelected] = useState(0);
+  return (
+    <section className={`capability-map ${dark ? "architecture-map" : ""}`} aria-label="Platform capability map">
+      <header>
+        <span className="eyebrow">{dark ? "ONE CONNECTED ARCHITECTURE" : "LIVING INTELLIGENCE"}</span>
+        <span>{dark ? "CAPABILITY MAP" : "SYSTEM MAP"}</span>
+      </header>
+      <div className="capability-world">
+        <svg viewBox="0 0 560 350" aria-hidden="true">
+          <ellipse cx="280" cy="175" rx="190" ry="115" fill="none" stroke="currentColor" strokeOpacity=".3" strokeDasharray="2 6" />
+          <ellipse cx="280" cy="175" rx="125" ry="78" fill="none" stroke="currentColor" strokeOpacity=".16" />
+          {[[95, 90], [280, 45], [465, 90], [465, 260], [280, 305], [95, 260]].map(([x, y], i) => (
+            <path key={i} d={`M280 175 Q${x} 175 ${x} ${y}`} fill="none" stroke="currentColor" strokeOpacity={selected === i ? .75 : .25} strokeWidth={selected === i ? 2 : 1} strokeDasharray="3 5" />
+          ))}
+        </svg>
+        <div className="capability-core">
+          <div><img src="./brand/elenio-icon.png" alt="Elenio" /></div>
+          <span>ORCHESTRATOR</span>
+        </div>
+        {capabilities.map((c, i) => (
+          <button className={`capability-orbit capability-${c.kind} ${selected === i ? "selected" : ""}`} key={c.kind} aria-pressed={selected === i} onClick={() => setSelected(i)}>
+            <span className="capability-art"><img src={`./illustrations/v10-${c.kind}.svg`} alt="" /></span>
+            <strong>{c.name}</strong>
+          </button>
+        ))}
+      </div>
+      <footer aria-live="polite">
+        <div><strong>{capabilities[selected]?.name}</strong>{!dark && <p>{capabilities[selected]?.description}</p>}</div>
+        {selected === 1 ? <button onClick={onBuild}>Open Workflow Studio <ArrowRight size={14} /></button>
+          : selected === 5 ? <Link to="/knowledge">Open Knowledge Hub <ArrowRight size={14} /></Link>
+            : selected === 0 ? <button onClick={onArchitect}>Open AI Architect <ArrowRight size={14} /></button>
+              : selected === 2 ? <Link to="/connected/catalog">Explore catalog <ArrowRight size={14} /></Link>
+                : selected === 4 ? <Link to="/connected/operations">Open reviews <ArrowRight size={14} /></Link>
+                  : <span>Connector registration required</span>}
+      </footer>
+    </section>
+  );
+}
 export function Launchpad({
   onOpen,
   onBuild,
@@ -82,7 +131,6 @@ export function Launchpad({
   onArchitect: (brief: string) => void;
 }) {
   const [brief, setBrief] = useState(""),
-    [selected, setSelected] = useState(0),
     [modal, setModal] = useState<"manual" | "templates" | "agent" | null>(null);
   return (
     <section className="page launchpad">
@@ -139,91 +187,7 @@ export function Launchpad({
             ))}
           </div>
         </section>
-        <section className="capability-map">
-          <header>
-            <span className="eyebrow">LIVING INTELLIGENCE</span>
-            <span>SYSTEM MAP</span>
-          </header>
-          <div className="capability-world">
-            <svg viewBox="0 0 560 350" aria-hidden="true">
-              <defs>
-                <radialGradient id="capability-halo">
-                  <stop stopColor="#b1ccfc" stopOpacity=".65" />
-                  <stop offset="1" stopColor="#f5f8fc" stopOpacity="0" />
-                </radialGradient>
-              </defs>
-              <ellipse
-                cx="280"
-                cy="175"
-                rx="240"
-                ry="170"
-                fill="url(#capability-halo)"
-              />
-              <ellipse
-                cx="280"
-                cy="175"
-                rx="190"
-                ry="115"
-                fill="none"
-                stroke="#bdcce2"
-                strokeDasharray="3 7"
-              />
-              {[
-                [95, 90],
-                [280, 45],
-                [465, 90],
-                [465, 260],
-                [280, 305],
-                [95, 260],
-              ].map(([x, y], i) => (
-                <path
-                  key={i}
-                  d={`M280 175 Q${x} 175 ${x} ${y}`}
-                  fill="none"
-                  stroke={selected === i ? "#4c7cce" : "#c9d7e9"}
-                  strokeWidth={selected === i ? 2 : 1}
-                />
-              ))}
-            </svg>
-            <div className="capability-core">
-              <img src="./brand/elenio-icon.png" alt="Elenio" />
-              <span>ORCHESTRATOR</span>
-            </div>
-            {capabilities.map((c, i) => (
-              <button
-                className={`capability-orbit capability-${c.kind} ${selected === i ? "selected" : ""}`}
-                key={c.kind}
-                aria-pressed={selected === i}
-                onClick={() => setSelected(i)}
-              >
-                <span className={`capability-symbol ${c.kind}`}>
-                  <i />
-                  <i />
-                </span>
-                <strong>{c.name}</strong>
-              </button>
-            ))}
-          </div>
-          <footer>
-            <strong>{capabilities[selected]?.name}</strong>
-            <p>{capabilities[selected]?.description}</p>
-            {selected === 1 ? (
-              <button onClick={onBuild}>
-                Open Workflow Studio <ArrowRight size={13} />
-              </button>
-            ) : selected === 5 ? (
-              <Link to="/knowledge">
-                Open Knowledge Hub <ArrowRight size={13} />
-              </Link>
-            ) : selected === 0 ? (
-              <button onClick={() => onArchitect(brief)}>
-                Open AI Architect <ArrowRight size={13} />
-              </button>
-            ) : (
-              <span>Connection required · later phase</span>
-            )}
-          </footer>
-        </section>
+        <CapabilityMap onBuild={onBuild} onArchitect={() => onArchitect(brief)} />
       </div>
       <section className="creation-paths" aria-label="Start a solution">
         <button onClick={() => setModal("manual")}>
@@ -250,6 +214,14 @@ export function Launchpad({
           </span>
           <ArrowRight size={16} />
         </Link>
+      </section>
+      <section className="workspace-outcome" aria-label="Deliver an operating workspace">
+        <div><span className="eyebrow">FROM IDEA TO CUSTOMER OUTCOME</span><h2>Deliver an operating workspace.</h2><p>Customer-ready applications, model flexibility and cost visibility.</p></div>
+        <div className="outcome-actions">
+          <Link to="/connected/operations"><Boxes size={18} /><span>Business Apps</span><ArrowRight size={14} /></Link>
+          <button disabled title="The governed model registry is not connected to this workspace"><Layers size={18} /><span>Model Hub</span><small>Not connected</small></button>
+          <Link to="/economics"><GitBranch size={18} /><span>AI Economics</span><ArrowRight size={14} /></Link>
+        </div>
       </section>
       <div className="section-title">
         <div>
@@ -370,57 +342,48 @@ export function ArchitectBrief({
   onBrief: (value: string) => void;
   onBuild: () => void;
 }) {
+  const [submitted, setSubmitted] = useState("");
+  function appendConstraint(text: string) {
+    onBrief([brief.trim(), text].filter(Boolean).join("\n\n"));
+  }
   return (
     <section className="page architect-page">
       <header className="page-heading">
         <div>
           <span className="eyebrow">AI-ASSISTED SOLUTION ENGINEERING</span>
           <h1>AI Solution Architect</h1>
-          <p>
-            From an unstructured requirement to a solution your team can
-            actually build.
-          </p>
+          <p>From business intent to a governed, working solution.</p>
         </div>
-        <Button onClick={onBuild}>
-          Open Workflow Studio <ArrowRight size={16} />
-        </Button>
+        <Button onClick={onBuild}>Open Workflow Studio <ArrowRight size={16} /></Button>
       </header>
       <div className="architect-columns">
-        <section className="surface architect-requirement">
-          <h2>Define the business outcome</h2>
-          <label className="e-field">
-            Business requirement
-            <textarea
-              aria-label="Business requirement"
-              rows={9}
-              value={brief}
-              onChange={(e) => onBrief(e.target.value)}
-              placeholder="Describe the process, its inputs, decisions and intended outcome…"
-            />
-          </label>
-          <h3>Clarify before generating</h3>
-          <ul>
-            <li>Which event starts the process?</li>
-            <li>Who owns review and final approval?</li>
-            <li>Which systems and knowledge are permitted?</li>
-            <li>What baseline cost, volume and quality define success?</li>
-          </ul>
+        <section className="surface architect-conversation" aria-label="Solution conversation">
+          <header><div><Sparkles size={18} /><h2>Solution conversation</h2></div><Badge>Local planning</Badge></header>
+          <div className="conversation-history" role="log" aria-label="Requirement history">
+            <div className="conversation-intro"><span className="architect-avatar"><Sparkles size={19} /></span><div><strong>Start with the outcome.</strong><p>Describe the process you want to improve. Include its trigger, inputs, decisions and the people responsible for review.</p><p>We will bring workflows, agents, knowledge and enterprise systems into one solution.</p></div></div>
+            {submitted && <div className="requirement-message"><span className="eyebrow">YOUR REQUIREMENT</span><p>{submitted}</p><small><Check size={13} /> Captured for this session</small></div>}
+          </div>
+          <form className="architect-composer" onSubmit={(event) => {event.preventDefault(); if (brief.trim()) setSubmitted(brief.trim());}}>
+            <div className="scenario-chips" aria-label="Add a constraint">
+              <button type="button" onClick={() => appendConstraint("Require independent human approval before any controlled action.")}>Add approval</button>
+              <button type="button" onClick={() => appendConstraint("Run in the customer environment with approved data residency and endpoints.")}>Customer-hosted</button>
+              <button type="button" onClick={() => appendConstraint("Reuse approved workflows, agents and capabilities before creating new ones.")}>Reuse capabilities</button>
+            </div>
+            <label className="sr-only" htmlFor="architect-requirement">Business requirement</label>
+            <textarea id="architect-requirement" rows={4} value={brief} onChange={(event) => onBrief(event.target.value)} placeholder="Describe your requirement or refine the solution…" />
+            <div><span>Requirement stays in this browser session</span><Button type="submit" variant="primary" disabled={!brief.trim()} aria-label="Capture requirement"><ArrowUp size={17} /></Button></div>
+          </form>
         </section>
-        <section className="surface architect-blueprint">
-          <Badge tone="amber">Model not configured</Badge>
-          <h2>Your solution blueprint</h2>
-          <p>
-            The blueprint will bring together requirements, workflow topology,
-            minimal agents, knowledge, integrations, human controls and
-            economics assumptions.
-          </p>
-          <Notice>
-            No AI output has been generated. An approved model and authorized
-            draft API must be connected before proposing or applying changes.
-          </Notice>
-          <Button disabled>Generate blueprint</Button>
-          <small>Requires a configured model connection</small>
-          <Button onClick={onBuild}>Explore the Vendor Payment example</Button>
+        <section className="architect-discovery" aria-label="Solution discovery">
+          <div className="surface architect-blueprint">
+            <span className="eyebrow">SOLUTION DISCOVERY</span>
+            <h2>{submitted ? "Your requirement is ready to refine" : "Start with a requirement"}</h2>
+            <p>Build an editable blueprint with the minimum viable agents, explicit process connections, knowledge, integrations and human controls.</p>
+            <div className="blueprint-outline"><span><GitBranch size={16} /> Workflow & decisions</span><span><Boxes size={16} /> Agents & capabilities</span><span><ShieldCheck size={16} /> Governance & economics</span></div>
+            <Notice>Blueprint authoring is not connected to this workspace. Capturing a requirement does not call a model or change a workflow.</Notice>
+            <div className="blueprint-actions"><Button disabled>Generate blueprint</Button><Button variant="quiet" onClick={onBuild}>Explore example <ArrowRight size={14} /></Button></div>
+          </div>
+          <CapabilityMap dark onBuild={onBuild} onArchitect={() => document.getElementById("architect-requirement")?.focus()} />
         </section>
       </div>
     </section>

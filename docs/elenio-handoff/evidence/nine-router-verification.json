@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-19",
+  "branch": "feat/elenio-nine-router",
+  "endpoint": "https://9router.elenio.id/v1",
+  "model": "cx/gpt-6-luna",
+  "api": "Chat Completions",
+  "provider_probe": {
+    "ok": true,
+    "adapter": "openai_compatible",
+    "capabilities": {
+      "catalog": true,
+      "json": true
+    },
+    "observation": "models_list_and_requested_chat_completions"
+  },
+  "runtime": {
+    "adapter": "existing_eino_executor",
+    "status": "succeeded",
+    "schema_valid": true,
+    "tokens_in": 299,
+    "tokens_out": 9,
+    "tools_called": 0,
+    "synthetic_input_only": true
+  },
+  "credential_isolation": {
+    "git_ignored": true,
+    "windows_acl_inheritance_disabled": true,
+    "access_rules": 1,
+    "absent_from_tracked_files_and_frontend_build": true
+  },
+  "tests": {
+    "frontend_unit": 66,
+    "frontend_browser": 29,
+    "local_live_browser": 9,
+    "diagnostic_scope_unit": 2,
+    "go_packages_passed": [
+      "tools/provider-check",
+      "internal/httpapi",
+      "internal/runtime"
+    ],
+    "lint": "passed",
+    "typecheck": "passed",
+    "production_build": "passed"
+  },
+  "limits": {
+    "server_vault_imported": false,
+    "registry_deployment_approved": false,
+    "architect_generation_connected": false,
+    "production_approved": false,
+    "tool_call_capability_tested": false,
+    "monetary_cost_inferred": false
+  },
+  "notes": [
+    "Only synthetic connectivity input sent to the approved provider. No raw provider response or credential is recorded.",
+    "Runtime token counts exclude separate probe usage.",
+    "Full production FileVault remains POSIX-only; no Windows bypass.",
+    "Browser screenshots and detailed comparison: UI_V10_COMPARISON.md."
+  ]
+}

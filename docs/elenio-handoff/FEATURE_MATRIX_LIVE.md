@@ -1,6 +1,21 @@
 # Live capability / acceptance matrix
 
-Statuses reflect this session only. Source implementation is not a live deployment claim.
+Statuses reflect verified checkpoints, not a live deployment claim. The latest update below supersedes earlier model-absence statements.
+
+## Latest update — 2026-11-19
+
+| Capability | Current status | Evidence / authority | Acceptance |
+|---|---|---|---|
+| 9Router catalog + JSON completion | enhancement, real endpoint verified | Existing OpenAI-compatible probe; fixed approved endpoint/model; NINE_ROUTER.md | AI-01, SEC-02 |
+| Existing Eino provider execution | existing integration, synthetic live diagnostic tested | Schema-valid result, zero tools; scoped process-only diagnostic credential | AI-01 |
+| API/worker vault + governed provider deployment | blocked on Windows host / registry not imported | POSIX FileVault preserved; diagnostic does not create a release | AI-02/03, SEC-03 |
+| General Architect authoring | blocked contract; provider connectivity available | Functional local requirement capture, no generated blueprint or workflow mutations | AI-01, UX-02 |
+| V10 Home / Architect composition | enhancement, browser-tested | Original capability SVGs, shared map, conversation/discovery and actual screenshots | UX-01/02/05 |
+| Local workflow workspace | enhancement, browser-tested | Full-width drawer shell, readable native entry, Fit View, early selection priority, keyboard focus | UX-03, FLOW-01 |
+
+Current validation: 66 frontend unit, 29 browser regressions, nine real local browser E2E, adapter/runtime Go packages and two diagnostic boundary tests pass. Details: UI_V10_COMPARISON.md and NINE_ROUTER.md. Human visual and full-product acceptance remain open.
+
+## Earlier checkpoints
 
 | Capability | Status | Evidence / owner | Acceptance |
 |---|---|---|---|
@@ -13,7 +28,7 @@ Statuses reflect this session only. Source implementation is not a live deployme
 | Home/project context | new fixture, tested | explicit isolated preview store; UI / proposed CP | UX-02 |
 | Branching editor / inspector | enhancement, tested | canonical next/config adapter, ELK + React Flow; Flowcase UI | UX-03, FLOW-01 |
 | Knowledge explorer | enhancement, fixture tested | explicit synthetic documents, no real ingestion; KMS UI | UX-04 |
-| General AI Architect | blocked integration | no configured model / generic builder contract; future orchestration | AI-01 |
+| General AI Architect | blocked authoring contract | Provider connectivity verified; generic builder API remains absent | AI-01 |
 | Runtime graphs/telemetry | existing-unverified | real events required; Flowcase/Agent | FLOW-04 |
 | Economics ledger / scenarios | new, deferred | kit AI_ECONOMICS; proposed economics owner | ECON-01–03 |
 | Portable delivery | new, deferred | dependency and packaging ADR; release owner | DEP-01,02 |
