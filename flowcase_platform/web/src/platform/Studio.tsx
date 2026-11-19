@@ -825,9 +825,9 @@ export function Studio({
               <span className="canvas-dot" />
               {mode === "fixture"
                 ? "Design fixture · drag nodes, connect ports, select to inspect"
-                : "Server draft · visual positions are separate from process semantics"}
+                : `Server ${versionStatus} · visual positions are separate from process semantics`}
             </span>
-            <span>Publish unavailable · server validation required</span>
+            <span>{mode === "connected" ? "Release controls remain in Flowcase" : "Publish unavailable · server validation required"}</span>
           </footer>
         </>
       )}
