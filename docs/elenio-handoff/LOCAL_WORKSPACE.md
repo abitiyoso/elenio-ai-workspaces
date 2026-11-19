@@ -2,6 +2,8 @@
 
 Branch: `feat/elenio-local-workspace-integration`, based on Publisher checkpoint `08ef430701e2c36bc8cf8c5906bb882cf22b3220`. This increment connects existing functions. It does not replace their backends or close whole-product acceptance.
 
+Tested implementation/evidence SHA: `c09dfcda9660e326fc8b70d72e3c707f4e5c2f82`. Delivery: [draft PR #9](https://github.com/abitiyoso/elenio-ai-workspaces/pull/9), stacked on PR #8. The feature tip also contains delivery metadata; compare local/remote refs for its final SHA. Private owner repo verified as `abitiyoso/elenio-ai-workspaces`; main stays `8bfae869e8ad3adaf10b496428ffbcf22c196db9` and upstream pushes stay disabled.
+
 ## Reused implementation
 
 | Function already in the team source | Integration in this increment |

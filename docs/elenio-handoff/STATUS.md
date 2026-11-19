@@ -6,6 +6,8 @@ Current scoped validation: **53 CP + 110 Flowcase + 87 Agent backend tests**, **
 
 ## Prior Publisher checkpoint
 
+Latest integration implementation/evidence: `c09dfcda9660e326fc8b70d72e3c707f4e5c2f82`, [draft PR #9](https://github.com/abitiyoso/elenio-ai-workspaces/pull/9), base `feat/elenio-publisher-candidates`. The feature tip includes delivery metadata. Private owner origin verified; main and upstream are preserved. Full-history scan retains nine reviewed original non-secret matches and zero outside source ancestry; staged scan and named-credential absence check pass.
+
 Active branch: `feat/elenio-publisher-candidates`, based on solution-planning checkpoint `3f815fcc457768a00ef0d845fb51fbf7f2fb2092`. Owner continuation preserves the agreed design and permanent AI OS delivery outcome. Current increment: optional application composition/preview, direct reference inventory and immutable review candidates. [PUBLISHER_CANDIDATES.md](PUBLISHER_CANDIDATES.md) records exact functions, evidence and limits. Full product/all-phase acceptance remains open.
 
 Current validation: 50 CP tests on real disposable PostgreSQL/HTTP with the existing mock IdP/trusted workflow double, 88 frontend unit/component and 40 browser regressions pass. Lint/typecheck/build pass; Go vet recorded in delivery verification. UI evidence uses explicit intercepted CP contracts; backend scope/immutability/concurrency is verified separately. No new model calls. Standalone preview still has no persistent CP login. A candidate checksum does not approve a release or prove installation.
