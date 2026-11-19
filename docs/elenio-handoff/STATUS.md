@@ -42,4 +42,7 @@ No upstream writes, main merge or deployment. Review actual local behavior at `h
 Active development moved to `feat/elenio-economics-scenarios`, based on core checkpoint `88f76ee22a71706f4200f6e942cabc8fd5b0de72`. The prior core branch/PR #2 and local runtime evidence remain intact. A new estimated IDR vendor-process planner follows the exact kit fixture, with editable assumptions, source/date, fixed-point calculations, N/A/unpriced states, explicit IndexedDB revisions and validated JSON import/export. Global and project Economics navigation now open the planner. ADR and scope: [ECONOMICS_SCENARIOS.md](ECONOMICS_SCENARIOS.md).
 
 This is the scenario-estimation subset of Economics; full Phase 4 remains open. Actual usage ledger, approved rate cards, FX, arbitrary-graph/parallel costing, budget enforcement and quality-gated optimization are not inferred from scenario math. Backend unchanged in this continuation; historical 369 pass / 1 Windows vault fail / 0 DB skips remain the last backend run. Provider absence remains confirmed by owner. No merge/deployment.
-`nEconomics implementation SHA: `2e281eec5a778a86da00bd1e0846d4abc8815647`. Final evidence: `economics-verification.json`; 66/66 unit + 25/25 browser, zero browser skips/failures. History scan: same nine original non-secret matches, no new findings.
+
+Economics implementation SHA: `2e281eec5a778a86da00bd1e0846d4abc8815647`. Final evidence: `economics-verification.json`; 66/66 unit + 25/25 browser, zero browser skips/failures. History scan: same nine original non-secret matches, no new findings.
+
+Economics draft PR: https://github.com/abitiyoso/elenio-ai-workspaces/pull/3 (base: feat/elenio-core-engineering). Implementation and evidence verified pushed to the private owner repository.
