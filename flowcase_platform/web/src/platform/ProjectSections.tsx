@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+import { Link } from "react-router-dom";
 import type { WorkflowDefinition } from "../api/workflows";
 import { Badge, Button, Notice } from "../../../../packages/ui/primitives";
 
@@ -109,10 +110,13 @@ export function ProjectSections({
                 No approved rate card, usage events or business baseline are
                 connected. ROI and savings cannot be calculated from this draft.
               </Notice>
-              <Button disabled>Open cost scenario</Button>
+              <Link className="e-button" to="/economics">
+                Open scenario planner
+              </Link>
               <p>
-                Scenario calculation and ledger integration are scheduled for
-                Phase 4.
+                The planner uses explicit assumptions. It does not infer costs
+                from this workflow; actual ledger integration remains
+                unavailable.
               </p>
             </>
           ) : tab === "Versions" ? (

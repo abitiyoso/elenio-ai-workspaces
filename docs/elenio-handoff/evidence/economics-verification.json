@@ -1,0 +1,20 @@
+{
+  "implementation_sha": "2e281eec5a778a86da00bd1e0846d4abc8815647",
+  "branch": "feat/elenio-economics-scenarios",
+  "unit_passed": 66,
+  "browser_passed": 25,
+  "browser_skipped": 0,
+  "browser_failed": 0,
+  "lint": "passed",
+  "typecheck": "passed",
+  "build": "passed, existing lazy ELK chunk warning",
+  "currency": "IDR only",
+  "scenario": "Synthetic editable vendor process; no actual ledger or general DAG costing",
+  "storage": "Explicit append-only IndexedDB browser revisions",
+  "backend": "unchanged, not rerun",
+  "secret_scan": {
+    "new_matches": 0,
+    "original_matches": 9
+  },
+  "deployment": "none"
+}

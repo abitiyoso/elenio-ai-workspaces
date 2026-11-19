@@ -1,0 +1,118 @@
+.economics-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 22px 0;
+}
+.economics-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.economics-inputs,
+.economics-results {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.economics-card {
+  padding: 26px;
+}
+.economics-card h2 {
+  font-size: 19px;
+  margin: 0 0 12px;
+}
+.economics-card p,
+.economics-card small {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--e-muted);
+}
+.economics-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+.economics-fields .e-field {
+  min-width: 0;
+}
+.economics-total {
+  display: block;
+  font-size: 40px;
+  letter-spacing: -1px;
+  color: var(--e-ink);
+  margin-top: 20px;
+}
+.economics-card dl {
+  margin: 24px 0;
+}
+.economics-card dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--e-line);
+  font-size: 13px;
+}
+.economics-card dt {
+  color: var(--e-muted);
+}
+.economics-card dd {
+  font-weight: 600;
+  margin: 0;
+  text-align: right;
+}
+.economics-facts {
+  padding: 16px;
+  background: #f6f8ff;
+  border-radius: 12px;
+}
+.economics-facts p {
+  margin: 7px 0;
+}
+.economics-facts strong {
+  color: var(--e-ink);
+  margin-left: 8px;
+}
+.economics-card summary {
+  cursor: pointer;
+  font-size: 13px;
+  margin: 20px 0;
+}
+.economics-card li {
+  font-size: 13px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.economics-card li small {
+  display: block;
+  margin-bottom: 12px;
+}
+.economics-results {
+  position: sticky;
+  top: 18px;
+}
+.economics-page > .e-notice {
+  margin-top: 16px;
+}
+@media (max-width: 1100px) {
+  .economics-grid {
+    grid-template-columns: 1fr;
+  }
+  .economics-results {
+    position: static;
+  }
+}
+@media (max-width: 600px) {
+  .economics-fields {
+    grid-template-columns: 1fr;
+  }
+  .economics-card {
+    padding: 20px;
+  }
+  .economics-total {
+    font-size: 34px;
+  }
+}

@@ -43,6 +43,7 @@ import { layoutDefinition } from "./layout";
 import { Launchpad, ArchitectBrief } from "./Launchpad";
 import { ProjectSections } from "./ProjectSections";
 import { ConnectedWorkspace } from "./ConnectedWorkspace";
+import { Economics } from "./Economics";
 
 export function Platform() {
   const location = useLocation(),
@@ -318,14 +319,10 @@ export function Platform() {
             Models &amp; Providers <small>Phase 3</small>
           </button>
           <span className="nav-section">MANAGEMENT</span>
-          <button
-            className="planned-nav"
-            disabled
-            title="Economics ledger and scenarios: Phase 4"
-          >
+          <NavLink to="/economics" onClick={() => setMenu(false)}>
             <GitBranch size={18} />
-            AI Economics <small>Phase 4</small>
-          </button>
+            AI Economics
+          </NavLink>
           <a href="./">
             <GitBranch size={18} />
             Existing Flowcase
@@ -470,6 +467,7 @@ export function Platform() {
           ) : (
             <Routes>
               <Route path="/connected/*" element={<ConnectedWorkspace />} />
+              <Route path="/economics" element={<Economics />} />
               <Route
                 path="/"
                 element={

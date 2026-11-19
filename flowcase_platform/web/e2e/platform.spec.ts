@@ -280,6 +280,6 @@ test("kit launchpad uses bundled typography, scenario brief and contextual proje
   await expect(page.getByRole("table")).toContainText("Local design preview");
   await page.getByRole("button", { name: "Economics", exact: true }).click();
   await expect(
-    page.getByRole("button", { name: "Open cost scenario" }),
-  ).toBeDisabled();
+    page.getByRole("link", { name: "Open scenario planner" }),
+  ).toBeVisible();
 });
