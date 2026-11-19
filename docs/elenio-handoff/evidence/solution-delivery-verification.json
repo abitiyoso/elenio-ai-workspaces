@@ -62,5 +62,21 @@
     "enterprise_two_department_scenario": "unverified",
     "standalone_customer_scenario": "unverified",
     "design_direction": "preserved; logo unchanged"
+  },
+  "delivery": {
+    "private_owner": "abitiyoso",
+    "draft_pr": "https://github.com/abitiyoso/elenio-ai-workspaces/pull/7",
+    "main_sha": "8bfae869e8ad3adaf10b496428ffbcf22c196db9",
+    "base_branch": "feat/elenio-architect-authoring",
+    "upstream_push": "DISABLED",
+    "implementation_sha": "9ac0b646c97c4501c7d09a211b041b4ba9132905"
+  },
+  "security": {
+    "history_scope": "23 commits through implementation",
+    "history_findings": 9,
+    "brand_assets": "unchanged",
+    "outside_original_ancestry": 0,
+    "staged_findings": 0,
+    "named_credential_absent": "changed tracked files and frontend build"
   }
 }
