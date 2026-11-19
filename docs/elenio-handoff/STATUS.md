@@ -1,48 +1,26 @@
 # Elenio development status — 2026-11-19 Asia/Jakarta
 
-Active branch: `feat/elenio-economics-scenarios`. Economics planner: 66 unit/component + 25 browser tests pass; lint, TypeScript and production build pass. Screenshots reviewed at desktop/tablet/mobile. Full Phase 4 remains open. Local end-to-end engineering/runtime acceptance is verified. The owner requested completion end to end, then explicitly chose: no approved model/provider yet; finish the local flow and record the AI blocker. Full Elenio product / all-phase production acceptance remains open.
+Active branch: `feat/elenio-case-operations`, based on Economics checkpoint `87e8fdd56c500a1a8c01f9561e84512259dfc287`. Owner instruction: complete/check model-independent functions first, connect models last. No need to request model configuration again before that work is done. Full product/all-phase acceptance remains open.
 
-## Repository checkpoint
+## Current delivery
 
-- Core checkpoint retained on `feat/elenio-core-engineering`, draft [PR #2](https://github.com/abitiyoso/elenio-ai-workspaces/pull/2), based on unmerged Phase 1 feature branch.
-- Current implementation: `a4e66edf9366e6521bc7f9ff3ea1007b4c157cd5`; Windows fixes: `ab1d243`. Documentation/evidence follow; delivery SHA is `git rev-parse HEAD`.
-- Origin: verified private `abitiyoso/elenio-ai-workspaces`. Upstream `kawakibireku/ai-workspace` push is `DISABLED`. Main remains original `8bfae869e8ad3adaf10b496428ffbcf22c196db9`.
-- Owner confirmed copying rights. Synced sources and original kit remain untouched. Official Elenio logo unchanged.
+Authenticated Cases & reviews now supports real case intake, list search/status/paging, task completion/revision, independent approval, pause/resume/notes, draft review contracts, actual activity/evidence and pinned workflow navigation in the shared UI. All mutations use existing API authorities/If-Match and explicit confirmation; conflicts retain forms. Development persona selection uses only existing server configuration and is absent from production/trusted sessions. No backend or auth rule changes. Details: [CASE_OPERATIONS.md](CASE_OPERATIONS.md).
 
-## Delivered and verified
+Validation: 66 unit/component tests; 28 frontend browser regressions; 9 real local API/worker/PostgreSQL browser cases. Lint, typecheck and production build pass. Actual operations screenshots reviewed desktop/mobile; serious/critical axe checks pass. Implementation SHA: `6b8efb2a64bf0098e1896710066697e8dc4e9fc3`. History scan: same nine original non-secret matches, no new findings. Final machine-readable evidence is `operations-verification.json`; exact delivery SHA is `git rev-parse HEAD`.
 
-- Existing contract integration: actual session/roles, workflow registry, blank/template/import drafts, runtime capabilities, dependency catalog, If-Match save, validation, immutable versions and explicit import diff.
-- Real local PostgreSQL + Flowcase API/worker. Six browser scenarios exercise persisted UI editing, concurrency conflict, version pinning/forking, viewer denial, true/false branch execution and a complete task/independent approval/task flow with audit hash.
-- Execution trace now reads actual authorized case records and exact key/version timelines, with bounded polling for active cases and original runtime-workspace link. No fabricated AI usage or monetary cost.
-- Reproducible Start/Test/Stop scripts, ignored local state/secrets, loopback bindings, explicit development identity, external integrations disabled. Startup idempotency verified.
-- Two UCW Windows bugs fixed (filename slash semantics; confined directory handle lifetime). A flaky asynchronous draft-revision test now waits for the next result rather than dereferencing nil. No runtime/security/approval rule changed.
+## Retained checkpoints
 
-## Results
+- Core local E2E: [PR #2](https://github.com/abitiyoso/elenio-ai-workspaces/pull/2), `feat/elenio-core-engineering`; reproducible sandbox [LOCAL_E2E.md](LOCAL_E2E.md). Workflow creation/edit/import/save/validate, branching, version pinning and actual execution trace verified.
+- Economics: [PR #3](https://github.com/abitiyoso/elenio-ai-workspaces/pull/3), `feat/elenio-economics-scenarios`; [ECONOMICS_SCENARIOS.md](ECONOMICS_SCENARIOS.md). Exact synthetic vendor scenario, explicit local revisions and JSON roundtrip; actual ledger/general graph costing still open.
+- Last backend run: 369 pass / 1 fail / 0 skip on real disposable DBs. Agent FileVault requires POSIX 0700 and fails on Windows; protections retained. Two UCW Windows defects fixed. No backend rerun for this frontend-only continuation.
+- Private owner origin: `abitiyoso/elenio-ai-workspaces`. Upstream `kawakibireku/ai-workspace` push URL is DISABLED. Main preserved at `8bfae869e8ad3adaf10b496428ffbcf22c196db9`. Official logo unchanged; synced sources and kit original remain read-only.
 
-- **60/60** frontend unit/component, **22/22** contract/fixture browser regressions, **6/6** real local E2E browser tests; lint, TypeScript and both-entry production build pass.
-- Real disposable DB suites: **369 pass / 1 fail / 0 skip**. Flowcase 110 pass, CP 37, Agent 81 pass/1 fail, KMS 107, UCW 34. Existing IdP/provider/Docling test doubles retain their limits.
-- Go vet passes for changed Flowcase case package and UCW. Serious/critical axe rules pass on real execution view; earlier responsive/keyboard/axe regressions retained.
-- History secret scan through implementation: 9 commits, same nine reviewed non-secret matches, all in original upstream; no new findings or suppressions.
-- Screenshots: `live-*.png` are actual local backend captures; `phase2-*.png` are contract mocks. Desktop trace inspected.
+## Outstanding work, model last
 
-Runbook and exact scope: [LOCAL_E2E.md](LOCAL_E2E.md). Machine-readable results: [local-e2e-verification.json](evidence/local-e2e-verification.json), [live-e2e-results.json](evidence/live-e2e-results.json). Previous ADRs: [PHASE2_CORE_ENGINEERING.md](PHASE2_CORE_ENGINEERING.md).
+1. Complete general project/solution hierarchy and associated lifecycle through an agreed, authorized server contract (current mapping is one workflow/version).
+2. Expand non-model capability authoring/readiness and governed workspace integration (Agent/skills/tools/KMS/CP); retain domain authorities and fail-closed unavailable states.
+3. Expand Economics beyond the vendor planning template: graph reach/parallel, rate versioning, event ledger, FX, budget and tenant authorization. No actual-cost or hard-cap claims until verified.
+4. Portable release/package/configuration, health/rollback and acceptance traceability; production deployment still needs explicit target approval.
+5. Connect an approved model last; then run real Architect generation, agent revisions/evals/releases and the full model-backed pilot. Provider absence is confirmed and does not authorize fake success.
 
-## Remaining blockers
-
-1. No approved model/provider (owner explicitly confirmed). General AI Architect generation, real eval and approved agent release remain unverified/unconfigured.
-2. Agent Studio FileVault POSIX 0700 requirement fails on Windows. It is retained and not skipped; verify credential-backed execution on supported Linux.
-3. No configured production IdP, CP proxy mount/entitlements, external KMS/Docling/search/storage or ERP/API/MCP target. Local DB tests do not prove those production integrations.
-4. Many-workflow project registry, economics ledger and full portable customer deployment remain open kit scope. Current project identity is one canonical Flowcase workflow/version.
-5. Inherited development dependency advisories and large lazy ELK chunk remain; no dependency changes in this delivery.
-
-No upstream writes, main merge or deployment. Review actual local behavior at `http://127.0.0.1:5173/elenio.html#/connected`; services intentionally remain available for review. Next external prerequisite is an approved provider and supported runtime/configuration, rather than more synthetic success.
-
-## Economics scenario continuation — 2026-11-19
-
-Active development moved to `feat/elenio-economics-scenarios`, based on core checkpoint `88f76ee22a71706f4200f6e942cabc8fd5b0de72`. The prior core branch/PR #2 and local runtime evidence remain intact. A new estimated IDR vendor-process planner follows the exact kit fixture, with editable assumptions, source/date, fixed-point calculations, N/A/unpriced states, explicit IndexedDB revisions and validated JSON import/export. Global and project Economics navigation now open the planner. ADR and scope: [ECONOMICS_SCENARIOS.md](ECONOMICS_SCENARIOS.md).
-
-This is the scenario-estimation subset of Economics; full Phase 4 remains open. Actual usage ledger, approved rate cards, FX, arbitrary-graph/parallel costing, budget enforcement and quality-gated optimization are not inferred from scenario math. Backend unchanged in this continuation; historical 369 pass / 1 Windows vault fail / 0 DB skips remain the last backend run. Provider absence remains confirmed by owner. No merge/deployment.
-
-Economics implementation SHA: `2e281eec5a778a86da00bd1e0846d4abc8815647`. Final evidence: `economics-verification.json`; 66/66 unit + 25/25 browser, zero browser skips/failures. History scan: same nine original non-secret matches, no new findings.
-
-Economics draft PR: https://github.com/abitiyoso/elenio-ai-workspaces/pull/3 (base: feat/elenio-core-engineering). Implementation and evidence verified pushed to the private owner repository.
+Local sandbox remains loopback-only with real PostgreSQL/API/worker, server development identities and external model/KMS/connectors disabled. Original operator mini-app remains distinct; the new operations page is not complete customer workspace acceptance. Inherited development advisories and lazy ELK bundle warning remain. No upstream write, main merge or deployment.

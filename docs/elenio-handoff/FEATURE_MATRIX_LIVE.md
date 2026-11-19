@@ -67,3 +67,16 @@ Full product/all-phase acceptance remains open. The approved local manual/runtim
 | Actual costs / approved rate cards / ledger / budget enforcement | new, open | No usage integration, FX, tenant rollup or budget reservation claims | ECON-01–03 open |
 
 See ECONOMICS_SCENARIOS.md. This planner does not cost arbitrary workflows or verify model quality; full Economics gate remains open.
+
+## Case operations update
+
+| Capability | Status | Evidence / authority | Acceptance |
+|---|---|---|---|
+| Case UI intake/list/search/paging/pinned context | enhancement, real local E2E tested | Existing published workflow/schema and Flowcase case authority | UX-02, FLOW-03, APP-01 subset |
+| Task/approval/pause/resume/note actions | enhancement, real local E2E tested | Server permissions, If-Match, separate reviewer, actual audit hash | SEC-03, APP-01 subset |
+| Conflict form retention/no retry | enhancement, real local E2E tested | Concurrent task state changes, explicit reload/discard | SEC-03 |
+| Activity/artifact/evidence read view | enhancement, local no-artifact case tested | Server data only; no fabricated sources | FLOW-04; live KMS still open |
+| Agent draft submit/revision UI | enhancement, contract-tested | Existing pinned draft If-Match/body; actual generation deferred | AI-03 wiring only |
+| Development identity switch | enhancement, local-tested + production-negative contract | Existing server personas; dev_mock+development only | SEC-01 |
+
+No full Phase 5/customer mini-app acceptance or model-backed completion is claimed. Model connection remains the final planned integration step per owner instruction.

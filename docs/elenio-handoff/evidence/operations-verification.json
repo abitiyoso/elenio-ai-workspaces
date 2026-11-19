@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-19",
+  "branch": "feat/elenio-case-operations",
+  "implementation_sha": "6b8efb2a64bf0098e1896710066697e8dc4e9fc3",
+  "frontend_units": 66,
+  "browser_regressions": {
+    "failed": 0,
+    "skipped": 0,
+    "passed": 28,
+    "flaky": 0
+  },
+  "browser_live": {
+    "failed": 0,
+    "skipped": 0,
+    "environment": "real local PostgreSQL/API/worker, explicit server development identity",
+    "passed": 9,
+    "flaky": 0
+  },
+  "draft_review": "request contracts tested with explicit fixtures; no live model output",
+  "lint": "passed",
+  "typecheck": "passed",
+  "production_build": "passed, inherited ELK chunk warning",
+  "backend": "unchanged; previous 369 pass, 1 Windows vault fail, 0 skip not rerun",
+  "screenshots": [
+    "operations-case-1440.png",
+    "operations-case-768.png",
+    "operations-case-390.png",
+    "operations-list-1440.png"
+  ],
+  "secret_scan": {
+    "commits": 15,
+    "matches": 9,
+    "new_matches": 0,
+    "all_matches_original_upstream": true
+  },
+  "model_integration": "deferred until non-model work complete, per owner",
+  "deployment": "none"
+}

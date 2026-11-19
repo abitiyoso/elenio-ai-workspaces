@@ -81,3 +81,9 @@ History scan through `9728943`: 9 commits / 7.31 MB, same nine reviewed original
 ## Economics scenario validation — 2026-11-19
 
 Six new deterministic cases reproduce the kit arithmetic and edge cases using fixed-point BigInt calculations. Changed Flowcase frontend has 66 passing unit/component tests. Browser checks include scenario editing, revision reload, JSON export/import validation, responsive screenshots at 1440/768/390 and serious/critical axe checks. Original project Economics test now expects its working planner link. Complete final browser/static/build results are recorded in the updated test reports and delivery checkpoint. No backend tests rerun for this frontend-only continuation. Existing lazy ELK chunk warning remains.
+
+## Case operations UI — 2026-11-19
+
+The new shared-shell operational journey uses real local backend state. Nine live browser cases now pass: the existing six plus UI intake/task/independent approval/completion/search/reopen, task conflict retention, and pause/resume/note/viewer restrictions. Draft review request bodies and production identity-selector suppression have separate explicit mocked-contract tests. Full frontend browser regression: 28 passed; unit/component: 66 passed. Lint/typecheck/build pass. Screenshots operations-case-{1440,768,390}.png and operations-list-1440.png are actual local backend captures; serious/critical axe checks pass on case detail.
+
+The first stale-task test correctly reached a server conflict; its accessible label selection was corrected. An intermittent Economics reload test was found to navigate before the IndexedDB transaction committed; it now waits for the actual revision-saved confirmation. No fixed waits, skips or security bypasses added. No Go/schema/API/security changes and no backend rerun; prior 369/1/0 baseline is historical. Model generation/revision/eval remains deferred per owner. CASE_OPERATIONS.md records exact API/authority boundaries and gaps.
