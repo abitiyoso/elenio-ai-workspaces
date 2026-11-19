@@ -4,6 +4,8 @@ The owner authorized continuation (“go lanjut”) after the Phase 1 correction
 
 ## ADR 005 — project context without a duplicate backend
 
+2026-11-19 continuation: the owner authorized the AI OS delivery addendum. [ADR 009](AI_OS_DELIVERY.md) now introduces a real CP-owned multi-workflow solution plan. This supersedes the temporary one-workflow projection as the solution identity, while preserving workflow routes and their service authority. Plan metadata is not a verified application release; transitive resolution/Publisher approval/install remain open.
+
 Use existing Flowcase workflow key + version as the current engineering workspace identity. The connected registry displays “Workflow projects” and explicitly states the one-workflow mapping. Native GET/create/version/save/validate remain authoritative; no second server project database or browser-owned runtime is introduced. A future many-workflow solution registry requires an independently reviewed contract; it is not inferred from fixture IDs.
 
 `elenio.html#/connected` enters service mode, `#/connected/projects/<key>/<version>` restores exact context, and `#/connected/catalog` reads registered dependencies. Local Phase 1 preview stays separate. Failed identity or unavailable services never load sample data as fallback. Service mode does not display the fixture role selector.

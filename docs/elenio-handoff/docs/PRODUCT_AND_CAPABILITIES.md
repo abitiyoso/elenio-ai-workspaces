@@ -1,5 +1,7 @@
 # Product north star and capability map (latest decisions)
 
+2026-11-19 owner extension: the current product name is **Elenio AI OS — Enterprise Agentic AI Platform**. [Product Delivery Addendum](../PRODUCT_DELIVERY_ADDENDUM.md) extends this map with explicit internal engineering, standalone customer solution and full enterprise modes, a first-class Solution Publisher and two independently installed acceptance scenarios. The shared design direction stays fixed. Requirement classifications and current source ownership: [AI_OS_DELIVERY.md](../AI_OS_DELIVERY.md); PRD extension: [PRD_AI_OS_DELIVERY.md](PRD_AI_OS_DELIVERY.md).
+
 **Elenio AI Workspaces — Enterprise Agentic Engineering Platform.** Build, orchestrate, govern, optimize and deploy intelligent business systems. It is Elenio's internal solution factory and an enterprise product licensable on-premises. Outcome is a functional customer-specific agentic workspace, not a chatbot or a workflow picture. AI is used only when useful; combine deterministic logic, agent reasoning, service calls and human authority. Comparable product category: Dataiku-like engineering environment focused on agentic business systems (not generic data science platform). n8n is an interaction benchmark, not a replacement runtime. Two audiences: engineering builders and business operators. Delivery: Elenio managed, customer self-hosted app/runtime, complete private platform, co-build. No cross-tenant reuse of secrets, data or restricted content.
 
 ## Object hierarchy and UX mental model

@@ -1,5 +1,7 @@
 # Source architecture and integration contract constraints
 
+2026-11-19 extension: [AI OS delivery ADRs](../AI_OS_DELIVERY.md) establish Control Plane as the owner of workspace-scoped solution plans and keep Flowcase/Agent/KMS domain authorities intact. The additive solution registry stores pinned references, not duplicate runtime state. Workflow readiness uses existing audience-bound CP delegation to a deployment-configured trusted upstream, never a URL or identity supplied in a plan. Publisher approval, transitive resolution and installation remain separate unfinished gates. Configuration releases must reuse pinned runtime images and keep customer secrets/data external.
+
 Repository: kawakibireku/ai-workspace, main. Review during conversation observed five modules and 950 paths; tree SHA 8bfae869e8ad3adaf10b496428ffbcf22c196db9 was returned by tree API. Re-fetch source/head in Codex; tree SHA is not necessarily the upstream commit SHA. Prior report/test claims below are source/document evidence, not this session's live tests. Existing source wins for backend behavior. Make ADR and backward-compatible migrations for changes.
 
 ## Service authorities / paths to audit

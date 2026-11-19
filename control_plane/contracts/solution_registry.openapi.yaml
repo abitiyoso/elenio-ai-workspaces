@@ -1,0 +1,152 @@
+openapi: 3.1.0
+info:
+  title: Elenio AI OS solution planning registry
+  version: 1.0.0
+  description: Workspace-scoped planning metadata, not execution, publication, licensing or deployment authority. Cookie session and same-origin CSRF protect writes.
+security:
+  - session: []
+paths:
+  /api/v1/solutions:
+    get:
+      summary: List up to 50 plans in the server-selected active workspace
+      parameters:
+        - name: cursor
+          in: query
+          schema: {type: string, format: uuid}
+      responses:
+        '200':
+          description: Scoped page; use next_cursor until absent
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items: {type: array, maxItems: 50, items: {$ref: '#/components/schemas/Project'}}
+                  next_cursor: {type: string, format: uuid}
+        '401': {description: No verified session}
+        '403': {description: solution:view or active membership required}
+    post:
+      summary: Create a plan with transactional audit and retry deduplication
+      parameters:
+        - {$ref: '#/components/parameters/Csrf'}
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema: {type: string, pattern: '^[a-zA-Z0-9_-]{8,128}$'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/Definition'}
+      responses:
+        '201': {description: Created; ETag is quoted revision}
+        '200': {description: Same request replayed; no duplicate audit event}
+        '400': {description: Invalid body or missing retry key}
+        '403': {description: solution:author, membership or CSRF/origin denied}
+        '409': {description: Solution key already exists or retry key used for another body}
+  /api/v1/solutions/{id}:
+    parameters:
+      - {$ref: '#/components/parameters/ID'}
+    get:
+      summary: Read one plan in the current workspace
+      responses:
+        '200':
+          description: Plan with strong revision ETag
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Project'}
+        '403': {description: Workspace access denied}
+        '404': {description: Missing or in another workspace/tenant}
+    patch:
+      summary: Replace planning metadata with optimistic concurrency
+      parameters:
+        - {$ref: '#/components/parameters/Csrf'}
+        - name: If-Match
+          in: header
+          required: true
+          schema: {type: string, example: '"1"'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/Definition'}
+      responses:
+        '200': {description: Updated plan; revision incremented and audit committed atomically}
+        '400': {description: Invalid definition or attempted key change}
+        '403': {description: Author permission, membership or CSRF/origin denied}
+        '404': {description: Missing or in another workspace/tenant}
+        '412': {description: Stale revision; caller must preserve edits and review current plan}
+        '428': {description: Exact strong revision If-Match required}
+  /api/v1/solutions/{id}/readiness:
+    parameters:
+      - {$ref: '#/components/parameters/ID'}
+    get:
+      summary: Inspect pinned workflow publication through the authorized trusted upstream
+      description: Read-only, 15-second overall deadline. No redirect, environment proxy, body-supplied URL, raw provider output, model call or publication. Result is revision/time scoped. Transitive dependencies, business UI, solution approval and target deployment remain unverified; release_ready is false.
+      responses:
+        '200':
+          description: Partial dependency evidence with explicit remaining blockers
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [solution_id, revision, checked_at, workflows, blockers, release_ready]
+                properties:
+                  solution_id: {type: string, format: uuid}
+                  revision: {type: integer, minimum: 1}
+                  checked_at: {type: string, format: date-time}
+                  release_ready: {const: false}
+                  blockers: {type: array, items: {type: string}}
+                  workflows:
+                    type: array
+                    items:
+                      type: object
+                      required: [key, version, state, reason]
+                      properties:
+                        key: {type: string}
+                        version: {type: integer, minimum: 1}
+                        state: {enum: [blocked, verified]}
+                        reason: {type: string}
+                        definition_hash: {type: string, pattern: '^[0-9a-f]{64}$'}
+        '403': {description: Solution access denied}
+        '404': {description: Solution missing or outside current scope}
+components:
+  securitySchemes:
+    session: {type: apiKey, in: cookie, name: __Host-cp_session}
+  parameters:
+    ID: {name: id, in: path, required: true, schema: {type: string, format: uuid}}
+    Csrf: {name: X-CSRF-Token, in: header, required: true, schema: {type: string}}
+  schemas:
+    Definition:
+      type: object
+      additionalProperties: false
+      required: [key, name, delivery_mode, output]
+      properties:
+        key: {type: string, pattern: '^[a-z][a-z0-9-]{1,62}$'}
+        name: {type: string, minLength: 2, maxLength: 120}
+        description: {type: string, description: At most 12000 UTF-8 bytes}
+        delivery_mode: {enum: [internal, solution, enterprise]}
+        output: {enum: [business_ui, api, both]}
+        workflows:
+          type: array
+          maxItems: 100
+          description: Unique workflow keys, one pinned positive version per key; no readiness or grant implied
+          items:
+            type: object
+            additionalProperties: false
+            required: [key, version]
+            properties:
+              key: {type: string, pattern: '^[a-z][a-z0-9-]{0,62}$'}
+              version: {type: integer, minimum: 1}
+    Project:
+      type: object
+      required: [id, tenant_id, workspace_id, revision, definition, created_at, updated_at]
+      properties:
+        id: {type: string, format: uuid}
+        tenant_id: {type: string, format: uuid}
+        workspace_id: {type: string, format: uuid}
+        revision: {type: integer, minimum: 1}
+        definition: {$ref: '#/components/schemas/Definition'}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}

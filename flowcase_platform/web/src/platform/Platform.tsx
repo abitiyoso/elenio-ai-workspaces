@@ -45,6 +45,7 @@ import { ArchitectBrief } from "./Architect";
 import { ProjectSections } from "./ProjectSections";
 import { ConnectedWorkspace } from "./ConnectedWorkspace";
 import { Economics } from "./Economics";
+import { Solutions } from "./Solutions";
 
 export function Platform() {
   const location = useLocation(),
@@ -67,6 +68,8 @@ export function Platform() {
     [brief, setBrief] = useState("");
   const connectedMode = location.pathname.startsWith("/connected");
   const architectMode = location.pathname === "/architect";
+  const solutionMode = location.pathname === "/solutions";
+  const serviceMode = connectedMode || architectMode || solutionMode;
   const workflow = location.pathname.endsWith("/workflow"),
     editable = role === "Builder",
     value = JSON.stringify({ definition, positions }),
@@ -230,7 +233,7 @@ export function Platform() {
           onClick={() => setMenu(false)}
         >
           <img src="./brand/elenio-logo.png" alt="Elenio" />
-          <span>AI WORKSPACES</span>
+          <span>AI OS</span>
         </Link>
         <button className="workspace-switch" onClick={() => setHelp(true)}>
           <span className="workspace-symbol">E</span>
@@ -336,6 +339,10 @@ export function Platform() {
             Models &amp; Providers
           </button>
           <span className="nav-section">MANAGEMENT</span>
+          <NavLink to="/solutions" onClick={() => setMenu(false)}>
+            <FolderOpen size={18} />
+            Solutions
+          </NavLink>
           <NavLink to="/economics" onClick={() => setMenu(false)}>
             <GitBranch size={18} />
             AI Economics
@@ -356,11 +363,11 @@ export function Platform() {
             <div>
               <strong>Private by design</strong>
               <p>
-                {connectedMode
+                {serviceMode
                   ? "Server authorization applies."
                   : "Local design review."}
                 <br />
-                {connectedMode
+                {serviceMode
                   ? "No release or deployment actions."
                   : "No production connections."}
               </p>
@@ -371,13 +378,33 @@ export function Platform() {
             Workspace guide
           </Button>
           <div className="user-block">
-            <span className="user-avatar">{connectedMode ? "WS" : architectMode ? "AI" : "AB"}</span>
+            <span className="user-avatar">
+              {connectedMode
+                ? "WS"
+                : solutionMode
+                  ? "CP"
+                  : architectMode
+                    ? "AI"
+                    : "AB"}
+            </span>
             <div>
-              <strong>{connectedMode ? "Workspace user" : architectMode ? "AI authoring sandbox" : "Abitiyoso"}</strong>
+              <strong>
+                {connectedMode
+                  ? "Workspace user"
+                  : solutionMode
+                    ? "Solution workspace"
+                    : architectMode
+                      ? "AI authoring sandbox"
+                      : "Abitiyoso"}
+              </strong>
               <small>
                 {connectedMode
                   ? "Sign in through workspace"
-                  : architectMode ? "Agent Studio session permissions" : `${role} · fixture identity`}
+                  : solutionMode
+                    ? "Control Plane session permissions"
+                    : architectMode
+                      ? "Agent Studio session permissions"
+                      : `${role} · fixture identity`}
               </small>
             </div>
           </div>
@@ -414,9 +441,11 @@ export function Platform() {
                       ? "Knowledge"
                       : location.pathname === "/architect"
                         ? "AI Architect"
-                        : location.pathname === "/economics"
-                          ? "AI Economics"
-                          : "Overview"}
+                        : location.pathname === "/solutions"
+                          ? "Solutions"
+                          : location.pathname === "/economics"
+                            ? "AI Economics"
+                            : "Overview"}
             </span>
           </div>
           <div>
@@ -436,9 +465,9 @@ export function Platform() {
               </span>
             </Link>
             <Badge tone="amber">
-              {connectedMode || architectMode ? "Service mode" : "Design fixture"}
+              {serviceMode ? "Service mode" : "Design fixture"}
             </Badge>
-            {!connectedMode && !architectMode && (
+            {!serviceMode && (
               <label className="role-label">
                 <span className="sr-only">Preview role</span>
                 <select
@@ -453,17 +482,23 @@ export function Platform() {
             )}
           </div>
         </header>
-        {!workflow && <div className="fixture-bar">
-          <span>
-            <span className="canvas-dot" />
-            {connectedMode
-              ? "Service mode · session and permissions required"
-              : architectMode ? "AI authoring sandbox · verified sessions and model binding required" : "Local preview · sample data · services not connected"}
-          </span>
-          <button onClick={() => setHelp(true)}>
-            What is connected? <ArrowRight size={13} />
-          </button>
-        </div>}
+        {!workflow && (
+          <div className="fixture-bar">
+            <span>
+              <span className="canvas-dot" />
+              {connectedMode
+                ? "Service mode · session and permissions required"
+                : solutionMode
+                  ? "Control Plane solution plans · verified workspace session required"
+                  : architectMode
+                    ? "AI authoring sandbox · verified sessions and model binding required"
+                    : "Local preview · sample data · services not connected"}
+            </span>
+            <button onClick={() => setHelp(true)}>
+              What is connected? <ArrowRight size={13} />
+            </button>
+          </div>
+        )}
         {error && (
           <div className="global-message">
             <Notice error>{error}</Notice>
@@ -492,6 +527,7 @@ export function Platform() {
             <Routes>
               <Route path="/connected/*" element={<ConnectedWorkspace />} />
               <Route path="/economics" element={<Economics />} />
+              <Route path="/solutions" element={<Solutions />} />
               <Route
                 path="/"
                 element={
@@ -610,18 +646,24 @@ export function Platform() {
             <p>
               Connect services opens the authenticated Flowcase registry, server
               draft save/validation, cases, tasks, independent approvals and
-              execution timelines. Server permissions and immutable versions apply.
+              execution timelines. Server permissions and immutable versions
+              apply.
             </p>
             <h3>AI Architect</h3>
-            <p>Architect checks the Agent Studio session, approved development model
-              and tool-free agent binding. Generation saves a sandbox proposal;
-              preview, server validation and explicit confirmation create a new
-              workflow draft. Generation does not publish or execute the workflow.</p>
+            <p>
+              Architect checks the Agent Studio session, approved development
+              model and tool-free agent binding. Generation saves a sandbox
+              proposal; preview, server validation and explicit confirmation
+              create a new workflow draft. Generation does not publish or
+              execute the workflow.
+            </p>
             <h3>Separate readiness gates</h3>
-            <p>Knowledge publication, capability releases, external connectors,
+            <p>
+              Knowledge publication, capability releases, external connectors,
               measured Economics and production delivery need their own verified
               configuration and approval. The Economics planner is a scenario,
-              and the Knowledge preview uses synthetic documents.</p>
+              and the Knowledge preview uses synthetic documents.
+            </p>
             <Notice>
               Local fixture storage contains only this draft and visual
               positions. It is not the authoritative project registry or a

@@ -1,10 +1,12 @@
 # Elenio development status — 2026-11-19 Asia/Jakarta
 
-Active branch: `feat/elenio-architect-authoring`, based on 9Router/V10 checkpoint `c3b17a7a2b071f15c763bfed561741bf76fb6637`. The owner requested continuation through working application functions with the authorized real model. Current delivery closes the local Windows vault and Architect-to-native-draft blockers. Full product/all-phase acceptance remains open.
+Active branch: `feat/elenio-solution-delivery`, based on Architect checkpoint `72b509a0644e52c20f2f299597944f377b5b921d`. The owner supplied the permanent AI OS delivery addendum and authorized continued implementation with the agreed design preserved. [AI_OS_DELIVERY.md](AI_OS_DELIVERY.md) reconciles every addendum section and records the current phase increment. Full product/all-phase acceptance remains open.
 
-Tested implementation/evidence SHA: `f9cf6feb7a74fd5680a90a25526402f2e20ccf13`. Delivery: [draft PR #6](https://github.com/abitiyoso/elenio-ai-workspaces/pull/6), stacked on [PR #5](https://github.com/abitiyoso/elenio-ai-workspaces/pull/5). Branch tip additionally includes delivery metadata. Owner repo reverified private and login `abitiyoso`; upstream pushes remain disabled. History scan: same nine reviewed original non-secret matches, zero outside source ancestry; staged scan clear. Human visual review remains open; no merge or deployment is authorized.
+Current increment: persistent workspace-scoped solution plans in Control Plane, multiple pinned workflow references, three intended delivery modes and UI/API/both outputs. Explicit dependency inspection reads publication/hash through the trusted Flowcase upstream using the existing audience-bound user token. It cannot approve a release or deploy. Shared-shell UI preserves existing tokens, logo and layout direction; the product text is now Elenio AI OS. Local preview has no CP fallback: an actual CP cookie session is required. New solution routes have real PostgreSQL/HTTP integration coverage with the existing mock IdP; browser screenshots use explicit contract responses. Owner confirmed no Docker sandbox; independent installation remains an open gate, not a claimed deployment. Delivery SHA/PR and final verification are recorded in AI_OS_DELIVERY.md.
 
-## Current delivery
+Prior Architect implementation/evidence SHA: `f9cf6feb7a74fd5680a90a25526402f2e20ccf13`. Prior delivery: [draft PR #6](https://github.com/abitiyoso/elenio-ai-workspaces/pull/6), stacked on [PR #5](https://github.com/abitiyoso/elenio-ai-workspaces/pull/5). Owner repo is private; upstream pushes remain disabled. Prior history scan: same nine reviewed original non-secret matches, zero outside source ancestry; staged scan clear. The owner requested preserving the agreed design and continuation; this does not close every visual/UAT finding or authorize merge/deployment.
+
+## Retained Architect delivery
 
 Real `cx/gpt-6-luna` now runs through the existing Agent Studio API, encrypted FileVault, governed development deployment, queue and Eino executor. Architect generates or clarifies a requirement, persists run history, supports cancel/retry, previews editable native JSON with a diff, validates through Flowcase, then creates a draft only after explicit confirmation. No automatic publication, execution or agent release. Reproduction and exact boundaries: [ARCHITECT_AUTHORING.md](ARCHITECT_AUTHORING.md).
 
@@ -23,10 +25,10 @@ Actual model evidence: schema-valid provider sandbox run `09cc6182-b661-414d-ae2
 
 ## Outstanding work
 
-1. Complete general project/solution hierarchy and associated lifecycle through an agreed, authorized server contract (current mapping is one workflow/version).
+1. Extend the new persistent CP solution planning registry through full application composition, transitive dependency readiness and independently governed solution releases. The earlier one-workflow project projection remains a workflow route; the new plan is the multi-workflow identity. No fake editable lifecycle-completion state.
 2. Expand non-model capability authoring/readiness and governed workspace integration (Agent/skills/tools/KMS/CP); retain domain authorities and fail-closed unavailable states.
 3. Expand Economics beyond the vendor planning template: graph reach/parallel, rate versioning, event ledger, FX, budget and tenant authorization. No actual-cost or hard-cap claims until verified.
-4. Portable release/package/configuration, health/rollback and acceptance traceability; production deployment still needs explicit target approval.
+4. Portable OCI/configuration releases, Compose installer, health/backup/restore/upgrade/rollback and acceptance traceability for both standalone and enterprise scenarios; no Docker sandbox supplied, and production deployment still needs explicit target approval.
 5. Verify the production Control Plane route/identity and approved model-backed business pilot, including agent revision/evaluation/release. Local server registration and bounded Architect authoring are delivered; production approvals and business execution remain separate gates.
 
 Local sandbox remains loopback-only with real PostgreSQL/API/worker and explicit development identities. Agent Studio alone has the authorized external model; Flowcase external agent/KMS/connectors remain disabled. Original operator mini-app remains distinct; the operations page is not complete customer workspace acceptance. Inherited development advisories and lazy ELK bundle warning remain. No upstream write, main merge or deployment.
