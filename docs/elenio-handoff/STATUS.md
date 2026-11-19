@@ -2,6 +2,8 @@
 
 Active branch: `feat/elenio-nine-router`, based on Case Operations checkpoint `56f46e8a8b3347305bb8b43c31f1190747213d9b`. The owner has now supplied and authorized 9Router connectivity and requested further V10 UI alignment. Full product/all-phase acceptance remains open.
 
+Tested implementation/evidence commit: `930c357c2dff07d488e3c18724b69198e7ea9fe2`. Draft delivery: [PR #5](https://github.com/abitiyoso/elenio-ai-workspaces/pull/5), stacked on Case Operations. The branch tip also contains delivery documentation; use `git rev-parse HEAD` and the remote feature ref for its exact final SHA. Full history scan through the implementation: same nine reviewed original non-secret matches, all within the original source ancestry; staged change scan: zero findings. Owner repo reverified private and login `abitiyoso`; upstream pushes remain disabled. Visual review remains the current stop gate.
+
 ## Current delivery
 
 Real 9Router catalog/JSON Chat Completions and the existing Eino executor passed with model `cx/gpt-6-luna`. Only the specified credential variable was imported into an ignored server environment file with a protected Windows ACL. It is absent from tracked files and the frontend build. No raw key/provider output was logged. Reproduction and precise service boundaries: [NINE_ROUTER.md](NINE_ROUTER.md).

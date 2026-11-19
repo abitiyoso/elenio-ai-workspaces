@@ -55,5 +55,18 @@
     "Runtime token counts exclude separate probe usage.",
     "Full production FileVault remains POSIX-only; no Windows bypass.",
     "Browser screenshots and detailed comparison: UI_V10_COMPARISON.md."
-  ]
+  ],
+  "delivery": {
+    "implementation_commit": "930c357c2dff07d488e3c18724b69198e7ea9fe2",
+    "draft_pr": "https://github.com/abitiyoso/elenio-ai-workspaces/pull/5",
+    "base_branch": "feat/elenio-case-operations",
+    "visual_acceptance": "pending",
+    "deployment_performed": false
+  },
+  "history_scan": {
+    "staged_patch_findings": 0,
+    "reviewed_original_matches": 9,
+    "new_findings": 0,
+    "all_matches_ancestor_of": "8bfae869e8ad3adaf10b496428ffbcf22c196db9"
+  }
 }
