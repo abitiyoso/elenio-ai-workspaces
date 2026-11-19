@@ -10,7 +10,7 @@ RELEASE="$(date -u +%Y%m%dT%H%M%SZ)"
 echo "==> packaging Agent Studio source from $AS_SRC"
 ssh "$VM" "mkdir -p ~/control-plane/agent-studio-cp/releases/$RELEASE/agent-studio-src"
 COPYFILE_DISABLE=1 tar --no-xattrs -C "$AS_SRC" -czf - --exclude='./apps/agent-studio-web/node_modules' --exclude='./apps/agent-studio-web/dist' \
-  --exclude='./.env' --exclude='./.claude' --exclude='./.DS_Store' --exclude='*.png' --exclude='./kibi-vm@*' \
+  --exclude='.env' --exclude='.env.*' --exclude='./.claude' --exclude='./.DS_Store' --exclude='./kibi-vm@*' \
   --exclude='./deploy/access-map.json' --exclude='./previews' . \
   | ssh "$VM" "tar -xzf - -C ~/control-plane/agent-studio-cp/releases/$RELEASE/agent-studio-src"
 rsync -a "$HERE/compose.yaml" "$HERE/directory.json" "$HERE/render-access-map.py" "$VM:control-plane/agent-studio-cp/releases/$RELEASE/"

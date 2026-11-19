@@ -7,7 +7,7 @@ import Playground from './Playground';
 import Evaluations from './Evaluations';
 import Releases from './Releases';
 import Runs from './Runs';
-import { PermissionNote, RecordsState, StatusBadge, can } from './shared';
+import { TableScroll, PermissionNote, RecordsState, StatusBadge, can } from './shared';
 
 const navigation = [
   { id: 'overview', label: 'Overview' },
@@ -23,6 +23,11 @@ const navigation = [
 
 type Page = (typeof navigation)[number]['id'];
 type LoadState = 'loading' | 'ready' | 'error';
+type WorkspaceContext = {
+  user: {id: string; display_name: string};
+  workspace: {name: string} | null;
+  apps: {app_key: string; route_base: string; status: string; integration: string}[];
+};
 
 function statusLabel(value: string) {
   return value.replaceAll('_', ' ');
@@ -48,6 +53,7 @@ export default function App() {
   function setPage(value:Page){setCurrentPage(value);window.history.replaceState(null,'',`#${value}`);}
   useEffect(()=>{const update=()=>setCurrentPage(pageFromHash());window.addEventListener('hashchange',update);return()=>window.removeEventListener('hashchange',update)},[]);
   const [session, setSession] = useState<Session | null>(null);
+  const [workspaceContext, setWorkspaceContext] = useState<WorkspaceContext | null>(null);
   const [selectedAgentKey, setSelectedAgentKey] = useState('');
   const [mobileOpen, setMobileOpen] = useState(false);
   const [providers, setProviders] = useState<Provider[]>([]);
@@ -138,6 +144,18 @@ export default function App() {
 
   useEffect(() => { void refresh(); }, [refresh]);
   useEffect(() => { api.session().then(setSession, () => setSession(null)); }, []);
+  useEffect(() => {
+    if (appBasePath !== '/apps/agent-studio') return;
+    const controller = new AbortController();
+    fetch('/api/v1/me', {credentials: 'same-origin', cache: 'no-store', signal: controller.signal})
+      .then(async response => {
+        if (!response.ok) throw new Error('Workspace session unavailable');
+        const data: WorkspaceContext = await response.json();
+        if (typeof data.user?.id !== 'string' || typeof data.user?.display_name !== 'string' || !Array.isArray(data.apps) || data.apps.length > 1000 || !data.apps.every(app => app && typeof app.app_key === 'string' && typeof app.route_base === 'string' && typeof app.status === 'string' && typeof app.integration === 'string')) throw new Error('Invalid workspace context');
+        if (!controller.signal.aborted) setWorkspaceContext(data);
+      }).catch(() => { if (!controller.signal.aborted) setWorkspaceContext(null); });
+    return () => controller.abort();
+  }, []);
   useEffect(() => { if (page === 'agents') void refreshAgents(); }, [page, refreshAgents]);
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -151,6 +169,10 @@ export default function App() {
   const apiLoading = providerState === 'loading' || deploymentState === 'loading';
   const heading = navigation.find((item) => item.id === page)?.label ?? 'Agent Studio';
   const selectedAgent = agents.find((agent) => agent.key === selectedAgentKey);
+  const sharedIdentity = session?.identity_mode === 'control-plane' && session.issuer === window.location.origin && workspaceContext?.user.id === session.subject;
+  const workspaceName = sharedIdentity && typeof workspaceContext?.workspace?.name === 'string' ? workspaceContext.workspace.name : session?.identity_mode === 'development' ? 'Development workspace' : 'Workspace session';
+  const userName = sharedIdentity ? workspaceContext?.user.display_name : 'Verified service identity';
+  const engineeringHome = sharedIdentity && workspaceContext?.apps.some(app => app.app_key === 'flowcase' && app.route_base === '/apps/flowcase/' && app.status === 'published' && app.integration === 'proxy') ? '/apps/flowcase/elenio.html#/connected' : '/';
 
   useEffect(() => { document.title = `${heading} · Agent Studio`; }, [heading]);
 
@@ -376,10 +398,10 @@ export default function App() {
     <div className="app-shell">
       {mobileOpen && <button className="scrim" aria-label="Tutup menu navigasi" onClick={() => setMobileOpen(false)} />}
       <aside className={`sidebar ${mobileOpen ? 'is-open' : ''}`} aria-label="Navigasi utama">
-        {appBasePath && <a className="cp-back" href="/" aria-label="Kembali ke AI Workspace Control Plane"><span aria-hidden="true">←</span> AI Workspace</a>}
-        <div className="brand"><span className="brand-mark" aria-hidden="true">AS</span><span><strong>Agent Studio</strong><small>Platform console</small></span></div>
-        <div className="workspace"><span className="workspace-mark" aria-hidden="true">W</span><span><strong>Workspace</strong><small>Resolved by host</small></span></div>
-        <p className="nav-title">Workspace</p>
+        <a className="brand" href={appBasePath ? engineeringHome : '#overview'} aria-label="Elenio AI OS"><img src={`${import.meta.env.BASE_URL}brand/elenio-logo.png`} alt="Elenio"/><span>AI OS</span></a>
+        {appBasePath ? <a className="workspace" href="/" aria-label={`Workspace: ${workspaceName}. Open Control Plane to change workspace`}><span className="workspace-mark" aria-hidden="true">E</span><span><strong>{workspaceName}</strong><small>{userName}</small></span></a> : <div className="workspace"><span className="workspace-mark" aria-hidden="true">E</span><span><strong>{workspaceName}</strong><small>{userName}</small></span></div>}
+        {appBasePath && <a className="cp-back" href={engineeringHome}><span aria-hidden="true">←</span> Solution engineering</a>}
+        <p className="nav-title">Agent engineering</p>
         <nav id="primary-nav" className="nav-list">
           {navigation.map((item) => (
             <button key={item.id} className={`nav-item ${page === item.id ? 'active' : ''}`} aria-current={page === item.id ? 'page' : undefined} onClick={() => { setPage(item.id); setSelectedAgentKey(''); setMobileOpen(false); }}>
@@ -397,7 +419,7 @@ export default function App() {
           <div className="topbar-spacer" />
           <span className={`api-chip ${apiReady ? 'connected' : apiLoading ? 'pending' : 'unavailable'}`}><span className="status-dot" />{apiReady ? 'Registry API aktif' : apiLoading ? 'Memeriksa API' : 'API belum tersedia'}</span>
           {session?.identity_mode === 'development' && <span className="api-chip dev-identity" title={`Tanpa login: semua akses memakai identitas ${session.subject}`}><span className="status-dot" />Mode dev · tanpa login</span>}
-          <span className="avatar" aria-label="Akun dikelola host" title={session?.subject}>{session?.subject.slice(0, 1).toUpperCase() ?? 'H'}</span>
+          <span className="avatar" aria-label="Akun dikelola host" title={userName}>{userName?.slice(0, 1).toUpperCase() ?? 'H'}</span>
         </header>
 
         <div className="page-content">
@@ -421,14 +443,6 @@ export default function App() {
                   {agentState === 'ready' && agentTotal > 0 && <div className="pagination"><p className="footer-note">Menampilkan {agentOffset + 1} sampai {agentOffset + agents.length} dari {agentTotal} agent.</p><div><button className="button" type="button" disabled={agentOffset === 0 || saving} onClick={() => setAgentOffset(Math.max(0, agentOffset - 25))}>Sebelumnya</button><button className="button" type="button" disabled={agentOffset + agents.length >= agentTotal || saving} onClick={() => setAgentOffset(agentOffset + 25)}>Berikutnya</button></div></div>}
                 </div>
                 <div className="panel form-panel">
-                  <div className="panel-heading"><div><h2>SIM domain pack</h2><p>Buat tujuh identitas SIM yang kosong dan belum berwenang: enam spesialis workflow dan Case Intake Assistant.</p></div></div>
-                  <button className="button primary full" type="button" onClick={() => void bootstrapSIM()} disabled={agentState !== 'ready' || saving}>{saving ? 'Memproses…' : 'Bootstrap 7 SIM agents'}</button>
-                  <p className="form-hint">Operasi ini idempotent. Data agent yang sudah ada tidak ditimpa.</p>
-                  <button className="button full" type="button" style={{ marginTop: 12 }} onClick={() => void applySIMPack()} disabled={agentState !== 'ready' || saving || !can(session, 'agent.bootstrap')}>{saving ? 'Memproses…' : 'Apply SIM pack v1'}</button>
-                  <p className="form-hint">Mengisi draft SIM yang masih kosong dengan definisi pack, draft skill, tool binding, dan suite evaluation dasar. Draft yang sudah diubah author tidak disentuh; tidak ada publish atau approval.</p>
-                  <PermissionNote session={session} permission="agent.bootstrap" action="Apply SIM pack" />
-                  {simPackResult && <div className="provider-list sim-pack-result" role="status">{simPackResult.agents.map((item) => <article className="provider-row" key={item.agent_key}><div className="record-main"><strong>{item.agent_key}</strong><small>{item.eval_suite_id ? 'Suite evaluation tersedia' : 'Tanpa suite baru'}</small></div><StatusBadge value={item.outcome === 'configured' ? 'succeeded' : 'superseded'} label={simOutcomeLabels[item.outcome] ?? statusLabel(item.outcome)} /></article>)}</div>}
-                  <hr />
                   <form onSubmit={submitAgent}>
                     <div className="panel-heading"><div><h2>Buat agent draft</h2><p>Versi awal 0.1.0 dibuat bersama record.</p></div></div>
                     <label className="field"><span>Nama agent</span><input name="agentName" maxLength={200} required disabled={saving || agentState !== 'ready'} /></label>
@@ -436,6 +450,16 @@ export default function App() {
                     <label className="field"><span>Domain</span><input name="agentDomain" maxLength={100} required disabled={saving || agentState !== 'ready'} /></label>
                     <button className="button primary full" type="submit" disabled={saving || agentState !== 'ready'}>Buat draft agent</button>
                   </form>
+                  <details className="domain-pack">
+                  <summary>SIM domain pack</summary>
+                  <p className="form-hint">Buat tujuh identitas SIM yang kosong dan belum berwenang: enam spesialis workflow dan Case Intake Assistant.</p>
+                  <button className="button primary full" type="button" onClick={() => void bootstrapSIM()} disabled={agentState !== 'ready' || saving}>{saving ? 'Memproses…' : 'Bootstrap 7 SIM agents'}</button>
+                  <p className="form-hint">Operasi ini idempotent. Data agent yang sudah ada tidak ditimpa.</p>
+                  <button className="button full" type="button" style={{ marginTop: 12 }} onClick={() => void applySIMPack()} disabled={agentState !== 'ready' || saving || !can(session, 'agent.bootstrap')}>{saving ? 'Memproses…' : 'Apply SIM pack v1'}</button>
+                  <p className="form-hint">Mengisi draft SIM yang masih kosong dengan definisi pack, draft skill, tool binding, dan suite evaluation dasar. Draft yang sudah diubah author tidak disentuh; tidak ada publish atau approval.</p>
+                  <PermissionNote session={session} permission="agent.bootstrap" action="Apply SIM pack" />
+                  {simPackResult && <div className="provider-list sim-pack-result" role="status">{simPackResult.agents.map((item) => <article className="provider-row" key={item.agent_key}><div className="record-main"><strong>{item.agent_key}</strong><small>{item.eval_suite_id ? 'Suite evaluation tersedia' : 'Tanpa suite baru'}</small></div><StatusBadge value={item.outcome === 'configured' ? 'succeeded' : 'superseded'} label={simOutcomeLabels[item.outcome] ?? statusLabel(item.outcome)} /></article>)}</div>}
+                  </details>
                 </div>
               </section>
             </>
@@ -495,7 +519,7 @@ export default function App() {
               <section className="panel deployments-panel" aria-label="Model deployment registry">
                 <div className="panel-heading"><div><h2>Model deployments</h2><p>ID model yang dikonfigurasi beserta batas pemakaian.</p></div><span className="count">{deploymentState === 'ready' ? `${deploymentTotal} model` : 'Belum dimuat'}</span></div>
                 <RecordsState state={deploymentState} message={deploymentError} empty="Belum ada deployment untuk tenant ini." count={deployments.length} />
-                {deploymentState === 'ready' && deployments.length > 0 && <div className="table-scroll"><table><caption className="sr-only">Tenant model deployments</caption><thead><tr><th>Deployment</th><th>Provider model ID</th><th>Capabilities</th><th>Limits</th><th>Status</th></tr></thead><tbody>{deployments.map((deployment) => { const provider = providers.find((item) => item.id === deployment.provider_id); const capabilities = deployment.capabilities ?? {}; return <tr key={deployment.id}><td><strong>{deployment.display_name}</strong><small>{deployment.key}{provider ? ` · ${provider.display_name}` : ''}</small></td><td><code>{deployment.provider_model_id}</code></td><td>{capabilities.tools === true ? 'Tools' : 'No tools'} · {capabilities.json === true ? 'JSON' : 'No JSON'}</td><td>{deployment.max_output_tokens.toLocaleString()} tokens<br />{Math.round(deployment.timeout_ms / 1000)} sec</td><td><StatusBadge value={deployment.status} /></td></tr>; })}</tbody></table></div>}
+                {deploymentState === 'ready' && deployments.length > 0 && <TableScroll label="Tenant model deployments"><table><caption className="sr-only">Tenant model deployments</caption><thead><tr><th>Deployment</th><th>Provider model ID</th><th>Capabilities</th><th>Limits</th><th>Status</th></tr></thead><tbody>{deployments.map((deployment) => { const provider = providers.find((item) => item.id === deployment.provider_id); const capabilities = deployment.capabilities ?? {}; return <tr key={deployment.id}><td><strong>{deployment.display_name}</strong><small>{deployment.key}{provider ? ` · ${provider.display_name}` : ''}</small></td><td><code>{deployment.provider_model_id}</code></td><td>{capabilities.tools === true ? 'Tools' : 'No tools'} · {capabilities.json === true ? 'JSON' : 'No JSON'}</td><td>{deployment.max_output_tokens.toLocaleString()} tokens<br />{Math.round(deployment.timeout_ms / 1000)} sec</td><td><StatusBadge value={deployment.status} /></td></tr>; })}</tbody></table></TableScroll>}
                 {deploymentState === 'ready' && deploymentTotal > 100 && <div className="pagination"><p className="footer-note">Menampilkan {deploymentOffset + 1} sampai {deploymentOffset + deployments.length} dari {deploymentTotal} deployment.</p><div><button className="button" type="button" disabled={deploymentOffset === 0 || apiLoading} onClick={() => setDeploymentOffset(Math.max(0, deploymentOffset - 100))}>Sebelumnya</button><button className="button" type="button" disabled={deploymentOffset + deployments.length >= deploymentTotal || apiLoading} onClick={() => setDeploymentOffset(deploymentOffset + 100)}>Berikutnya</button></div></div>}
               </section>
 
