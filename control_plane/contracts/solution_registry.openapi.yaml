@@ -1,11 +1,79 @@
 openapi: 3.1.0
 info:
   title: Elenio AI OS solution planning registry
-  version: 1.0.0
+  version: 1.1.0
   description: Workspace-scoped planning metadata, not execution, publication, licensing or deployment authority. Cookie session and same-origin CSRF protect writes.
 security:
   - session: []
 paths:
+  /api/v1/solutions/{id}/candidates:
+    parameters:
+      - {$ref: '#/components/parameters/ID'}
+    get:
+      summary: List immutable planning candidates in the current solution/workspace
+      parameters:
+        - {name: cursor, in: query, schema: {type: string, format: uuid}}
+      responses:
+        '200':
+          description: Scoped page, at most 50 snapshots; candidates are never approval or install evidence
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items: {type: array, maxItems: 50, items: {$ref: '#/components/schemas/Candidate'}}
+                  next_cursor: {type: string, format: uuid}
+        '403': {description: Solution access denied}
+        '404': {description: Solution outside active workspace or missing}
+    post:
+      summary: Capture the current plan and fresh server-generated partial readiness as an immutable review candidate
+      description: No workflow publication, model probe, release approval or deployment. The server collects evidence; client-supplied evidence/status/scope is rejected. Stable retry replays the original candidate even after a plan edit. A new candidate requires the current strong revision. Snapshot content is immutable; version must be unique in its solution.
+      parameters:
+        - {$ref: '#/components/parameters/Csrf'}
+        - {name: If-Match, in: header, required: true, schema: {type: string, example: '"1"'}}
+        - {name: Idempotency-Key, in: header, required: true, schema: {type: string, pattern: '^[a-zA-Z0-9_-]{8,128}$'}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [version]
+              properties:
+                version: {type: string, maxLength: 32, pattern: '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'}
+      responses:
+        '201':
+          description: Captured with transactional audit
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Candidate'}
+        '200':
+          description: Existing immutable candidate replayed; no duplicate audit
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Candidate'}
+        '400': {description: Invalid version/key, unsupported body or evidence beyond supported bounds}
+        '403': {description: Author permission, membership or CSRF/Origin denied}
+        '404': {description: Solution outside active scope or missing}
+        '409': {description: Existing candidate version or conflicting retry key}
+        '412': {description: Plan changed during inspection; retain edits and review current revision}
+        '428': {description: Current strong plan revision required}
+  /api/v1/solutions/{id}/candidates/{candidate_id}:
+    parameters:
+      - {$ref: '#/components/parameters/ID'}
+      - {name: candidate_id, in: path, required: true, schema: {type: string, format: uuid}}
+    get:
+      summary: Read an immutable candidate with a checksum ETag
+      responses:
+        '200':
+          description: Scoped candidate; SHA-256 checksum is not a signature, release approval or deployment evidence
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Candidate'}
+        '403': {description: Solution access denied}
+        '404': {description: Candidate outside active solution/workspace or missing}
   /api/v1/solutions:
     get:
       summary: List up to 50 plans in the server-selected active workspace
@@ -98,6 +166,7 @@ paths:
                   checked_at: {type: string, format: date-time}
                   release_ready: {const: false}
                   blockers: {type: array, items: {type: string}}
+                  application_issues: {type: array, items: {type: string}}
                   workflows:
                     type: array
                     items:
@@ -109,6 +178,21 @@ paths:
                         state: {enum: [blocked, verified]}
                         reason: {type: string}
                         definition_hash: {type: string, pattern: '^[0-9a-f]{64}$'}
+                        inventory_complete: {type: boolean, description: Direct reference discovery only; never transitive approval or release readiness}
+                        resources:
+                          type: array
+                          maxItems: 200
+                          description: At most 200 references across the report; overflow is blocked explicitly. Config values, instructions, endpoint URLs and customer payloads are excluded.
+                          items:
+                            type: object
+                            required: [kind, ref, state, reason]
+                            properties:
+                              kind: {type: string}
+                              ref: {type: string, maxLength: 128}
+                              version: {type: string, maxLength: 128}
+                              node_id: {type: string, maxLength: 128}
+                              state: {const: blocked}
+                              reason: {type: string}
         '403': {description: Solution access denied}
         '404': {description: Solution missing or outside current scope}
 components:
@@ -118,6 +202,25 @@ components:
     ID: {name: id, in: path, required: true, schema: {type: string, format: uuid}}
     Csrf: {name: X-CSRF-Token, in: header, required: true, schema: {type: string}}
   schemas:
+    Candidate:
+      type: object
+      required: [id, solution_id, version, plan_revision, status, snapshot, content_hash, created_at]
+      properties:
+        id: {type: string, format: uuid}
+        solution_id: {type: string, format: uuid}
+        version: {type: string}
+        plan_revision: {type: integer, minimum: 1}
+        status: {const: candidate}
+        content_hash: {type: string, pattern: '^[0-9a-f]{64}$', description: SHA-256 of canonical snapshot JSON with exact numeric precision; not a signature or approval}
+        created_at: {type: string, format: date-time}
+        snapshot:
+          type: object
+          required: [schema_version, plan, readiness, limitations]
+          properties:
+            schema_version: {const: elenio.solution-candidate.v1}
+            plan: {$ref: '#/components/schemas/Project'}
+            readiness: {$ref: '#/paths/~1api~1v1~1solutions~1{id}~1readiness/get/responses/200/content/application~1json/schema'}
+            limitations: {type: array, items: {type: string}}
     Definition:
       type: object
       additionalProperties: false
@@ -128,6 +231,26 @@ components:
         description: {type: string, description: At most 12000 UTF-8 bytes}
         delivery_mode: {enum: [internal, solution, enterprise]}
         output: {enum: [business_ui, api, both]}
+        application:
+          type: object
+          additionalProperties: false
+          required: [title, pages]
+          description: Optional for incomplete legacy plans; rejected for API-only output. Declarative preview composition, not executable HTML or an installed app.
+          properties:
+            title: {type: string, minLength: 2, maxLength: 120}
+            pages:
+              type: array
+              minItems: 1
+              maxItems: 12
+              items:
+                type: object
+                additionalProperties: false
+                required: [key, title, kind]
+                properties:
+                  key: {type: string, pattern: '^[a-z][a-z0-9-]{1,62}$'}
+                  title: {type: string, minLength: 2, maxLength: 80}
+                  kind: {enum: [overview, intake, tasks, report]}
+                  workflow_key: {type: string, description: Must reference a pinned plan workflow; required except for overview}
         workflows:
           type: array
           maxItems: 100

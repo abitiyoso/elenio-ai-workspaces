@@ -8,6 +8,8 @@ import {
   Notice,
 } from "../../../../packages/ui/primitives";
 import { newIdempotencyKey } from "../api/client";
+import { ApplicationComposer, ApplicationPreview } from "./ApplicationComposer";
+import { PublisherCandidates } from "./PublisherCandidates";
 import {
   listSolutions,
   checkSolution,
@@ -39,6 +41,8 @@ const outputs = {
   both: "Business application + API",
 };
 export function Solutions() {
+  const [preview, setPreview] = useState<Solution>();
+  const [publisher, setPublisher] = useState<Solution>();
   const [checks, setChecks] = useState<Record<string, SolutionReadiness>>({});
   const [checking, setChecking] = useState("");
   const [session, setSession] = useState<SolutionSession>(),
@@ -65,6 +69,14 @@ export function Solutions() {
           .map((w) => `${w.key}@${w.version}`)
           .join("\n") ?? ""));
   const blocker = useBlocker(dirty && !saving);
+  let editorWorkflows: SolutionDefinition["workflows"] = [];
+  if (editor) {
+    try {
+      editorWorkflows = parseWorkflowReferences(editor.references);
+    } catch {
+      /* Invalid pins remain editable until save. */
+    }
+  }
   useEffect(() => {
     const controller = new AbortController();
     solutionSession(controller.signal)
@@ -301,6 +313,12 @@ export function Solutions() {
                       : "View solution plan"}
                     <ArrowRight size={15} />
                   </Button>
+                  <Button onClick={() => setPreview(item)}>
+                    Preview application
+                  </Button>
+                  <Button onClick={() => setPublisher(item)}>
+                    Publisher candidates
+                  </Button>
                   <Button
                     disabled={!!checking}
                     onClick={() => void check(item)}
@@ -329,6 +347,26 @@ export function Solutions() {
                         Solution release is not verified.{" "}
                         {checks[item.id]?.blockers.join(" ")}
                       </Notice>
+                      <ul>
+                        {checks[item.id]?.workflows.flatMap((w) =>
+                          (w.resources ?? []).map((resource, index) => (
+                            <li key={`${w.key}-${resource.kind}-${index}`}>
+                              <Badge tone="amber">{resource.kind}</Badge>{" "}
+                              {resource.ref}
+                              {resource.version
+                                ? `@${resource.version}`
+                                : ""}: {resource.reason}
+                            </li>
+                          )),
+                        )}
+                      </ul>
+                      <ul>
+                        {checks[item.id]?.application_issues?.map(
+                          (issue, index) => (
+                            <li key={index}>{issue}</li>
+                          ),
+                        )}
+                      </ul>
                     </section>
                   )}
                 </div>
@@ -436,15 +474,15 @@ export function Solutions() {
                 Application output
                 <select
                   value={editor.definition.output}
-                  onChange={(e) =>
-                    setEditor({
-                      ...editor,
-                      definition: {
-                        ...editor.definition,
-                        output: e.target.value as SolutionDefinition["output"],
-                      },
-                    })
-                  }
+                  onChange={(e) => {
+                    const definition = {
+                      ...editor.definition,
+                      output: e.target.value as SolutionDefinition["output"],
+                    };
+                    if (definition.output === "api")
+                      delete definition.application;
+                    setEditor({ ...editor, definition });
+                  }}
                 >
                   {Object.entries(outputs).map(([key, name]) => (
                     <option value={key} key={key}>
@@ -467,6 +505,18 @@ export function Solutions() {
                   establish publication/readiness.
                 </small>
               </label>
+              <ApplicationComposer
+                definition={{
+                  ...editor.definition,
+                  workflows: editorWorkflows,
+                }}
+                onChange={(application) => {
+                  const definition = { ...editor.definition };
+                  if (application) definition.application = application;
+                  else delete definition.application;
+                  setEditor({ ...editor, definition });
+                }}
+              />
             </fieldset>
             {formError && <Notice error>{formError}</Notice>}
             <div className="dialog-actions">
@@ -485,6 +535,24 @@ export function Solutions() {
             </div>
           </form>
         </DialogPanel>
+      )}
+      {preview && (
+        <DialogPanel
+          title="Application preview"
+          description="Configured business pages using the shared components. This preview does not create a URL or load customer records."
+          onClose={() => setPreview(undefined)}
+          wide
+        >
+          <ApplicationPreview definition={preview.definition} />
+        </DialogPanel>
+      )}
+      {publisher && session && (
+        <PublisherCandidates
+          key={`${publisher.id}:${publisher.revision}`}
+          plan={publisher}
+          session={session}
+          onClose={() => setPublisher(undefined)}
+        />
       )}
       {blocker.state === "blocked" && (
         <DialogPanel

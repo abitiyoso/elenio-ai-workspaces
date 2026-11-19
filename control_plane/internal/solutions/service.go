@@ -40,6 +40,7 @@ type Definition struct {
 	DeliveryMode string        `json:"delivery_mode"` // internal | solution | enterprise
 	Output       string        `json:"output"`        // business_ui | api | both
 	Workflows    []WorkflowRef `json:"workflows"`
+	Application  *Application  `json:"application,omitempty"`
 }
 type Project struct {
 	ID          string     `json:"id"`
@@ -82,6 +83,9 @@ func Validate(d Definition) error {
 			return apperr.BadRequest("INVALID_REFERENCES", "Workflow keys must be unique and pinned to positive versions")
 		}
 		seen[ref.Key] = true
+	}
+	if err := ValidateApplication(d); err != nil {
+		return err
 	}
 	return nil
 }

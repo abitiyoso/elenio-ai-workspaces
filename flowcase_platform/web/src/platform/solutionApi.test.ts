@@ -1,6 +1,10 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
 import {
   assertSolution,
+  assertCandidate,
+  createCandidate,
+  validApplication,
+  type SolutionCandidate,
   checkSolution,
   parseWorkflowReferences,
   saveSolution,
@@ -45,6 +49,159 @@ const reply = (body: unknown, status = 200) =>
   });
 afterEach(() => vi.unstubAllGlobals());
 describe("solution plans", () => {
+  const candidate: SolutionCandidate = {
+    id: "00000000-0000-4000-8000-000000000301",
+    solution_id: plan.id,
+    version: "1.0.0",
+    plan_revision: 1,
+    status: "candidate",
+    content_hash: "a".repeat(64),
+    created_at: "2026-11-19T00:00:00Z",
+    snapshot: {
+      schema_version: "elenio.solution-candidate.v1",
+      plan,
+      readiness: {
+        solution_id: plan.id,
+        revision: 1,
+        checked_at: "2026-11-19T00:00:00Z",
+        release_ready: false,
+        blockers: ["Installation unverified"],
+        workflows: [
+          {
+            key: "purchase-review",
+            version: 1,
+            state: "blocked",
+            reason: "Not configured",
+            resources: [],
+          },
+        ],
+      },
+      limitations: ["Candidate only"],
+    },
+  };
+  it("accepts supported composition and rejects arbitrary components, duplicates and unlinked workflows", () => {
+    const application = {
+      title: "Finance",
+      pages: [
+        { key: "overview", title: "Overview", kind: "overview" },
+        {
+          key: "requests",
+          title: "Requests",
+          kind: "intake",
+          workflow_key: "purchase-review",
+        },
+      ],
+    };
+    expect(validApplication(application, plan.definition)).toBe(true);
+    expect(
+      validApplication(
+        {
+          ...application,
+          pages: [{ ...application.pages[1], workflow_key: "unlinked" }],
+        },
+        plan.definition,
+      ),
+    ).toBe(false);
+    expect(
+      validApplication(
+        {
+          ...application,
+          pages: [{ ...application.pages[0], kind: "script" }],
+        },
+        plan.definition,
+      ),
+    ).toBe(false);
+    expect(
+      validApplication(
+        { ...application, pages: [application.pages[0], application.pages[0]] },
+        plan.definition,
+      ),
+    ).toBe(false);
+    expect(
+      validApplication(application, { ...plan.definition, output: "api" }),
+    ).toBe(false);
+  });
+  it("rejects approved-looking, foreign or revision-mismatched candidate snapshots", () => {
+    expect(assertCandidate(candidate, session, plan.id)).toEqual(candidate);
+    expect(() =>
+      assertCandidate(
+        { ...candidate, status: "approved" } as unknown as SolutionCandidate,
+        session,
+        plan.id,
+      ),
+    ).toThrow();
+    expect(() =>
+      assertCandidate({ ...candidate, plan_revision: 2 }, session, plan.id),
+    ).toThrow();
+    expect(() =>
+      assertCandidate(
+        {
+          ...candidate,
+          snapshot: {
+            ...candidate.snapshot,
+            plan: {
+              ...plan,
+              workspace_id: "00000000-0000-4000-8000-000000000003",
+            },
+          },
+        },
+        session,
+        plan.id,
+      ),
+    ).toThrow();
+    expect(() =>
+      assertCandidate(
+        {
+          ...candidate,
+          snapshot: {
+            ...candidate.snapshot,
+            readiness: { ...candidate.snapshot.readiness, release_ready: true },
+          },
+        },
+        session,
+        plan.id,
+      ),
+    ).toThrow();
+  });
+  it("sends only version with fresh CSRF, the exact plan revision and stable candidate retry key", async () => {
+    const fetch = vi
+      .fn()
+      .mockResolvedValueOnce(reply(session))
+      .mockResolvedValueOnce(reply(candidate, 201));
+    vi.stubGlobal("fetch", fetch);
+    await createCandidate(session, plan, "1.0.0", "stable-candidate-key");
+    const options = fetch.mock.calls[1]?.[1] as RequestInit;
+    expect(options.headers).toMatchObject({
+      "X-CSRF-Token": "synthetic-csrf",
+      "If-Match": '"1"',
+      "Idempotency-Key": "stable-candidate-key",
+    });
+    expect(JSON.parse(options.body as string)).toEqual({ version: "1.0.0" });
+    expect(options.headers).not.toHaveProperty("Authorization");
+  });
+  it("rejects malformed resource inventory instead of rendering an unsafe readiness payload", async () => {
+    const fetch = vi
+      .fn()
+      .mockResolvedValueOnce(reply(session))
+      .mockResolvedValueOnce(
+        reply({
+          ...candidate.snapshot.readiness,
+          workflows: [
+            {
+              key: "purchase-review",
+              version: 1,
+              state: "blocked",
+              reason: "Unknown",
+              resources: { secret: "not-a-list" },
+            },
+          ],
+        }),
+      );
+    vi.stubGlobal("fetch", fetch);
+    await expect(checkSolution(session, plan)).rejects.toThrow(
+      "Readiness does not match",
+    );
+  });
   it("requires readiness to match the exact plan revision and each immutable reference", async () => {
     const report = {
       solution_id: plan.id,

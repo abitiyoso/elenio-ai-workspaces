@@ -9,6 +9,10 @@ servers:
 security:
 - session: []
 paths:
+  /api/v1/solutions/{id}/candidates:
+    $ref: '../contracts/solution_registry.openapi.yaml#/paths/~1api~1v1~1solutions~1{id}~1candidates'
+  /api/v1/solutions/{id}/candidates/{candidate_id}:
+    $ref: '../contracts/solution_registry.openapi.yaml#/paths/~1api~1v1~1solutions~1{id}~1candidates~1{candidate_id}'
   /api/v1/solutions:
     $ref: '../contracts/solution_registry.openapi.yaml#/paths/~1api~1v1~1solutions'
   /api/v1/solutions/{id}:

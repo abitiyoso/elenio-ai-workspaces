@@ -47,11 +47,8 @@ func (s *Server) handleCreateSolution(w http.ResponseWriter, r *http.Request, p 
 	writeJSON(w, status, out)
 }
 func (s *Server) handleUpdateSolution(w http.ResponseWriter, r *http.Request, p principal.Principal) {
-	quoted := r.Header.Get("If-Match")
-	value, err := strconv.Unquote(quoted)
-	revision, parseErr := strconv.Atoi(value)
-	if err != nil || parseErr != nil || revision < 1 || strconv.Quote(strconv.Itoa(revision)) != quoted {
-		writeError(w, r, 428, "PRECONDITION_REQUIRED", "Supply the current strong revision ETag in If-Match")
+	revision, ok := solutionRevision(w, r)
+	if !ok {
 		return
 	}
 	var in solutions.Definition

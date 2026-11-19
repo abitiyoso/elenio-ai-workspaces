@@ -1,0 +1,80 @@
+{
+  "branch": "feat/elenio-publisher-candidates",
+  "base_commit": "3f815fcc457768a00ef0d845fb51fbf7f2fb2092",
+  "scope": "declarative application composition/preview, direct reference inventory and immutable review candidates; not approved release or installed runtime",
+  "backend": {
+    "module": "control-plane",
+    "other_modules": "not rerun",
+    "skipped": 0,
+    "passed": 50,
+    "workflow_upstream": "explicit trusted test double",
+    "go_vet": "passed changed packages",
+    "oidc": "existing mock IdP",
+    "failed": 0,
+    "real_postgresql_http": true
+  },
+  "frontend": {
+    "unit_passed": 88,
+    "cp_responses": "explicit intercepted contract fixtures",
+    "browser_failed": 0,
+    "lint": "passed",
+    "browser_passed": 40,
+    "typecheck_build": "passed",
+    "unit_failed": 0
+  },
+  "contract": {
+    "yaml": "parsed",
+    "unresolved": 0,
+    "local_refs_checked": 250
+  },
+  "persistence": {
+    "immutable_update_delete": "rejected by database trigger",
+    "concurrent_capture": "one snapshot and one audit",
+    "migration": "0005_solution_candidates",
+    "same_key_retry": "same snapshot after plan edit",
+    "checksum": "SHA-256 canonical JSON preserving numbers; not a signature",
+    "stale_new_request": "412",
+    "client_supplied_evidence": "rejected"
+  },
+  "application": {
+    "maximum_pages": 12,
+    "api_only": "UI excluded",
+    "customer_data": "not loaded in preview",
+    "arbitrary_scripts_urls": "rejected",
+    "runtime_form_mapping": "unverified; submit disabled",
+    "page_kinds": [
+      "overview",
+      "intake",
+      "tasks",
+      "report"
+    ]
+  },
+  "inventory": {
+    "release_ready": false,
+    "payload": "reference names only",
+    "resource_states": "blocked until authoritative resolution",
+    "overflow": "explicit blocker",
+    "aggregate_limit": 200
+  },
+  "evidence": {
+    "selected_hover": "shared primary button regression passed",
+    "serious_critical_axe": "passed preview",
+    "overflow": "passed",
+    "widths": [
+      1440,
+      768,
+      390
+    ],
+    "desktop_mobile_inspected": true
+  },
+  "external_gates": {
+    "paid_model_calls": 0,
+    "upstream_write": false,
+    "enterprise_two_department_install": "unverified",
+    "local_cp_login": "not configured persistently",
+    "docker_sandbox": "not supplied; owner authorized local continuation",
+    "main_merge": false,
+    "deployment": false,
+    "standalone_install": "unverified"
+  }
+}
