@@ -1,0 +1,165 @@
+.operations-filters {
+  display: flex;
+  gap: 16px;
+  align-items: end;
+  flex-wrap: wrap;
+  margin: 24px 0;
+}
+.operations-filters .e-field {
+  flex: 1;
+  min-width: 170px;
+}
+.operations-list {
+  display: grid;
+  gap: 12px;
+}
+.case-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+  color: var(--e-ink);
+  text-decoration: none;
+}
+.case-row:hover {
+  border-color: #9ebcff;
+}
+.case-row h2 {
+  font-size: 18px;
+  margin: 8px 0;
+}
+.case-row small,
+.case-row p {
+  color: var(--e-muted);
+  font-size: 13px;
+}
+.case-row > div:last-child {
+  display: grid;
+  gap: 12px;
+  min-width: 120px;
+  text-align: right;
+  font-size: 13px;
+}
+.operations-work {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+.operations-work h2 {
+  font-size: 19px;
+}
+.operations-card {
+  padding: 24px;
+  margin: 16px 0;
+}
+.operations-card h3 {
+  font-size: 17px;
+  margin-top: 0;
+}
+.operations-card p,
+.operations-card li {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--e-muted);
+}
+.operations-card pre,
+.operation-form pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #f7f9fc;
+  border: 1px solid var(--e-line);
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  max-height: 380px;
+  overflow: auto;
+}
+.operations-card code {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+.operations-card summary,
+.operation-form summary {
+  cursor: pointer;
+  font-size: 13px;
+  margin: 15px 0;
+}
+.operations-card > .e-button {
+  margin-right: 8px;
+}
+.operation-case .tabs {
+  margin: 25px 0;
+}
+.operation-form .label {
+  display: block;
+  font-size: 13px;
+  margin: 14px 0 7px;
+  color: var(--e-ink);
+}
+.operation-form .field {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--e-line);
+  border-radius: 8px;
+  padding: 12px;
+  font: inherit;
+  background: white;
+  color: var(--e-ink);
+}
+.operation-form > .e-button {
+  margin: 16px 0;
+}
+.operation-form .form-check {
+  display: flex;
+  gap: 10px;
+  font-size: 13px;
+  margin: 15px 0;
+}
+.e-dialog fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.connected-identity .persona-control {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.persona-control select {
+  font: inherit;
+  max-width: 220px;
+  padding: 6px;
+  border: 1px solid var(--e-line);
+  border-radius: 6px;
+  background: white;
+}
+@media (max-width: 900px) {
+  .operations-work {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 600px) {
+  .case-row {
+    align-items: start;
+    flex-direction: column;
+    padding: 20px;
+  }
+  .case-row > div:last-child {
+    text-align: left;
+    display: flex;
+    align-items: center;
+  }
+  .operations-card {
+    padding: 18px;
+  }
+  .connected-identity .persona-control {
+    margin-left: 0;
+    flex-wrap: wrap;
+  }
+  .persona-control select {
+    max-width: 200px;
+  }
+}

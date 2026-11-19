@@ -26,10 +26,16 @@ test("economics keeps explicit browser revisions and imports only valid scenario
 }) => {
   await page.goto("/elenio.html#/economics");
   await page.getByRole("button", { name: "Save browser revision" }).click();
+  await expect(
+    page.getByText("Revision 1 saved on this browser.", { exact: true }),
+  ).toBeVisible();
   await page
     .getByLabel("Monthly attempted cases", { exact: true })
     .fill("2000");
   await page.getByRole("button", { name: "Save browser revision" }).click();
+  await expect(
+    page.getByText("Revision 2 saved on this browser.", { exact: true }),
+  ).toBeVisible();
   await page.reload();
   await page
     .getByRole("button", { name: "Load revision 2", exact: true })

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Badge, Button, Notice } from "../../../../packages/ui/primitives";
 import { basePath } from "../api/client";
 import { useResource } from "../api/useResource";
@@ -142,6 +143,9 @@ function ExecutionDetail({
         <a href={`${basePath}/cases/${encodeURIComponent(id)}`}>
           Open runtime workspace
         </a>
+        <Link to={`/connected/cases/${encodeURIComponent(id)}`}>
+          Open case workspace
+        </Link>
       </header>
       <p>
         {data.progress}% complete · pinned v{data.workflow_version} ·{" "}
