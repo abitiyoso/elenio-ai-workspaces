@@ -2,7 +2,22 @@
 
 Statuses reflect verified checkpoints, not a live deployment claim. The latest update below supersedes earlier model-absence statements.
 
-## Latest update — Architect authoring, 2026-11-19
+## Latest update — AI OS solution planning, 2026-11-19
+
+Permanent addendum status by section: [AI_OS_DELIVERY.md](AI_OS_DELIVERY.md). The following extends, rather than replaces, prior verified Architect/runtime work.
+
+| Capability | Current status | Evidence / authority | Acceptance |
+|---|---|---|---|
+| Multi-workflow solution identity | new, real DB/HTTP tested | CP solution_projects under verified tenant/workspace; natural key, request replay and strong revision; additive migration 0004 | UX-02, SEC-01/03, OS-01/02 |
+| Intended delivery mode / UI/API/both | new planning metadata, tested | Server enum validation and shared-shell form; does not provision an app or grant access | OS-01/02 |
+| Workflow publication readiness | enhancement, integration-tested | Existing CP user/audience delegation to fixed trusted Flowcase; hash/version/status checks, no redirects, current app authorization | FLOW-03, SEC-02, OS-02 |
+| Solution planning UI | new, contract-tested | Shared existing tokens/components, stale edits retained, permission/unavailable states, responsive/axe screenshots; actual CP cookie required | UX-01/02/05 |
+| Transitive dependencies / immutable solution release | missing | Workflow-only checks explicitly keep release_ready false; domain approvals remain separate | OS-02/03 |
+| Unified Compose bundles / two installation scenarios | missing / installation unverified | Existing service recipes audited; owner confirmed no Docker sandbox; no installed-customer claim | OS-03/04/05/08/09 |
+| Offline licensing/capacity | partially existing architecture | CP entitlement engine exists; commercial license/capacity interface and signatures remain future work | OS-06 |
+| Actual Economics across deployment modes | partially implemented | Scenario estimates and actual token usage exist; ledger/rate/BU/organization rollups remain open | OS-07 |
+
+## Retained update — Architect authoring, 2026-11-19
 
 This section supersedes earlier blocked-model/vault/authoring statements below. Historical checkpoints remain as an audit trail.
 

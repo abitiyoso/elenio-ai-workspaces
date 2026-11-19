@@ -123,3 +123,6 @@ Every attempt writes an audit event: `token.exchanged` (decision `allow`) or `to
 | POST | `/api/v1/token-exchange` | delegated token exchange for experience-app BFFs (see above) |
 | ANY | `/apps/{app_key}/*` | authorised same-origin route: 302 to login if no session, 403 page on deny, 503 page if integration pending, else reverse-proxied with a fresh audience-bound token |
 | GET | `/metrics` | Prometheus, on `METRICS_ADDRESS` listener only |
+# Solution plans extension
+
+Additive routes: GET/POST `/api/v1/solutions`, GET/PATCH `/api/v1/solutions/{id}`, GET `/api/v1/solutions/{id}/readiness`. Exact contract: [solution_registry.openapi.yaml](../contracts/solution_registry.openapi.yaml), referenced by the main OpenAPI. Existing cookie session, Origin/CSRF and rate limits apply. Plans use active workspace and `solution:view`/`solution:author`; no tenant/user/workspace fields are accepted in request bodies. Creation requires Idempotency-Key; PATCH requires the quoted revision ETag. Readiness uses current app permission and existing audience-bound delegation to trusted Flowcase only. It reports partial publication evidence, never solution release/deployment readiness. No new domain approval or licensing authority.

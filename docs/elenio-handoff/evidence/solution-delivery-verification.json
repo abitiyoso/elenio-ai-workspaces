@@ -1,0 +1,66 @@
+{
+  "date": "2026-11-19",
+  "branch": "feat/elenio-solution-delivery",
+  "base_commit": "72b509a0644e52c20f2f299597944f377b5b921d",
+  "scope": "CP solution planning registry and partial workflow publication readiness; not a solution release or installation",
+  "backend": {
+    "module": "control-plane",
+    "failed": 0,
+    "oidc": "existing mock IdP",
+    "workflow_upstream": "trusted test double",
+    "skipped": 0,
+    "passed": 42,
+    "other_backend_modules": "not rerun",
+    "real_postgresql": true
+  },
+  "frontend": {
+    "lint": "passed",
+    "full_browser_passed": 37,
+    "typecheck_build": "passed",
+    "browser_cp_responses": "explicit intercepted contract fixtures",
+    "unit_passed": 84,
+    "final_solution_targeted_passed": 3,
+    "unit_failed": 0,
+    "go_vet": "passed"
+  },
+  "identity": {
+    "existing_role_extended": "workspace_admin",
+    "permissions": [
+      "solution:view",
+      "solution:author"
+    ],
+    "new_role": "solution_builder",
+    "tenant_workspace": "server session only",
+    "domain_approval_grants": false
+  },
+  "dependencies": {
+    "release_ready": false,
+    "redirects": "rejected",
+    "delegation": "existing CP user/audience-bound JWT",
+    "model_calls": 0,
+    "source": "trusted deployment-configured Flowcase upstream"
+  },
+  "screenshots": {
+    "desktop_mobile_inspected": true,
+    "widths": [
+      1440,
+      768,
+      390
+    ],
+    "files": [
+      "solutions-contract-1440.png",
+      "solutions-contract-768.png",
+      "solutions-contract-390.png"
+    ],
+    "axe_serious_critical": "passed"
+  },
+  "gates": {
+    "upstream_write": false,
+    "main_merge": false,
+    "compose": "not installed or tested; owner confirmed no sandbox",
+    "deployment": false,
+    "enterprise_two_department_scenario": "unverified",
+    "standalone_customer_scenario": "unverified",
+    "design_direction": "preserved; logo unchanged"
+  }
+}
