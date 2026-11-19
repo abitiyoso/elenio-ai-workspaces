@@ -2,6 +2,8 @@
 
 Branch `feat/elenio-shared-agent-workspace`, based on `7454f7509e94e1695e693b91fdd49b1685b55789` (PR #9). This is adoption of the existing agreed design, not a new design direction or backend rewrite. It supersedes the previous checkpoint's statement that Agent Studio still has a dark legacy interior.
 
+Tested implementation/evidence: `be0cc369b9e04fd153a8f860069230cf7e10e91b`, [draft PR #10](https://github.com/abitiyoso/elenio-ai-workspaces/pull/10), stacked on PR #9. The feature tip also contains delivery metadata. Only the private owner feature branch is pushed; original main/upstream and production are preserved.
+
 The original Agent Registry, Skills Studio, Tool Library, Playground, Evaluations, Releases, Runs/Audit and Models/Providers React workbenches remain. Their API calls, schemas, mutations, provider vault, approvals, immutable versions and permissions are unchanged. The service now uses the same Inter Variable font and canonical `packages/ui/tokens.css`, light sidebar, official unchanged logo, readable form/helper text and shared color/status tokens. The main Elenio builder design is preserved.
 
 Registry creation is the primary action. Existing SIM bootstrap/configuration stays available in a native, keyboard-operable disclosure instead of dominating general agent creation. Actual verified CP workspace/person replaces the host placeholder. Return to solution engineering appears only for an exact registered/entitled proxied Flowcase route; CP membership/launch and service authorization remain authoritative. No role switch or browser-supplied identity is added.

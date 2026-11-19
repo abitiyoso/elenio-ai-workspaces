@@ -48,5 +48,10 @@
     "full governed business pilot",
     "general Economics ledger",
     "transitive Publisher releases and executable installation; Docker sandbox unavailable"
-  ]
+  ],
+  "delivery": {
+    "implementation_sha": "be0cc369b9e04fd153a8f860069230cf7e10e91b",
+    "draft_pr": "https://github.com/abitiyoso/elenio-ai-workspaces/pull/10",
+    "base_branch": "feat/elenio-local-workspace-integration"
+  }
 }
