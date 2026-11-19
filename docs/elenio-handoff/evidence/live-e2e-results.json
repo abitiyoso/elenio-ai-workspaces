@@ -32,7 +32,9 @@
         "id": "",
         "name": "",
         "testDir": "C:/Users/metan/.codex/.chatgpt-projects/g-p-6ab646d9842081918f21f99d9ecd1726/elenio-ai-workspaces/flowcase_platform/web/e2e-live",
-        "testIgnore": [],
+        "testIgnore": [
+          "architect-model.spec.ts"
+        ],
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
@@ -52,7 +54,7 @@
         "name": "",
         "testDir": "C:\\Users\\metan\\.codex\\.chatgpt-projects\\g-p-6ab646d9842081918f21f99d9ecd1726\\elenio-ai-workspaces\\flowcase_platform\\web\\e2e-live",
         "snapshotDir": "C:\\Users\\metan\\.codex\\.chatgpt-projects\\g-p-6ab646d9842081918f21f99d9ecd1726\\elenio-ai-workspaces\\flowcase_platform\\web\\e2e-live",
-        "testIgnore": [],
+        "testIgnore": "architect-model.spec.ts",
         "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
         "timeout": 30000,
         "use": {
@@ -117,12 +119,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 2599,
+                  "duration": 8127,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-19T01:52:39.008Z",
+                  "startTime": "2026-11-19T03:39:59.937Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -151,12 +153,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 919,
+                  "duration": 1026,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-19T01:52:41.783Z",
+                  "startTime": "2026-11-19T03:40:08.259Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -185,12 +187,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1089,
+                  "duration": 1226,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-19T01:52:42.712Z",
+                  "startTime": "2026-11-19T03:40:09.298Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -227,12 +229,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1597,
+                  "duration": 1510,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-19T01:52:43.826Z",
+                  "startTime": "2026-11-19T03:40:10.561Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -261,12 +263,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 960,
+                  "duration": 936,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-19T01:52:45.431Z",
+                  "startTime": "2026-11-19T03:40:12.081Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -295,12 +297,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1099,
+                  "duration": 1084,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-19T01:52:46.399Z",
+                  "startTime": "2026-11-19T03:40:13.028Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -329,12 +331,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 19,
+                  "duration": 20,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-19T01:52:47.505Z",
+                  "startTime": "2026-11-19T03:40:14.121Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -363,12 +365,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1198,
+                  "duration": 1003,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-19T01:52:47.530Z",
+                  "startTime": "2026-11-19T03:40:14.148Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -397,12 +399,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1567,
+                  "duration": 1597,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-19T01:52:48.735Z",
+                  "startTime": "2026-11-19T03:40:15.161Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -420,8 +422,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-19T01:52:38.554Z",
-    "duration": 11919.043,
+    "startTime": "2026-11-19T03:39:59.480Z",
+    "duration": 17480.398,
     "expected": 9,
     "skipped": 0,
     "unexpected": 0,

@@ -93,3 +93,48 @@ The first stale-task test correctly reached a server conflict; its accessible la
 Real catalog/JSON Chat Completions probe and the existing Eino executor passed against the owner-authorized 9Router endpoint/model. The synthetic executor result was schema-valid with zero tools and 299 input / 9 output tokens (separate probe usage excluded). Two diagnostic scope/credential lifetime tests and existing httpapi/runtime packages pass. Key isolation check: ignored server environment, protected ACL with one access rule, exact credential absent from tracked files and frontend build. No API/worker vault import or registry approval was performed; Windows FileVault and general authoring remain blockers.
 
 Final frontend result: 66 unit/component, 29 regression browser and nine real local API/worker/PostgreSQL browser cases pass; lint/typecheck/build pass. Added checks cover SVG decoding, Architect constraints/history, responsive/axe Architect coverage, readable graph entry, Fit View and drawer focus. Browser audit captures were saved and inspected on desktop/mobile; see UI_V10_COMPARISON.md. An intermediate whole-graph initial fit exposed an unreadable overview and a viewport race during node selection; readable entry and selection priority corrected both. The final live suite was rerun with its explicit local-sandbox guard after the first invocation correctly refused to run without that flag. No tests were skipped or security guards removed. Historical all-module 369/1/0 DB results were not rerun for this scope. Existing build/act warnings remain.
+
+## Architect application integration — 2026-11-19
+
+This supersedes the Windows-vault and application-authoring blockers above.
+Existing Agent Studio API, queue, Eino executor and encrypted FileVault now serve
+the actual Architect UI using the authorized 9Router deployment. No alternate
+model transport or production release was introduced.
+
+- Full five-module DB suite: **374 passed / 0 failed / 0 skipped**: Flowcase 110,
+  Control Plane 37, Agent Studio 86, KMS 107, UCW 34. Real isolated PostgreSQL;
+  existing IdP/provider/Docling doubles where their harnesses use them. Safe
+  report: evidence/architect-backend-results.json.
+- Frontend: **77 unit/component**, **34 regression browser** and **9 real local
+  runtime/operations browser** cases passed. New authoring cases test shared
+  identity, provider-only output, clarification, explicit send/confirmation,
+  edit invalidation, retry idempotency and cancellation. Contract intercepts
+  apply only to the regression suite, not the live suites.
+- **One fresh real-provider authoring E2E passed**: actual Agent service/private
+  vault/queue/9Router, durable history reload, native validation, explicit draft
+  creation and connected graph. Report: evidence/architect-ai-results.json.
+- **One stored-real-proposal responsive/axe case passed separately** at
+  1440/1024/768/390 px; serious/critical checks at desktop/mobile. No new model
+  request in this separate invocation. Actual desktop/mobile screenshots were
+  inspected. The mobile capture includes a keyboard-focused skip link.
+- Final lint and production TypeScript/Vite build passed. Linux vault test binary
+  cross-compiled; Linux runtime tests were not run. Existing ELK size warning
+  and unit React act warnings remain.
+
+Corrections during verification: the first permissive 0.2.0 agent schema could
+accept native-invalid node configuration. Version 0.3.0 uses strict per-node
+configurations; a fresh real response passed native validation. Native validation
+was retained. Stored-proposal axe found an unfocusable scrolling conversation;
+adding keyboard focus fixed it. Canonical Go JSON omits empty config maps; the
+live test now compares semantic fields while normalizing that empty representation.
+
+Latest successful fresh run: 09cc6182-b661-414d-ae2d-9709ea7b5231, provider mode,
+version 0.3.0, schema valid, 4,460 input / 1,130 output tokens, zero tools. Native
+workflow purchase-request-review-09cc6182 is draft v1, six nodes/six connections.
+The provisional poc.budget warning is visible, not treated as business signoff.
+Four real authoring completions occurred during development; no monetary cost
+inferred. Publication/execution were not part of this model authoring test.
+
+Current scope, reproducible commands, screenshots, trust boundaries and remaining
+production/product gates: ARCHITECT_AUTHORING.md. No upstream write, main merge
+or deployment. Human visual acceptance remains open.

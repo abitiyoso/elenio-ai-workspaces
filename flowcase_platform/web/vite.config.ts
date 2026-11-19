@@ -23,6 +23,7 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     proxy: {
+      "/agent-api": { target: process.env.AGENT_STUDIO_API_PROXY ?? "http://127.0.0.1:8190", changeOrigin: false, rewrite: (path) => path.replace(/^\/agent-api/, "/api") },
       "/api": { target: apiTarget, changeOrigin: false },
       "/readyz": { target: apiTarget },
       "/healthz": { target: apiTarget },

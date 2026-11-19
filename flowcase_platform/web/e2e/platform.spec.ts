@@ -272,6 +272,8 @@ test("real drag, connector edits, resizable inspector and position undo preserve
 test("kit launchpad uses bundled typography, scenario brief and contextual project sections", async ({
   page,
 }) => {
+  // This journey deliberately verifies the unavailable-service planning state.
+  await page.route("**/agent-api/**", route => route.fulfill({ status: 503, body: "{}" }));
   await page.goto("/elenio.html#/");
   await expect(
     page.getByRole("heading", { name: "Build AI that works." }),

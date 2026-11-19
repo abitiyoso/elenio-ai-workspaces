@@ -40,7 +40,8 @@ import { type Positions } from "./graphModel";
 import { Knowledge } from "./Knowledge";
 import { Studio } from "./Studio";
 import { layoutDefinition } from "./layout";
-import { Launchpad, ArchitectBrief } from "./Launchpad";
+import { Launchpad } from "./Launchpad";
+import { ArchitectBrief } from "./Architect";
 import { ProjectSections } from "./ProjectSections";
 import { ConnectedWorkspace } from "./ConnectedWorkspace";
 import { Economics } from "./Economics";
@@ -65,6 +66,7 @@ export function Platform() {
     [help, setHelp] = useState(false),
     [brief, setBrief] = useState("");
   const connectedMode = location.pathname.startsWith("/connected");
+  const architectMode = location.pathname === "/architect";
   const workflow = location.pathname.endsWith("/workflow"),
     editable = role === "Builder",
     value = JSON.stringify({ definition, positions }),
@@ -194,6 +196,9 @@ export function Platform() {
   }
   const commands = [
     { name: "Home", path: "/" },
+    { name: "AI Architect", path: "/architect" },
+    { name: "Cases & reviews", path: "/connected/operations" },
+    { name: "AI Economics", path: "/economics" },
     { name: "Projects", path: "/projects" },
     { name: "Vendor payment · overview", path: "/projects/vendor-payment" },
     { name: "Workflow Studio", path: "/projects/vendor-payment/workflow" },
@@ -325,7 +330,7 @@ export function Platform() {
           <button
             className="planned-nav"
             disabled
-            title="The governed model registry is not connected to this workspace"
+            title="The model registry editor is not available in this workspace shell"
           >
             <Layers size={18} />
             Models &amp; Providers
@@ -366,13 +371,13 @@ export function Platform() {
             Workspace guide
           </Button>
           <div className="user-block">
-            <span className="user-avatar">{connectedMode ? "WS" : "AB"}</span>
+            <span className="user-avatar">{connectedMode ? "WS" : architectMode ? "AI" : "AB"}</span>
             <div>
-              <strong>{connectedMode ? "Workspace user" : "Abitiyoso"}</strong>
+              <strong>{connectedMode ? "Workspace user" : architectMode ? "AI authoring sandbox" : "Abitiyoso"}</strong>
               <small>
                 {connectedMode
                   ? "Sign in through workspace"
-                  : `${role} · fixture identity`}
+                  : architectMode ? "Agent Studio session permissions" : `${role} · fixture identity`}
               </small>
             </div>
           </div>
@@ -431,9 +436,9 @@ export function Platform() {
               </span>
             </Link>
             <Badge tone="amber">
-              {connectedMode ? "Service mode" : "Design fixture"}
+              {connectedMode || architectMode ? "Service mode" : "Design fixture"}
             </Badge>
-            {!connectedMode && (
+            {!connectedMode && !architectMode && (
               <label className="role-label">
                 <span className="sr-only">Preview role</span>
                 <select
@@ -453,7 +458,7 @@ export function Platform() {
             <span className="canvas-dot" />
             {connectedMode
               ? "Service mode · session and permissions required"
-              : "Local preview · sample data · services not connected"}
+              : architectMode ? "AI authoring sandbox · verified sessions and model binding required" : "Local preview · sample data · services not connected"}
           </span>
           <button onClick={() => setHelp(true)}>
             What is connected? <ArrowRight size={13} />
@@ -590,24 +595,33 @@ export function Platform() {
       )}
       {help && (
         <DialogPanel
-          title="Your Phase 1 review workspace"
-          description="A functional frontend slice with an explicit fixture boundary."
+          title="Workspace guide"
+          description="Local design and connected services have distinct storage and permissions."
           onClose={() => setHelp(false)}
         >
           <div className="help-content">
-            <h3>Available for review</h3>
+            <h3>Local design preview</h3>
             <p>
               Home, one project context, branching editor, local draft
               save/import/export, node inspector and synthetic document
               explorer. Reviewer mode makes the graph read-only.
             </p>
-            <h3>Requires live integration</h3>
+            <h3>Connected workflows and operations</h3>
             <p>
-              Authentication, server draft validation/save, model calls,
-              published knowledge retrieval, independent approvals, execution
-              events and measured economics. The existing authenticated Flowcase
-              application remains available from the sidebar.
+              Connect services opens the authenticated Flowcase registry, server
+              draft save/validation, cases, tasks, independent approvals and
+              execution timelines. Server permissions and immutable versions apply.
             </p>
+            <h3>AI Architect</h3>
+            <p>Architect checks the Agent Studio session, approved development model
+              and tool-free agent binding. Generation saves a sandbox proposal;
+              preview, server validation and explicit confirmation create a new
+              workflow draft. Generation does not publish or execute the workflow.</p>
+            <h3>Separate readiness gates</h3>
+            <p>Knowledge publication, capability releases, external connectors,
+              measured Economics and production delivery need their own verified
+              configuration and approval. The Economics planner is a scenario,
+              and the Knowledge preview uses synthetic documents.</p>
             <Notice>
               Local fixture storage contains only this draft and visual
               positions. It is not the authoritative project registry or a

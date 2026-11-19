@@ -286,6 +286,13 @@ type runtimeConfig struct {
 // destination is operator configuration; nothing is taken from requests.
 func loadRuntimeConfig(environment string) (runtimeConfig, error) {
 	cfg := runtimeConfig{workers: 2, allowDevMock: environment == auth.EnvironmentDevelopment, releaseEnvironment: "production", retention: 30 * 24 * time.Hour}
+	if raw := strings.TrimSpace(os.Getenv("AGENT_STUDIO_DEV_MOCK_MODEL")); raw != "" {
+		allow, err := strconv.ParseBool(raw)
+		if err != nil || (allow && environment != auth.EnvironmentDevelopment) {
+			return cfg, errors.New("AGENT_STUDIO_DEV_MOCK_MODEL must be a boolean; true requires development")
+		}
+		cfg.allowDevMock = allow
+	}
 	if raw := strings.TrimSpace(os.Getenv("AGENT_STUDIO_WORKER_CONCURRENCY")); raw != "" {
 		n, err := strconv.Atoi(raw)
 		if err != nil || n < 0 || n > 16 {

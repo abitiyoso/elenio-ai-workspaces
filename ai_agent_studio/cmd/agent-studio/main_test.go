@@ -18,6 +18,22 @@ import (
 
 type denyIdentity struct{}
 
+func TestRuntimeConfigCanDisableMocksWithoutEnablingThemInProduction(t *testing.T) {
+	t.Setenv("AGENT_STUDIO_DEV_MOCK_MODEL", "false")
+	cfg, err := loadRuntimeConfig(auth.EnvironmentDevelopment)
+	if err != nil || cfg.allowDevMock {
+		t.Fatalf("explicit real-model-only development failed: %v", err)
+	}
+	t.Setenv("AGENT_STUDIO_DEV_MOCK_MODEL", "true")
+	if _, err := loadRuntimeConfig(auth.EnvironmentProduction); err == nil {
+		t.Fatal("production accepted mock models")
+	}
+	t.Setenv("AGENT_STUDIO_DEV_MOCK_MODEL", "invalid")
+	if _, err := loadRuntimeConfig(auth.EnvironmentDevelopment); err == nil {
+		t.Fatal("invalid mock flag accepted")
+	}
+}
+
 func (denyIdentity) VerifyRequest(context.Context, *http.Request) (ports.Principal, error) {
 	return ports.Principal{}, errors.New("denied")
 }

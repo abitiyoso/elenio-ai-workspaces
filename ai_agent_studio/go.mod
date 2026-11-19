@@ -7,6 +7,7 @@ require (
 	github.com/cloudwego/eino-ext/components/model/openai v0.1.13
 	github.com/jackc/pgx/v5 v5.8.0
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.3
+	golang.org/x/sys v0.29.0
 )
 
 require (
@@ -43,7 +44,6 @@ require (
 	golang.org/x/arch v0.11.0 // indirect
 	golang.org/x/exp v0.0.0-20230713183714-613f0c0eb8a1 // indirect
 	golang.org/x/sync v0.17.0 // indirect
-	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/text v0.29.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

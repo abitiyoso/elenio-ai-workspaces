@@ -6,7 +6,7 @@ Actual application and supplied V10 HTML were opened in the in-app browser and
 captured before changes. The source was served read-only from the handoff folder.
 This is not a whole-product visual acceptance or a pixel-parity claim.
 
-## 1. Home: hierarchy and capability illustration
+> Current continuation: Architect now calls the approved real model through Agent Studio and creates a native draft after review/validation. Earlier local-only/unavailable descriptions below are the prior visual-audit checkpoint. See [ARCHITECT_AUTHORING.md](ARCHITECT_AUTHORING.md) for current screenshots and functional boundaries. Human visual acceptance remains open.\n\n## 1. Home: hierarchy and capability illustration
 
 Before: bundled Inter was present, but the main title was smaller, generic CSS
 shapes replaced the V10 capability artwork, and the customer-outcome section was
