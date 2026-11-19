@@ -43,3 +43,17 @@ Owner continuation and explicit no-sandbox contract-test authorization supersede
 | Arbitrary API/MCP tooling | deferred, assessed separately | No new unapproved execution or egress path | SEC-02 |
 
 Current evidence: 60 unit/component + 22 browser tests. Fifteen browser cases cover service contracts; seven preserve Phase 1 journeys. Axe serious/critical checks cover five local and three connected routes. Full Phase 2 gate remains open for the live/configuration items above; Phase 3 not started. See PHASE2_CORE_ENGINEERING.md for decisions and QA_RESULTS.md for limits.
+
+## Local end-to-end acceptance update — 2026-11-19
+
+| Capability | Current status | Evidence | Acceptance |
+|---|---|---|---|
+| Manual create/edit/save/validate and version conflict | enhancement, real local E2E tested | Browser + actual Flowcase API/PostgreSQL, 412 retention | FLOW-01/03, SEC-03 |
+| Native branch import and true/false execution | enhancement, real local E2E tested | Worker condition evaluations match imported config/schema | FLOW-01/02 |
+| Actual case execution trace | enhancement, real local E2E tested | Server timelines filtered by exact key/version, completed state | FLOW-04 |
+| Human task / distinct approval / completion | existing + integrated trace, real local E2E tested | Unauthorized decision denied; authorized reviewer/hash; six steps complete | APP-01, SEC-03 |
+| Backend tenant/governance/SQL suites | existing-tested on disposable DB | 369 pass, 1 Windows vault fail, 0 DB skips; test IdP/provider doubles disclosed | SEC-01–03, KMS-01 |
+| Agent credential-backed execution | blocked on this Windows host | POSIX 0700 vault requirement retained | AI-01–03 |
+| General Architect / configured model/eval | blocked configuration, owner confirmed absent | No synthetic provider promoted to live | AI-01–03 |
+
+Full product/all-phase acceptance remains open. The approved local manual/runtime E2E scope is verified. See LOCAL_E2E.md for reproduction and external boundaries.

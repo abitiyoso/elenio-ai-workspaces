@@ -41,3 +41,7 @@ Browser contract tests intercept API responses and identify the actor as **Contr
 No sandbox, approved model or CP deployment was supplied; the owner confirmed this. General AI blueprint generation/apply, many-workflow project registry, generic connector registration/execution and cross-service authenticated end-to-end acceptance remain open. Existing Agent/KMS authoring is delegated to their governed applications; its actual deployment/entitlements cannot be claimed verified here. Phase 3 runtime/provider execution and all production deployment remain outside this delivery.
 
 Router boundary: the new entry uses the existing library's data hash router so unsaved-document protection covers browser Back as well as in-app links. The authenticated original entry is unchanged. API reference: https://reactrouter.com/7.18.5/api/hooks/useBlocker .
+
+## Local integration follow-up
+
+The later owner request authorized local end-to-end work. PostgreSQL/API/worker are now running in an isolated local sandbox; six real browser scenarios and all database suites ran. The new Execution trace reads real case records and pinned timelines. Earlier statements that no disposable DB exists are historical. No external provider, production app mount or general AI Architect was configured; the owner confirmed provider absence. See LOCAL_E2E.md for current acceptance and limits.

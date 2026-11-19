@@ -1,44 +1,38 @@
 # Elenio development status — 2026-11-19 Asia/Jakarta
 
-Phase 2 contract implementation checkpoint is ready for review. The owner authorized continuation (“go lanjut”) after the Phase 1 typography/content correction, then confirmed no sandbox exists and requested implementation + contract testing. Full Phase 2 acceptance remains open; Phase 3 has not started. No production approval is inferred.
+Local end-to-end engineering/runtime acceptance is verified. The owner requested completion end to end, then explicitly chose: no approved model/provider yet; finish the local flow and record the AI blocker. Full Elenio product / all-phase production acceptance remains open.
 
 ## Repository checkpoint
 
-- Active branch: `feat/elenio-core-engineering`, based on Phase 1 `2a25bd8a99d233b93a1471959766bae4fe712cf1`.
-- Tested implementation: `e6c6b7b072d469c22b5d2b95c980038ca5db021a`. Documentation/evidence follow on this branch; resolve delivery HEAD with `git rev-parse HEAD`.
-- Origin: https://github.com/abitiyoso/elenio-ai-workspaces — verified private owner repository. All development writes go here.
-- Upstream: `kawakibireku/ai-workspace`, push URL `DISABLED`; source/main preserved at `8bfae869e8ad3adaf10b496428ffbcf22c196db9`.
-- Phase 1 branch and draft PR #1 retained, unmerged. Phase 2 draft PR [#2](https://github.com/abitiyoso/elenio-ai-workspaces/pull/2) targets that feature branch. Implementation SHA is verified pushed.
-- Owner confirmed private copying rights. Kit source and synced `sources/` remain untouched; official logo unchanged.
+- Branch: `feat/elenio-core-engineering`, draft [PR #2](https://github.com/abitiyoso/elenio-ai-workspaces/pull/2), based on unmerged Phase 1 feature branch.
+- Current implementation: `a4e66edf9366e6521bc7f9ff3ea1007b4c157cd5`; Windows fixes: `ab1d243`. Documentation/evidence follow; delivery SHA is `git rev-parse HEAD`.
+- Origin: verified private `abitiyoso/elenio-ai-workspaces`. Upstream `kawakibireku/ai-workspace` push is `DISABLED`. Main remains original `8bfae869e8ad3adaf10b496428ffbcf22c196db9`.
+- Owner confirmed copying rights. Synced sources and original kit remain untouched. Official Elenio logo unchanged.
 
-## Delivered in this checkpoint
+## Delivered and verified
 
-- Separate service mode reuses existing session/host bridge, workflow registry/search/cursors and exact key/version context. Failed or malformed identity never falls back to fixtures.
-- Blank, server template and native JSON import create drafts through existing contracts; retry retains its Idempotency-Key. Imported edits require a semantic diff confirmation.
-- Shared branching editor saves with If-Match, validates through the server, locks immutable versions, retains edits after 412 conflicts, and protects unsaved navigation including browser Back.
-- Runtime capabilities gate editing/palette availability. Catalog supplies registered agent/skill, connector operation and policy references.
-- Visual position sidecar stores only coordinates scoped by tenant/user/version. Native process schema/config/next/policy stay canonical.
-- Governed workspace launcher reuses Control Plane authorization only when mounted; standalone mode states why launch is unavailable. No bearer forwarding to the CP audience.
-- Typography, final-kit Home structure/content, responsive preview and original authenticated Flowcase entry remain intact.
+- Existing contract integration: actual session/roles, workflow registry, blank/template/import drafts, runtime capabilities, dependency catalog, If-Match save, validation, immutable versions and explicit import diff.
+- Real local PostgreSQL + Flowcase API/worker. Six browser scenarios exercise persisted UI editing, concurrency conflict, version pinning/forking, viewer denial, true/false branch execution and a complete task/independent approval/task flow with audit hash.
+- Execution trace now reads actual authorized case records and exact key/version timelines, with bounded polling for active cases and original runtime-workspace link. No fabricated AI usage or monetary cost.
+- Reproducible Start/Test/Stop scripts, ignored local state/secrets, loopback bindings, explicit development identity, external integrations disabled. Startup idempotency verified.
+- Two UCW Windows bugs fixed (filename slash semantics; confined directory handle lifetime). A flaky asynchronous draft-revision test now waits for the next result rather than dereferencing nil. No runtime/security/approval rule changed.
 
-Decisions/contracts: [PHASE2_CORE_ENGINEERING.md](PHASE2_CORE_ENGINEERING.md). Feature traceability: [FEATURE_MATRIX_LIVE.md](FEATURE_MATRIX_LIVE.md).
+## Results
 
-## Verification
+- **60/60** frontend unit/component, **22/22** contract/fixture browser regressions, **6/6** real local E2E browser tests; lint, TypeScript and both-entry production build pass.
+- Real disposable DB suites: **369 pass / 1 fail / 0 skip**. Flowcase 110 pass, CP 37, Agent 81 pass/1 fail, KMS 107, UCW 34. Existing IdP/provider/Docling test doubles retain their limits.
+- Go vet passes for changed Flowcase case package and UCW. Serious/critical axe rules pass on real execution view; earlier responsive/keyboard/axe regressions retained.
+- History secret scan through implementation: 9 commits, same nine reviewed non-secret matches, all in original upstream; no new findings or suppressions.
+- Screenshots: `live-*.png` are actual local backend captures; `phase2-*.png` are contract mocks. Desktop trace inspected.
 
-- Changed Flowcase frontend: lint passed; TypeScript + both entry production builds passed; **60/60 unit/component tests**, **22/22 browser tests**, zero skipped/flaky browser tests.
-- Browser checks cover conflict/error/permissions, immutable versions, import preservation, stable retries, sidecar reload, unsaved Back, accessibility and focus mode. Phase 1 routes checked at 1440/1280/1024/768/390/360 px; service routes at 1440/768/390 px.
-- Actual screenshots inspected on desktop/mobile. Connected screenshots use explicitly labelled contract mocks, not a live service. See [evidence/phase2-verification.json](evidence/phase2-verification.json), test reports and `phase2-*.png`.
-- History secret scan through implementation: six commits, same nine individually reviewed non-secret upstream matches, no new findings or exclusions.
-- Backend unchanged; prior baseline remains 268 pass / 99 DB skips / 3 Windows failures. It was not rerun for this frontend-only checkpoint. Details: [QA_RESULTS.md](QA_RESULTS.md).
+Runbook and exact scope: [LOCAL_E2E.md](LOCAL_E2E.md). Machine-readable results: [local-e2e-verification.json](evidence/local-e2e-verification.json), [live-e2e-results.json](evidence/live-e2e-results.json). Previous ADRs: [PHASE2_CORE_ENGINEERING.md](PHASE2_CORE_ENGINEERING.md).
 
-## Open acceptance limits
+## Remaining blockers
 
-1. No sandbox or disposable DB: live tenant/ACL, concurrency, app launch, KMS ingest/review/publish/retrieval and cross-service end-to-end acceptance remain unverified. Contract mocks do not clear those gates.
-2. No approved model or general blueprint-generation API configured. Architect preserves the brief and exposes the configuration gap; generated agentic systems are not claimed.
-3. Workspace identity currently maps one Flowcase workflow to a project. Many-workflow project lifecycle needs an agreed server contract.
-4. Agent/skills/KMS authoring remains in existing governed applications; new shell launch requires configured CP mounts/entitlements. Generic API/MCP execution is not implemented.
-5. Existing Windows vault/filename/file-lock failures, DB skips and inherited development dependency advisories remain. Production dependencies previously audited with zero advisories; no dependency changes here. Lazy ELK still emits a large-chunk warning.
+1. No approved model/provider (owner explicitly confirmed). General AI Architect generation, real eval and approved agent release remain unverified/unconfigured.
+2. Agent Studio FileVault POSIX 0700 requirement fails on Windows. It is retained and not skipped; verify credential-backed execution on supported Linux.
+3. No configured production IdP, CP proxy mount/entitlements, external KMS/Docling/search/storage or ERP/API/MCP target. Local DB tests do not prove those production integrations.
+4. Many-workflow project registry, economics ledger and full portable customer deployment remain open kit scope. Current project identity is one canonical Flowcase workflow/version.
+5. Inherited development dependency advisories and large lazy ELK chunk remain; no dependency changes in this delivery.
 
-Next work remains Phase 2: review this checkpoint, supply sandbox/configuration when available, verify governed application integration and close the general project/Architect contract gaps. No main merge or deployment has occurred.
-
-Local preview: `http://127.0.0.1:5173/elenio.html#/`. `#/connected` requires an actual existing service session; without it the explicit unavailable/sign-in state is expected. Start from `flowcase_platform/web` using `npm run dev` if the local process has stopped.
+No upstream writes, main merge or deployment. Review actual local behavior at `http://127.0.0.1:5173/elenio.html#/connected`; services intentionally remain available for review. Next external prerequisite is an approved provider and supported runtime/configuration, rather than more synthetic success.
