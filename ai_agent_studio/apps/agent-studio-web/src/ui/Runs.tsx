@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AuditEvent, FeedbackItem, Run, Session, api } from '../api';
 import {
-  AgentSelect, LoadState, ModelModeBadge, PermissionNote, RecordsState, RunDetailView, StatusBadge,
+  TableScroll,  AgentSelect, LoadState, ModelModeBadge, PermissionNote, RecordsState, RunDetailView, StatusBadge,
   can, errorText, formatDate, runDuration, statusLabel, useAgents,
 } from './shared';
 
@@ -102,7 +102,7 @@ export default function Runs({ session }: { session: Session | null }) {
         <div className="panel-heading"><div><h2>Runs</h2><p>Pilih run untuk melihat validasi, evidence, dan trace.</p></div><span className="count">{state === 'ready' ? `${total} run` : 'Belum dimuat'}</span></div>
         {!canRuns ? <PermissionNote session={session} permission="run.read" action="Daftar run" /> : <RecordsState state={state} message={error} empty="Tidak ada run untuk filter ini." count={runs.length} />}
         {canRuns && state === 'ready' && runs.length > 0 && (
-          <div className="table-scroll"><table>
+          <TableScroll label="Runs"><table>
             <caption className="sr-only">Runs</caption>
             <thead><tr><th>Dibuat</th><th>Agent</th><th>Jenis</th><th>Status</th><th>Model</th><th>Validasi</th><th>Durasi</th><th><span className="sr-only">Aksi</span></th></tr></thead>
             <tbody>{runs.map((run) => (
@@ -117,7 +117,7 @@ export default function Runs({ session }: { session: Session | null }) {
                 <td><button className="button" type="button" onClick={() => setSelectedId(run.id === selectedId ? '' : run.id)} aria-expanded={run.id === selectedId}>{run.id === selectedId ? 'Tutup' : 'Detail'}</button></td>
               </tr>
             ))}</tbody>
-          </table></div>
+          </table></TableScroll>
         )}
         {canRuns && state === 'ready' && total > pageSize && <div className="pagination"><p className="footer-note">Menampilkan {offset + 1} sampai {offset + runs.length} dari {total} run.</p><div><button className="button" type="button" disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - pageSize))}>Sebelumnya</button><button className="button" type="button" disabled={offset + runs.length >= total} onClick={() => setOffset(offset + pageSize)}>Berikutnya</button></div></div>}
       </section>
@@ -134,11 +134,11 @@ export default function Runs({ session }: { session: Session | null }) {
           <div className="panel-heading"><div><h2>Audit events</h2><p>Jejak aksi tenant terbaru.</p></div><span className="count">{auditState === 'ready' ? `${auditTotal} event` : 'Belum dimuat'}</span></div>
           {!canAudit ? <PermissionNote session={session} permission="audit.read" action="Audit log" /> : <RecordsState state={auditState} message={auditError} empty="Belum ada audit event." count={audit.length} />}
           {canAudit && auditState === 'ready' && audit.length > 0 && (
-            <div className="table-scroll"><table className="compact-table">
+            <TableScroll label="Audit events"><table className="compact-table">
               <caption className="sr-only">Audit events</caption>
               <thead><tr><th>Waktu</th><th>Actor</th><th>Action</th><th>Resource</th></tr></thead>
               <tbody>{audit.map((item, index) => <tr key={`${item.created_at}-${item.resource}-${index}`}><td>{formatDate(item.created_at)}</td><td>{item.actor}</td><td><code>{item.action}</code></td><td><code>{item.resource}</code></td></tr>)}</tbody>
-            </table></div>
+            </table></TableScroll>
           )}
           {canAudit && auditState === 'ready' && auditTotal > auditPageSize && <div className="pagination"><p className="footer-note">{auditOffset + 1}–{auditOffset + audit.length} dari {auditTotal}</p><div><button className="button" type="button" disabled={auditOffset === 0} onClick={() => setAuditOffset(Math.max(0, auditOffset - auditPageSize))}>Sebelumnya</button><button className="button" type="button" disabled={auditOffset + audit.length >= auditTotal} onClick={() => setAuditOffset(auditOffset + auditPageSize)}>Berikutnya</button></div></div>}
         </section>

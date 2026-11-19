@@ -1,7 +1,7 @@
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { EvalCase, EvalClassification, EvalRun, EvalSuite, Session, api } from '../api';
 import {
-  AgentSelect, ChipList, JsonBlock, LoadState, PermissionNote, RecordsState, RunDetailView, StatusBadge, VersionSelect,
+  TableScroll,  AgentSelect, ChipList, JsonBlock, LoadState, PermissionNote, RecordsState, RunDetailView, StatusBadge, VersionSelect,
   can, errorText, formatDate, parseJsonArray, parseJsonObject, statusLabel, useAgentVersions, useAgents,
 } from './shared';
 
@@ -229,7 +229,7 @@ export default function Evaluations({ session }: { session: Session | null }) {
         <div className="panel-heading"><div><h2>Evaluation runs</h2><p>{agentKey ? `Untuk ${agentKey}.` : 'Semua agent.'} Gate dan status stale dihitung oleh API.</p></div><span className="count">{evalRunState === 'ready' ? `${evalRunTotal} run` : 'Belum dimuat'}</span></div>
         {canRead && <RecordsState state={evalRunState} message={evalRunError} empty="Belum ada evaluation run." count={evalRuns.length} />}
         {canRead && evalRunState === 'ready' && evalRuns.length > 0 && (
-          <div className="table-scroll"><table>
+          <TableScroll label="Evaluation runs"><table>
             <caption className="sr-only">Evaluation runs</caption>
             <thead><tr><th>Dibuat</th><th>Agent / versi</th><th>Suite</th><th>Status</th><th>Gate</th><th>Hasil</th><th><span className="sr-only">Aksi</span></th></tr></thead>
             <tbody>{evalRuns.map((run) => (
@@ -243,7 +243,7 @@ export default function Evaluations({ session }: { session: Session | null }) {
                 <td><button className="button" type="button" onClick={() => setEvalRunId(run.id === evalRunId ? '' : run.id)} aria-expanded={run.id === evalRunId}>{run.id === evalRunId ? 'Tutup' : 'Detail'}</button></td>
               </tr>
             ))}</tbody>
-          </table></div>
+          </table></TableScroll>
         )}
       </section>
 
@@ -301,7 +301,7 @@ function EvalRunDetail({ evalRunId, session, onSettled }: { evalRunId: string; s
           )}
           <h3 className="section-title">Hasil per kasus</h3>
           {!run.results?.length ? <div className="records-state">Belum ada hasil kasus.</div> : (
-            <div className="table-scroll"><table>
+            <TableScroll label="Hasil kasus evaluasi"><table>
               <caption className="sr-only">Hasil kasus evaluasi</caption>
               <thead><tr><th>Kasus</th><th>Status run</th><th>Lulus</th><th>Checks</th><th><span className="sr-only">Aksi</span></th></tr></thead>
               <tbody>{run.results.map((result) => (
@@ -313,7 +313,7 @@ function EvalRunDetail({ evalRunId, session, onSettled }: { evalRunId: string; s
                   <td><button className="button" type="button" onClick={() => setOpenRunId(openRunId === result.run_id ? '' : result.run_id)}>{openRunId === result.run_id ? 'Tutup run' : 'Lihat run'}</button></td>
                 </tr>
               ))}</tbody>
-            </table></div>
+            </table></TableScroll>
           )}
           {openRunId && <div className="nested-detail"><RunDetailView runId={openRunId} session={session} /></div>}
         </>

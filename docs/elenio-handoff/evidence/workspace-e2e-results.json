@@ -118,12 +118,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 3080,
+                  "duration": 1375,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-19T19:06:13.907Z",
+                  "startTime": "2026-11-19T19:33:20.483Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -133,7 +133,7 @@
           ],
           "id": "b163ed09f68681248ada-bf9818f7d31cd9e3089e",
           "file": "workspace.spec.ts",
-          "line": 27,
+          "line": 28,
           "column": 1
         },
         {
@@ -152,12 +152,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 4154,
+                  "duration": 2331,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-19T19:06:17.317Z",
+                  "startTime": "2026-11-19T19:33:22.018Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -167,7 +167,7 @@
           ],
           "id": "b163ed09f68681248ada-47204c85a5607a87228d",
           "file": "workspace.spec.ts",
-          "line": 69,
+          "line": 70,
           "column": 1
         },
         {
@@ -186,12 +186,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 800,
+                  "duration": 476,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-19T19:06:21.500Z",
+                  "startTime": "2026-11-19T19:33:24.358Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -201,7 +201,41 @@
           ],
           "id": "b163ed09f68681248ada-df2b7c7df8652ce4ae74",
           "file": "workspace.spec.ts",
-          "line": 120,
+          "line": 121,
+          "column": 1
+        },
+        {
+          "title": "existing Agent workbenches use the agreed shared light system, exact brand and bundled font",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4092,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-19T19:33:24.842Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b163ed09f68681248ada-f1eb16b030dec3a81fdd",
+          "file": "workspace.spec.ts",
+          "line": 136,
           "column": 1
         }
       ]
@@ -209,9 +243,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-19T19:06:13.115Z",
-    "duration": 9568.716,
-    "expected": 3,
+    "startTime": "2026-11-19T19:33:20.066Z",
+    "duration": 9018.553,
+    "expected": 4,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

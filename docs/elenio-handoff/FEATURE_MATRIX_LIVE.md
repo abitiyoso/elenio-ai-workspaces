@@ -2,7 +2,11 @@
 
 Statuses reflect verified checkpoints, not a live deployment claim. The latest update below supersedes earlier model-absence statements.
 
-## Latest update — existing-service workspace integration
+## Latest update — existing Agent workbench design adoption
+
+Original Agent React/API workbenches now use verified shared tokens, bundled Inter, the byte-identical official logo and the agreed light direction. Agent creation is primary; SIM pack is a disclosure. Actual CP workspace/person and entitled return route replace placeholders. Six table regions reuse keyboard-accessible `TableScroll`. Four real workspace E2E pass, with nine responsive screenshots and zero serious/critical axe findings for Agent/Skills/Models desktop/mobile. No backend changes/new model calls. The full exact-menu/content reconciliation remains open in [HTML_ROUTE_MATRIX.md](HTML_ROUTE_MATRIX.md); details and packaging rationale in [SHARED_AGENT_WORKSPACE.md](SHARED_AGENT_WORKSPACE.md).
+
+## Prior update — existing-service workspace integration
 
 | Capability | Current status | Evidence / authority | Acceptance |
 |---|---|---|---|

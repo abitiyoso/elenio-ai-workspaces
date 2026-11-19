@@ -1,7 +1,12 @@
-import { FormEvent, useCallback, useEffect, useState } from 'react';
+import { FormEvent, ReactNode, useCallback, useEffect, useState } from 'react';
 import { Agent, AgentVersion, EvidenceRef, FeedbackClassification, Run, RunEvent, RunValidation, Session, api } from '../api';
 
 export type LoadState = 'loading' | 'ready' | 'error';
+
+/** Read-only wide tables need a keyboard scroll target, including Safari. */
+export function TableScroll({label, children}: {label: string; children: ReactNode}) {
+  return <div className="table-scroll" role="region" aria-label={label} tabIndex={0}>{children}</div>;
+}
 
 export function errorText(error: unknown) {
   return error instanceof Error ? error.message : 'Permintaan gagal. Coba lagi.';

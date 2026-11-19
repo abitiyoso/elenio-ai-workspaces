@@ -1,5 +1,6 @@
 import {test,expect,type Page} from "@playwright/test";
-import {randomUUID} from "node:crypto";
+import {randomUUID,createHash} from "node:crypto";
+import {readFile} from "node:fs/promises";
 import AxeBuilder from "@axe-core/playwright";
 const mount="/apps/flowcase/elenio.html";
 const api="/apps/flowcase/api/v1";
@@ -41,7 +42,7 @@ test("real workspace: persistent login, independent domain IDs and existing Agen
   await expect(page).toHaveURL(/\/apps\/agent-studio\/#agents$/);
   await expect(page.getByRole("heading",{name:"Agent Registry",exact:true})).toBeVisible();
   await expect(page.getByLabel("Nama agent",{exact:true})).toBeEnabled();
-  await page.screenshot({path:"../../docs/elenio-handoff/evidence/workspace-existing-agents-1440.png",fullPage:true});
+  await page.screenshot({path:"../../docs/elenio-handoff/evidence/shared-agent-studio-agents-1440.png",fullPage:true});
   await page.reload();
   await expect(page.getByRole("heading",{name:"Agent Registry",exact:true})).toBeVisible();
   const agentKey=unique();
@@ -130,4 +131,48 @@ test("real workspace: operator cannot gain builder app or solution rights via br
   const unchanged=await (await page.request.get(`${api}/session`,{headers:spoof})).json();
   expect(unchanged.identity_subject).toBe(flow.identity_subject);
   expect(unchanged.roles).toEqual(flow.roles);
+});
+
+test("existing Agent workbenches use the agreed shared light system, exact brand and bundled font",async({page})=>{
+  await signIn(page);
+  await page.goto("/apps/agent-studio/#agents");
+  await expect(page.getByRole("heading",{name:"Agent Registry",level:1})).toBeVisible();
+  await expect(page.getByLabel("Nama agent",{exact:true})).toBeEnabled();
+  await expect(page.getByRole("link",{name:"Workspace: Platform Engineering. Open Control Plane to change workspace"})).toBeVisible();
+  await expect(page.locator(".sidebar")).toHaveCSS("background-color","rgb(255, 255, 255)");
+  await expect(page.locator(".domain-pack")).not.toHaveAttribute("open");
+  await page.locator(".domain-pack summary").click();
+  await expect(page.getByRole("button",{name:"Apply SIM pack v1",exact:true})).toBeVisible();
+  await page.locator(".domain-pack summary").click();
+  const logo=await page.request.get("/apps/agent-studio/brand/elenio-logo.png");
+  expect(logo.ok()).toBe(true);
+  const canonical=await readFile("public/brand/elenio-logo.png");
+  expect(createHash("sha256").update(await logo.body()).digest("hex")).toBe(createHash("sha256").update(canonical).digest("hex"));
+  await page.evaluate(()=>document.fonts.ready);
+  expect(await page.evaluate(()=>document.fonts.check('14px "Inter Variable"'))).toBe(true);
+  expect(await page.locator("body").evaluate(element=>getComputedStyle(element).fontFamily)).toContain("Inter Variable");
+  for(const [view,heading,widths] of [
+    ["agents","Agent Registry",[1440,1280,1024,768,390]],
+    ["skills","Skills Studio",[1440,390]],
+    ["models","Models & Providers",[1440,390]],
+  ] as const){
+    if(view!=="agents")await page.goto(`/apps/agent-studio/#${view}`);
+    await expect(page.getByRole("heading",{name:heading,level:1})).toBeVisible();
+    if(view==="skills")await expect(page.getByRole("combobox",{name:"Agent tenant",exact:true})).toBeVisible();
+    if(view==="models")await expect(page.getByText("9Router Elenio",{exact:false}).first()).toBeVisible();
+    for(const width of widths){
+      await page.setViewportSize({width,height:900});
+      expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+      await page.screenshot({path:`../../docs/elenio-handoff/evidence/shared-agent-studio-${view}-${width}.png`,fullPage:false});
+      if(width===1440||width===390){
+        const axe=await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21aa","wcag22aa"]).analyze();
+        expect(axe.violations.filter(v=>v.impact==="serious"||v.impact==="critical")).toEqual([]);
+      }
+    }
+  }
+  await page.setViewportSize({width:390,height:900});
+  await page.getByRole("button",{name:"Buka menu navigasi"}).click();
+  await expect(page.getByRole("link",{name:"Solution engineering",exact:true})).toBeVisible();
+  await page.getByRole("link",{name:"Solution engineering",exact:true}).click();
+  await expect(page).toHaveURL(/\/apps\/flowcase\/elenio\.html#\/connected$/);
 });

@@ -1,7 +1,7 @@
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { EvalRun, Release, ReleaseEnvironment, ReleaseRequest, Session, api } from '../api';
 import {
-  AgentSelect, LoadState, PermissionNote, RecordsState, StatusBadge, VersionSelect,
+  TableScroll,  AgentSelect, LoadState, PermissionNote, RecordsState, StatusBadge, VersionSelect,
   can, errorText, formatDate, statusLabel, useAgentVersions, useAgents,
 } from './shared';
 import { GateBadge } from './Evaluations';
@@ -98,7 +98,7 @@ export default function Releases({ session }: { session: Session | null }) {
         <div className="panel-heading"><div><h2>Releases</h2><p>Versi aktif per environment. Rollback hanya memengaruhi run baru; run yang sudah berjalan tetap memakai versi yang dipin.</p></div><span className="count">{releaseState === 'ready' ? `${releases.length} release` : 'Belum dimuat'}</span></div>
         {canRead && <RecordsState state={releaseState} message={releaseError} empty="Belum ada release untuk filter ini." count={releases.length} />}
         {canRead && releaseState === 'ready' && releases.length > 0 && (
-          <div className="table-scroll"><table>
+          <TableScroll label="Releases"><table>
             <caption className="sr-only">Releases</caption>
             <thead><tr><th>Agent / versi</th><th>Environment</th><th>Status</th><th>Dibuat</th><th>Berakhir</th><th>Rollback</th></tr></thead>
             <tbody>{releases.map((release) => (
@@ -111,7 +111,7 @@ export default function Releases({ session }: { session: Session | null }) {
                 <td>{release.status === 'active' ? <RollbackControl release={release} session={session} busy={busy} act={act} /> : '—'}</td>
               </tr>
             ))}</tbody>
-          </table></div>
+          </table></TableScroll>
         )}
       </section>
     </>

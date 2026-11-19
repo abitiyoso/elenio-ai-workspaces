@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-20",
+  "branch": "feat/elenio-shared-agent-workspace",
+  "base_sha": "7454f7509e94e1695e693b91fdd49b1685b55789",
+  "workspace_e2e_stats": {
+    "startTime": "2026-11-19T19:33:20.066Z",
+    "duration": 9018.553,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "route_interception": false,
+  "source_backend": "unchanged; retain original Agent/Flowcase/CP contracts and approval authorities",
+  "mounted_build_typecheck": "pass",
+  "flowcase_lint": "pass",
+  "shared_asset_preflight": "monorepo and isolated CRLF source snapshot pass; deliberate drift rejected",
+  "official_logo": "byte-identical to approved canonical; served bytes verified",
+  "font": "same bundled Inter Variable WOFF2; actual browser load verified",
+  "screenshots": 9,
+  "viewports": [
+    1440,
+    1280,
+    1024,
+    768,
+    390
+  ],
+  "axe_serious_critical": 0,
+  "axe_scope": "Agent Registry, Skills Studio and Models/Providers at desktop and mobile",
+  "table_scroll": "six labeled keyboard-focusable regions reuse TableScroll",
+  "source_archive": "official logo included; .env and .env.* excluded; archive built/listed locally only",
+  "shell_parse": "Bash unavailable; recipe not executed, exclusion line inspected and tar packaging independently verified",
+  "new_model_calls": 0,
+  "deployed": false,
+  "security": {
+    "staged_findings": 0,
+    "history_findings": 9,
+    "outside_original_ancestry": 0,
+    "named_credential_absent_checked_files": 92,
+    "scope": "staged files, standalone Agent dist, mounted Agent/Flowcase builds and local source archive",
+    "private_owner_repository": "abitiyoso/elenio-ai-workspaces",
+    "upstream_push": "DISABLED",
+    "main_sha": "8bfae869e8ad3adaf10b496428ffbcf22c196db9"
+  },
+  "remaining": [
+    "whole-product menu/content parity tracked in HTML_ROUTE_MATRIX.md",
+    "KMS/UCW native integration",
+    "full governed business pilot",
+    "general Economics ledger",
+    "transitive Publisher releases and executable installation; Docker sandbox unavailable"
+  ],
+  "delivery": {
+    "implementation_sha": "be0cc369b9e04fd153a8f860069230cf7e10e91b",
+    "draft_pr": "https://github.com/abitiyoso/elenio-ai-workspaces/pull/10",
+    "base_branch": "feat/elenio-local-workspace-integration"
+  }
+}

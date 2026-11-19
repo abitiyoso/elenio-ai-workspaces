@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "text_normalization": "LF",
+  "assets": [
+    {
+      "file": "src/ui/elenio-tokens.css",
+      "canonical": "packages/ui/tokens.css",
+      "sha256": "7c391671110b5da1f37cc969de66b3d4965b7ca34bad185887ec747500b50618"
+    },
+    {
+      "file": "public/brand/elenio-logo.png",
+      "canonical": "flowcase_platform/web/public/brand/elenio-logo.png",
+      "sha256": "00e7cb514b48a4e5e52db62552397263b6aef2b914595afc714ea13711ecb254"
+    },
+    {
+      "file": "src/ui/assets/inter-latin-wght-normal.woff2",
+      "canonical": "flowcase_platform/web/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2",
+      "sha256": "3100e775e8616cd2611beecfa23a4263d7037586789b43f035236a2e6fbd4c62"
+    },
+    {
+      "file": "public/brand/INTER-LICENSE.txt",
+      "canonical": "flowcase_platform/web/node_modules/@fontsource-variable/inter/LICENSE",
+      "sha256": "3b0a5fca3d17942cde889069889dedbbbd075e9b599968c82a95f4d944e9b345"
+    }
+  ]
+}

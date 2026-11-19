@@ -1,5 +1,8 @@
 .git
 .env
+.env.*
+**/.env
+**/.env.*
 deploy/.env
 deploy/access-map.json
 apps/agent-studio-web/node_modules
