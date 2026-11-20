@@ -55,6 +55,14 @@ async function fixture(
         definition_hash: "b".repeat(64),
         reason: "Published version observed.",
         inventory_complete: true,
+        binding_snapshot: {
+          schema:"elenio.workflow-bindings.v1",workflow_key:"purchase-review",version:1,
+          definition_hash:"b".repeat(64),content_hash:"c".repeat(64),observed_at:"2026-11-19T00:00:00Z",
+          bindings:[
+            {kind:"approval_policy",ref:"finance.approval",node_id:"approve",registered:true,provisional:true,sod:["not_case_owner","not_task_submitter"]},
+            {kind:"agent",ref:"finance.extract",node_id:"extract",registered:true,runtime_agent_id:"finance.extract",skill_version:"1.0.0",input_contract:"flowcase.case.v1"},
+          ],
+        },
         resources: [
           {
             kind: "approval_policy",
@@ -233,6 +241,19 @@ test("compose business pages, preview responsive views, capture an immutable can
   expect(output.status).toBe("candidate");
   expect(output.snapshot.plan.definition.application.pages).toHaveLength(4);
   expect(output.snapshot.readiness.release_ready).toBe(false);
+  const bindings=page.getByText("Observed bindings · purchase-review@1 · 2 references",{exact:true});
+  await bindings.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByText(/input flowcase.case.v1/)).toBeVisible();
+  for(const width of [1440,390]){
+    await page.setViewportSize({width,height:1000});
+    expect((await bindings.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+    await page.getByText(/input flowcase.case.v1/).scrollIntoViewIfNeeded();
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+    const audit=await new AxeBuilder({page}).include('[role="dialog"]').analyze();
+    expect(audit.violations.filter(v=>v.impact==="serious"||v.impact==="critical")).toEqual([]);
+    await page.screenshot({path:`../../docs/elenio-handoff/evidence/publisher-bindings-contract-${width}.png`,fullPage:true});
+  }
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.screenshot({
     path: "../../docs/elenio-handoff/evidence/publisher-candidate-1440.png",

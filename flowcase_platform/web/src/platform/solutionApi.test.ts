@@ -54,6 +54,20 @@ const reply = (body: unknown, status = 200) =>
   });
 afterEach(() => vi.unstubAllGlobals());
 describe("solution plans", () => {
+  it("rejects mismatched or malformed binding evidence while retaining historical observations",async()=>{
+    const source={schema:"elenio.workflow-bindings.v1",workflow_key:"purchase-review",version:1,
+      definition_hash:"a".repeat(64),content_hash:"b".repeat(64),observed_at:"2026-11-19T00:00:00Z",
+      bindings:[{kind:"agent",ref:"finance.extract",node_id:"extract",registered:true,input_contract:"flowcase.case.v1"}]};
+    const report={solution_id:plan.id,revision:plan.revision,checked_at:"2026-11-19T00:00:00Z",release_ready:false,blockers:["Installation unresolved"],
+      workflows:[{key:"purchase-review",version:1,state:"verified",reason:"Published",definition_hash:"a".repeat(64),binding_snapshot:source}]};
+    const fetch=vi.fn();vi.stubGlobal("fetch",fetch);
+    fetch.mockResolvedValueOnce(reply(session)).mockResolvedValueOnce(reply(report));
+    expect(await checkSolution(session,plan)).toEqual(report);
+    for(const invalid of [null,{...source,workflow_key:"other"},{...source,version:2},{...source,definition_hash:"c".repeat(64)},{...source,content_hash:"invalid"},{...source,bindings:{}},{...source,bindings:[{...source.bindings[0],registered:false}]}]){
+      fetch.mockResolvedValueOnce(reply(session)).mockResolvedValueOnce(reply({...report,workflows:[{...report.workflows[0],binding_snapshot:invalid}]}));
+      await expect(checkSolution(session,plan)).rejects.toThrow("Readiness does not match");
+    }
+  });
   const revision = {plan,content_hash:"a".repeat(64),origin:"write" as const,recorded_by:session.user.id,recorded_at:plan.updated_at};
   it("validates immutable history scope and distinguishes authored from imported current revisions",()=>{
     expect(assertRevision(revision,plan,session)).toEqual(revision);

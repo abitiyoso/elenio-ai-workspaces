@@ -118,12 +118,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 2595,
+                  "duration": 2367,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T23:25:44.365Z",
+                  "startTime": "2026-11-20T23:46:30.893Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -152,12 +152,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 5793,
+                  "duration": 8227,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T23:25:47.457Z",
+                  "startTime": "2026-11-20T23:46:33.507Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -168,6 +168,40 @@
           "id": "b163ed09f68681248ada-47204c85a5607a87228d",
           "file": "workspace.spec.ts",
           "line": 101,
+          "column": 1
+        },
+        {
+          "title": "native Publisher observes exact source deployment bindings without invoking an agent",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3652,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-20T23:46:41.752Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b163ed09f68681248ada-714baf62e7c87815cdd7",
+          "file": "workspace.spec.ts",
+          "line": 200,
           "column": 1
         },
         {
@@ -186,12 +220,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 3286,
+                  "duration": 4196,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T23:25:53.258Z",
+                  "startTime": "2026-11-20T23:46:45.415Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -201,7 +235,7 @@
           ],
           "id": "b163ed09f68681248ada-6c3ce37b5aa1618107f9",
           "file": "workspace.spec.ts",
-          "line": 200,
+          "line": 232,
           "column": 1
         },
         {
@@ -220,12 +254,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 492,
+                  "duration": 582,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T23:25:56.556Z",
+                  "startTime": "2026-11-20T23:46:49.620Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -235,7 +269,7 @@
           ],
           "id": "b163ed09f68681248ada-df2b7c7df8652ce4ae74",
           "file": "workspace.spec.ts",
-          "line": 263,
+          "line": 295,
           "column": 1
         },
         {
@@ -254,12 +288,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 4146,
+                  "duration": 5294,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T23:25:57.057Z",
+                  "startTime": "2026-11-20T23:46:50.216Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -269,7 +303,7 @@
           ],
           "id": "b163ed09f68681248ada-f1eb16b030dec3a81fdd",
           "file": "workspace.spec.ts",
-          "line": 278,
+          "line": 310,
           "column": 1
         },
         {
@@ -288,12 +322,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1290,
+                  "duration": 1706,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T23:26:01.210Z",
+                  "startTime": "2026-11-20T23:46:55.521Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -303,7 +337,7 @@
           ],
           "id": "b163ed09f68681248ada-7e45a40d5798e870bd31",
           "file": "workspace.spec.ts",
-          "line": 322,
+          "line": 354,
           "column": 1
         },
         {
@@ -322,12 +356,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 6733,
+                  "duration": 6512,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T23:26:02.508Z",
+                  "startTime": "2026-11-20T23:46:57.243Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -337,7 +371,7 @@
           ],
           "id": "b163ed09f68681248ada-69d95386842edcc15916",
           "file": "workspace.spec.ts",
-          "line": 350,
+          "line": 382,
           "column": 1
         },
         {
@@ -356,12 +390,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 2054,
+                  "duration": 2831,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T23:26:09.250Z",
+                  "startTime": "2026-11-20T23:47:03.768Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -371,7 +405,7 @@
           ],
           "id": "b163ed09f68681248ada-cdc3d34dd7aa02be9b55",
           "file": "workspace.spec.ts",
-          "line": 402,
+          "line": 434,
           "column": 1
         },
         {
@@ -390,12 +424,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 2624,
+                  "duration": 3366,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T23:26:11.313Z",
+                  "startTime": "2026-11-20T23:47:06.614Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -405,7 +439,7 @@
           ],
           "id": "b163ed09f68681248ada-97d09db179247822e8f1",
           "file": "workspace.spec.ts",
-          "line": 422,
+          "line": 454,
           "column": 1
         }
       ]
@@ -413,9 +447,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-20T23:25:43.867Z",
-    "duration": 30260.036,
-    "expected": 9,
+    "startTime": "2026-11-20T23:46:30.325Z",
+    "duration": 39909.257000000005,
+    "expected": 10,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

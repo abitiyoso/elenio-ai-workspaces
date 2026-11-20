@@ -10,6 +10,7 @@ import {
 import { newIdempotencyKey } from "../api/client";
 import { ApplicationComposer, ApplicationPreview } from "./ApplicationComposer";
 import { PublisherCandidates } from "./PublisherCandidates";
+import { BindingEvidence } from "./BindingEvidence";
 import {
   listSolutions,
   checkSolution,
@@ -341,6 +342,7 @@ export function Solutions() {
                         {checks[item.id]?.workflows.map((ref) => (
                           <li key={ref.key}>
                             {ref.key}@{ref.version}: {ref.reason}
+                            <BindingEvidence workflow={ref} />
                           </li>
                         ))}
                       </ul>
@@ -348,7 +350,9 @@ export function Solutions() {
                         Solution release is not verified.{" "}
                         {checks[item.id]?.blockers.join(" ")}
                       </Notice>
-                      <ul>
+                      <details className="binding-evidence">
+                        <summary>Unresolved releases &amp; permissions</summary>
+                        <ul>
                         {checks[item.id]?.workflows.flatMap((w) =>
                           (w.resources ?? []).map((resource, index) => (
                             <li key={`${w.key}-${resource.kind}-${index}`}>
@@ -360,7 +364,8 @@ export function Solutions() {
                             </li>
                           )),
                         )}
-                      </ul>
+                        </ul>
+                      </details>
                       <ul>
                         {checks[item.id]?.application_issues?.map(
                           (issue, index) => (
