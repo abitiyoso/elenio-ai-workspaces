@@ -77,14 +77,15 @@ func (r *ModelRegistry) QueueDepth(ctx context.Context, tenantID string) (map[st
 // FlowcaseRunResult mirrors Flowcase's proposed agent callback run object.
 // There is no approval field: Flowcase owns review and gate decisions.
 type FlowcaseRunResult struct {
-	RunID          string          `json:"run_id"`
-	Status         string          `json:"status"`
-	AgentID        string          `json:"agent_id"`
-	SkillVersion   string          `json:"skill_version"`
-	Output         json.RawMessage `json:"output,omitempty"`
-	OutputChecksum string          `json:"output_checksum,omitempty"`
-	Error          string          `json:"error,omitempty"`
-	TraceIDs       []string        `json:"trace_ids,omitempty"`
+	RunID            string            `json:"run_id"`
+	Status           string            `json:"status"`
+	AgentID          string            `json:"agent_id"`
+	SkillVersion     string            `json:"skill_version"`
+	Output           json.RawMessage   `json:"output,omitempty"`
+	OutputChecksum   string            `json:"output_checksum,omitempty"`
+	Error            string            `json:"error,omitempty"`
+	TraceIDs         []string          `json:"trace_ids,omitempty"`
+	UsageObservation *UsageObservation `json:"usage_observation,omitempty"`
 }
 
 // FlowcaseStatus maps internal states onto Flowcase's run vocabulary.
@@ -169,7 +170,7 @@ func enqueueFlowcaseResult(ctx context.Context, tx *sql.Tx, tenantID string, run
 	if run.Kind != "production" || run.CallerKind != "service" {
 		return nil
 	}
-	result := FlowcaseRunResult{RunID: run.ID, Status: FlowcaseStatus(run.Status), AgentID: run.AgentKey, SkillVersion: run.AgentSemver, TraceIDs: []string{run.ID}}
+	result := FlowcaseRunResult{RunID: run.ID, Status: FlowcaseStatus(run.Status), AgentID: run.AgentKey, SkillVersion: run.AgentSemver, TraceIDs: []string{run.ID}, UsageObservation: ObserveRunUsage(run)}
 	if run.ErrorCode != nil {
 		result.Error = *run.ErrorCode
 	}

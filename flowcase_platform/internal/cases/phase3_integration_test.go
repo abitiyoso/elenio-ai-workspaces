@@ -258,9 +258,12 @@ func TestAgentOutputCannotApproveOrChangeCaseData(t *testing.T) {
 	}
 }
 
-func signedCallback(t *testing.T, tenant, msgID, runID, agentID string, status agent.RunStatus, output string) agent.CallbackEnvelope {
+func signedCallback(t *testing.T, tenant, msgID, runID, agentID string, status agent.RunStatus, output string, usage ...*agent.UsageObservation) agent.CallbackEnvelope {
 	t.Helper()
 	run := map[string]any{"run_id": runID, "status": status, "agent_id": agentID}
+	if len(usage) > 0 {
+		run["usage_observation"] = usage[0]
+	}
 	if output != "" {
 		sum, _ := agent.OutputChecksum(json.RawMessage(output))
 		run["output"], run["output_checksum"] = json.RawMessage(output), sum
@@ -364,8 +367,14 @@ func TestFailedAgentRunRetriesWithFreshRun(t *testing.T) {
 	id := e.createCase("two-agents", nil)
 	e.drain()
 	first := rt.runID("sim.design", 1)
-	if o, err := e.eng.HandleAgentCallback(e.ctx, "test", signedCallback(t, e.tenant, "f-1", first, "sim.design", agent.RunFailed, "")); err != nil || o != cases.CallbackApplied {
+	usage := &agent.UsageObservation{Schema: "elenio.agent-usage.v1", Class: "test", Coverage: "partial", TokensIn: 80, TokensOut: 10, Attempts: 2, ObservedAttempts: 1, PricingStatus: "unpriced"}
+	if o, err := e.eng.HandleAgentCallback(e.ctx, "test", signedCallback(t, e.tenant, "f-1", first, "sim.design", agent.RunFailed, "", usage)); err != nil || o != cases.CallbackApplied {
 		t.Fatalf("failure callback: %s %v", o, err)
+	}
+	for _, run := range e.detail(id).AgentRuns {
+		if run.RuntimeRunID == first && (run.UsageObservation == nil || run.UsageObservation.TokensIn != 80 || run.Status != "failed" || run.UsageReceivedAt == nil) {
+			t.Fatalf("failed attempt lost usage: %+v", run)
+		}
 	}
 	e.exec(`UPDATE node_executions SET next_attempt_at = now() WHERE case_id = $1 AND status = 'ready'`, id)
 	e.drain()

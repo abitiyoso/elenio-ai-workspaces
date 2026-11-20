@@ -277,6 +277,15 @@ func (e *Engine) startAgent(ctx context.Context, tx pgx.Tx, c *caseRow, x *execR
 // and becomes an artifact version for human review; failures retry with a new run. With author_review
 // the step then waits for the case owner's draft review instead of scheduling the next step.
 func (e *Engine) applyAgentResult(ctx context.Context, tx pgx.Tx, c *caseRow, x *execRow, p *pinned, node *definition.Node, r *runRow, run agent.Run) error {
+	expected := r.RuntimeAgentID
+	if expected == "" {
+		expected = r.AgentRef
+	}
+	if run.RunID == r.RunID && run.AgentID == expected && run.UsageObservation.Valid() {
+		if _, err := tx.Exec(ctx, `UPDATE agent_runs SET usage_observation=$2::jsonb,usage_received_at=now() WHERE id=$1`, r.ID, RawJSON(run.UsageObservation)); err != nil {
+			return err
+		}
+	}
 	if run.Status != agent.RunSucceeded {
 		if _, err := tx.Exec(ctx, `UPDATE agent_runs SET status = $2, completed_at = now(), updated_at = now() WHERE id = $1`,
 			r.ID, map[agent.RunStatus]string{agent.RunFailed: "failed", agent.RunCancelled: "cancelled"}[run.Status]); err != nil {
@@ -286,10 +295,6 @@ func (e *Engine) applyAgentResult(ctx context.Context, tx pgx.Tx, c *caseRow, x 
 	}
 	sum, err := agent.OutputChecksum(run.Output)
 	var obj map[string]any
-	expected := r.RuntimeAgentID
-	if expected == "" {
-		expected = r.AgentRef
-	}
 	reconciled := err == nil && sum == run.OutputChecksum && run.AgentID == expected && len(run.Output) <= 256<<10 && json.Unmarshal(run.Output, &obj) == nil
 	if !reconciled {
 		if _, err := tx.Exec(ctx, `UPDATE agent_runs SET status = 'failed', completed_at = now(), updated_at = now() WHERE id = $1`, r.ID); err != nil {

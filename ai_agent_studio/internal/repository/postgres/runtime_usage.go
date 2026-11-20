@@ -19,6 +19,30 @@ type RunUsage struct {
 	RecordedAt    time.Time `json:"recorded_at"`
 }
 
+// UsageObservation is a read-only ledger snapshot; it never prices or approves a case.
+type UsageObservation struct {
+	Schema           string `json:"schema"`
+	Class            string `json:"class"`
+	Coverage         string `json:"coverage"`
+	TokensIn         int    `json:"tokens_in"`
+	TokensOut        int    `json:"tokens_out"`
+	Attempts         int    `json:"attempts"`
+	ObservedAttempts int    `json:"observed_attempts"`
+	PricingStatus    string `json:"pricing_status"`
+}
+
+func ObserveRunUsage(run Run) *UsageObservation {
+	class := "test"
+	if run.ModelMode == "dev_mock" {
+		class = "mock"
+	} else if run.ModelMode != "provider" {
+		return nil
+	} else if run.Kind == "production" {
+		class = "actual"
+	}
+	return &UsageObservation{Schema: "elenio.agent-usage.v1", Class: class, Coverage: runUsageCoverage(run), TokensIn: run.TokensIn, TokensOut: run.TokensOut, Attempts: run.Attempts, ObservedAttempts: len(run.Usage), PricingStatus: "unpriced"}
+}
+
 // Persist observations even when the attempt must retry or its worker loses the lease.
 func (r *ModelRegistry) RecordRunUsage(ctx context.Context, tenantID, runID string, usage RunUsage) error {
 	if usage.Attempt < 1 || usage.ConfigVersion < 0 || usage.TokensIn < 0 || usage.TokensOut < 0 || usage.TokensIn > 1<<31-1 || usage.TokensOut > 1<<31-1 || usage.ToolCalls < 0 || usage.UsageReports < 0 || usage.MissingUsage < 0 ||

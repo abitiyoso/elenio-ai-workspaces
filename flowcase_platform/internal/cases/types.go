@@ -9,6 +9,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/elenio/flowcase/internal/integrations/agent"
 	"github.com/elenio/flowcase/internal/workflows/definition"
 )
 
@@ -190,16 +191,19 @@ type CoveredArtifact struct {
 }
 
 type AgentRunView struct {
-	NodeID       string          `json:"node_id"`
-	Attempt      int             `json:"attempt"`
-	Provider     string          `json:"provider"`
-	AgentRef     string          `json:"agent_ref"`
-	SkillVersion string          `json:"skill_version"`
-	Status       string          `json:"status"`
-	Evidence     json.RawMessage `json:"evidence"`
-	Polls        int             `json:"polls"`
-	CreatedAt    time.Time       `json:"created_at"`
-	CompletedAt  *time.Time      `json:"completed_at"`
+	RuntimeRunID     string                  `json:"runtime_run_id"`
+	UsageObservation *agent.UsageObservation `json:"usage_observation,omitempty"`
+	UsageReceivedAt  *time.Time              `json:"usage_received_at,omitempty"`
+	NodeID           string                  `json:"node_id"`
+	Attempt          int                     `json:"attempt"`
+	Provider         string                  `json:"provider"`
+	AgentRef         string                  `json:"agent_ref"`
+	SkillVersion     string                  `json:"skill_version"`
+	Status           string                  `json:"status"`
+	Evidence         json.RawMessage         `json:"evidence"`
+	Polls            int                     `json:"polls"`
+	CreatedAt        time.Time               `json:"created_at"`
+	CompletedAt      *time.Time              `json:"completed_at"`
 }
 
 type Approval struct {

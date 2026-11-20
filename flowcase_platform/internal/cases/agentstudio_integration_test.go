@@ -86,7 +86,8 @@ func (s *studioServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		out, _ := json.Marshal(map[string]any{"artifact_draft": map[string]any{"agent": key, "items": []any{map[string]any{"id": key + "-1"}}},
 			"review": map[string]any{"status": "ready_for_review"}})
 		sum, _ := agent.OutputChecksum(out)
-		reply(http.StatusOK, agent.Run{RunID: id, Status: agent.RunSucceeded, AgentID: key, SkillVersion: "1.0.0", Output: out, OutputChecksum: sum, TraceIDs: []string{id}})
+		reply(http.StatusOK, agent.Run{RunID: id, Status: agent.RunSucceeded, AgentID: key, SkillVersion: "1.0.0", Output: out, OutputChecksum: sum, TraceIDs: []string{id},
+			UsageObservation: &agent.UsageObservation{Schema: "elenio.agent-usage.v1", Class: "test", Coverage: "partial", TokensIn: 120, TokensOut: 24, Attempts: 2, ObservedAttempts: 1, PricingStatus: "unpriced"}})
 	default:
 		w.WriteHeader(http.StatusNotFound)
 	}
@@ -178,6 +179,11 @@ func TestSIMCaseRunsThroughAgentStudioClient(t *testing.T) {
 	for _, r := range d.AgentRuns {
 		if r.Status != "succeeded" {
 			t.Fatalf("agent run %+v did not reconcile", r)
+		}
+		if r.RuntimeRunID == "" || r.UsageReceivedAt == nil || !r.UsageObservation.Valid() ||
+			r.UsageObservation.TokensIn != 120 || r.UsageObservation.TokensOut != 24 ||
+			r.UsageObservation.Coverage != "partial" || r.UsageObservation.Class != "test" {
+			t.Fatalf("case lost the authenticated source snapshot: %+v", r)
 		}
 	}
 }

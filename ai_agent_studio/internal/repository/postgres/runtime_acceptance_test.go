@@ -305,6 +305,9 @@ func TestAcceptanceProductionRunIdempotencyOutboxAndLeases(t *testing.T) {
 	if _, err := registry.BeginRunExecution(ctx, tenantID, first.ID); err != nil {
 		t.Fatal(err)
 	}
+	if err := registry.RecordRunUsage(ctx, tenantID, first.ID, postgres.RunUsage{Attempt: 1, TokensIn: 70, TokensOut: 9, UsageReports: 1}); err != nil {
+		t.Fatal(err)
+	}
 	output := json.RawMessage(`{"summary":"draft for review","evidence_refs":[]}`)
 	checksum, _ := postgres.OutputChecksum(output)
 	settled, err := registry.FinishRun(ctx, tenantID, first.ID, postgres.RunResult{Status: "needs_review", Output: output, OutputChecksum: checksum,
@@ -342,6 +345,11 @@ func TestAcceptanceProductionRunIdempotencyOutboxAndLeases(t *testing.T) {
 	}
 	if strings.Contains(payload, `"approved"`) {
 		t.Fatalf("callback carries an approval field: %s", payload)
+	}
+	observed := body.Run.UsageObservation
+	if observed == nil || observed.TokensIn != 70 || observed.TokensOut != 9 ||
+		observed.Class != "actual" || observed.Coverage != "complete" || observed.PricingStatus != "unpriced" {
+		t.Fatalf("transactional callback lost reported usage: %+v", observed)
 	}
 	if sum, _ := postgres.OutputChecksum(body.Run.Output); sum != body.Run.OutputChecksum {
 		t.Fatal("callback output checksum does not match the canonical output")

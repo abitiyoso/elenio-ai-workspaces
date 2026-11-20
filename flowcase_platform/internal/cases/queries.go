@@ -221,14 +221,14 @@ func (e *Engine) GetCase(ctx context.Context, a auth.Identity, caseID string) (C
 	if d.Artifacts, err = e.artifacts(ctx, caseID); err != nil {
 		return CaseDetail{}, err
 	}
-	rows, err = e.DB.Query(ctx, `SELECT n.node_id, r.attempt, r.provider, r.agent_ref, r.skill_version, r.status, r.evidence, r.polls, r.created_at, r.completed_at
+	rows, err = e.DB.Query(ctx, `SELECT n.node_id, r.attempt, r.provider, r.agent_ref, r.skill_version, r.status, r.evidence, r.polls, r.created_at, r.completed_at,r.run_id,r.usage_observation,r.usage_received_at
 		FROM agent_runs r JOIN node_executions n ON n.id = r.node_execution_id WHERE r.case_id = $1 ORDER BY r.created_at`, caseID)
 	if err != nil {
 		return CaseDetail{}, err
 	}
 	d.AgentRuns, err = pgx.CollectRows(rows, func(r pgx.CollectableRow) (AgentRunView, error) {
 		var v AgentRunView
-		return v, r.Scan(&v.NodeID, &v.Attempt, &v.Provider, &v.AgentRef, &v.SkillVersion, &v.Status, &v.Evidence, &v.Polls, &v.CreatedAt, &v.CompletedAt)
+		return v, r.Scan(&v.NodeID, &v.Attempt, &v.Provider, &v.AgentRef, &v.SkillVersion, &v.Status, &v.Evidence, &v.Polls, &v.CreatedAt, &v.CompletedAt, &v.RuntimeRunID, &v.UsageObservation, &v.UsageReceivedAt)
 	})
 	if err != nil {
 		return CaseDetail{}, err
