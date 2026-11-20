@@ -75,5 +75,13 @@
     "general Economics ledger/rates/budgets",
     "transitive independently approved solution releases and pinned OCI/configuration delivery",
     "actual standalone/enterprise installation, upgrade, backup/restore/rollback; Docker sandbox unavailable"
-  ]
+  ],
+  "delivery": {
+    "implementation_sha": "907471ad406263a2b76a64e7f16e2eba8270dec7",
+    "draft_pr": "https://github.com/abitiyoso/elenio-ai-workspaces/pull/12",
+    "base_branch": "feat/elenio-html-navigation",
+    "native_preview": "http://127.0.0.1:8200/apps/flowcase/elenio.html#/",
+    "browser_preview": "verified in actual in-app browser using explicit Demo All Access / Platform Engineering test session; tab retained as deliverable",
+    "preview_capture": "ui-nav-audit/05-connected-home-after.jpg"
+  }
 }
