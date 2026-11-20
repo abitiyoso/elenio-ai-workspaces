@@ -225,8 +225,15 @@ func (e *Engine) startAgent(ctx context.Context, tx pgx.Tx, c *caseRow, x *execR
 	agentRef := node.ConfigString("agent_ref")
 	skill := node.ConfigString("skill_version")
 	runtimeID := agentRef
+	inputContract := ""
+	if e.Agents.Provider() == agent.ProviderAgentStudio {
+		inputContract = "sim.v1"
+	}
 	if e.Catalog != nil {
 		if a, ok := e.Catalog.Agent(agentRef); ok {
+			if a.InputContract != "" {
+				inputContract = a.InputContract
+			}
 			if skill == "" {
 				skill = a.SkillVersion
 			}
@@ -243,7 +250,7 @@ func (e *Engine) startAgent(ctx context.Context, tx pgx.Tx, c *caseRow, x *execR
 	key := fmt.Sprintf("%s:%d", x.ID, x.Attempt)
 	run, err := e.Agents.StartRun(ctx, agent.StartRunRequest{
 		Scope:          agent.Scope{TenantID: c.TenantID, UserID: c.OwnerID, CaseID: c.ID, TraceID: audit.TraceID(ctx)},
-		IdempotencyKey: key, AgentID: runtimeID, SkillVersion: skill, Input: input, Evidence: ev,
+		IdempotencyKey: key, AgentID: runtimeID, SkillVersion: skill, Input: input, Evidence: ev, InputContract: inputContract,
 	})
 	if errors.Is(err, agent.ErrRejected) {
 		return fmt.Errorf("%w: start agent %s: %v", errPermanent, agentRef, err) // retrying the same request cannot succeed
@@ -267,7 +274,7 @@ func (e *Engine) startAgent(ctx context.Context, tx pgx.Tx, c *caseRow, x *execR
 		}
 	}
 	if err := audit.Record(ctx, tx, systemAudit(ctx, c, "agent.started", "node", node.ID, map[string]any{
-		"agent_ref": agentRef, "skill_version": skill, "run_id": run.RunID, "evidence": len(ev), "evidence_excluded": excluded})); err != nil {
+		"agent_ref": agentRef, "skill_version": skill, "run_id": run.RunID, "input_contract": inputContract, "input_hash": sha(json.RawMessage(input)), "evidence": len(ev), "evidence_excluded": excluded})); err != nil {
 		return err
 	}
 	return waitExternal(ctx, tx, x.ID, e.agentPoll())

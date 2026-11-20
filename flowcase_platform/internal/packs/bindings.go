@@ -23,6 +23,7 @@ type Bindings struct {
 type AgentBinding struct {
 	RuntimeAgentID string `json:"runtime_agent_id"`
 	SkillVersion   string `json:"skill_version"`
+	InputContract  string `json:"input_contract"`
 }
 
 type PolicyBinding struct {
@@ -77,6 +78,12 @@ func (b *Bindings) Apply(c *catalog.Static) error {
 				return fmt.Errorf("PACKS_CONFIG agents.%s.skill_version is invalid", ref)
 			}
 			a.SkillVersion = ab.SkillVersion
+		}
+		if !catalog.ValidAgentInputContract(ab.InputContract) {
+			return fmt.Errorf("PACKS_CONFIG agents.%s.input_contract is unsupported", ref)
+		}
+		if ab.InputContract != "" {
+			a.InputContract = ab.InputContract
 		}
 		c.SetAgent(a)
 	}

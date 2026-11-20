@@ -175,6 +175,29 @@ func (a *agentStudio) BuildRunRequest(ctx context.Context, req StartRunRequest) 
 			out.DelegatedUser = strings.ToLower(subject)
 		}
 	}
+	switch req.InputContract {
+	case "flowcase.case.v1":
+		var input flowcaseInput
+		dec := json.NewDecoder(bytes.NewReader(req.Input))
+		dec.UseNumber()
+		dec.DisallowUnknownFields()
+		if !json.Valid(req.Input) || !utf8.Valid(req.Input) {
+			return AgentStudioRunRequest{}, rejected("start run", "case input must be one valid UTF-8 JSON object")
+		}
+		if err := dec.Decode(&input); err != nil || input.CaseData == nil {
+			return AgentStudioRunRequest{}, rejected("start run", "case input must match flowcase.case.v1 with an object case_data")
+		}
+		out.Input = req.Input // preserve typed business values; never shrink or summarize this contract
+		raw, err := json.Marshal(out)
+		if err != nil || len(raw) > MaxAgentStudioRequest {
+			return AgentStudioRunRequest{}, rejected("start run", "case request exceeds %d bytes", MaxAgentStudioRequest)
+		}
+		return out, nil
+	case "", "sim.v1":
+		// Existing deployments keep their SIM mapping and bounded excerpts.
+	default:
+		return AgentStudioRunRequest{}, rejected("start run", "unsupported input contract")
+	}
 	for _, level := range []int{0, 1, 2} {
 		input, err := MapSIMInput(req.Input, level)
 		if err != nil {
@@ -319,6 +342,7 @@ type flowcaseInput struct {
 	Iteration          json.Number        `json:"iteration"`
 	OutputArtifactType string             `json:"output_artifact_type"`
 	CaseData           map[string]any     `json:"case_data"`
+	EvidencePolicy     string             `json:"evidence_policy"`
 	RevisionNote       string             `json:"revision_note"`
 	UpstreamArtifacts  []upstreamArtifact `json:"upstream_artifacts"`
 }

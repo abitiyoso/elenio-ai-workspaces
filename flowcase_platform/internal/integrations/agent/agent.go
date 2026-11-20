@@ -40,6 +40,7 @@ type Evidence struct {
 
 type StartRunRequest struct {
 	Scope          Scope           `json:"-"`
+	InputContract  string          `json:"-"`               // deployment-owned catalog binding, never a workflow/browser override
 	IdempotencyKey string          `json:"idempotency_key"` // node execution + attempt; the runtime must dedupe on it
 	AgentID        string          `json:"agent_id"`
 	SkillVersion   string          `json:"skill_version"`

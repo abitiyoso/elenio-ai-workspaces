@@ -1063,7 +1063,7 @@ components:
           type: array
           items:
             type: object
-            properties: { ref: { type: string }, name: { type: string }, pack: { type: string }, skill_version: { type: string } }
+            properties: { ref: { type: string }, name: { type: string }, pack: { type: string }, skill_version: { type: string }, input_contract: { enum: ["", sim.v1, flowcase.case.v1], description: Deployment-owned adapter contract; never a workflow override } }
         connectors:
           type: array
           items:

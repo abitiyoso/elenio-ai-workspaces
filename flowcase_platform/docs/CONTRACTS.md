@@ -73,7 +73,7 @@ Run request mapping (Flowcase `StartRunRequest` → Agent Studio body; unknown f
 | `idempotency_key` | `<node execution id>:<attempt>` (older runs stored `#`; the client rewrites `#` → `:`). |
 | `agent_id` | Bound `runtime_agent_id` from `PACKS_CONFIG` (`sim.intake`, `sim.solution_matching`, `sim.standard_project`, `sim.design`, `sim.cost_challenge`, `sim.proposal`). |
 | `skill_version` | Binding's `skill_version`; `unpinned` → `""` (the agent's active release); otherwise the released semver. |
-| `input` | SIM `input_schema` only (below). |
+| `input` | Deployment-owned `input_contract`: existing SIM mapping by default, or the structured case envelope described below. |
 | `evidence` | `[{source_id, version_id, title, classification}]` — KMS sources the case owner may read. |
 | `correlation_id` | Flowcase case id. `case_id` is never sent. |
 | `delegated_user` | The case owner's directory subject (`users.subject`, the Control Plane user id under `trusted_jwt`), sent only when it is a UUID and the owner is an active human tenant member. |
@@ -89,6 +89,36 @@ Studio's result envelope is stripped to `artifact_draft`). Flowcase bounds upstr
 artifacts, 48 KiB each and 144 KiB in total (oversized ones become `{truncated, original_bytes,
 excerpt}`); the client then keeps the body under 240 KiB by shrinking upstream content further. Fields
 without a value are omitted.
+
+#### Structured business input (`flowcase.case.v1`)
+
+An operator can set `agents.<registered-ref>.input_contract` to
+`flowcase.case.v1` in the existing read-only `PACKS_CONFIG` binding. The approved
+Agent version must accept that envelope in its input schema. Omitted/empty
+bindings keep the existing SIM mapping; explicit `sim.v1` selects the same
+mapping. Unknown contracts fail startup, and workflow/node config cannot override
+the selector. This does not register an arbitrary agent or grant access.
+
+The structured contract forwards the engine's JSON object unchanged: `task`,
+`node_id`, `case_reference`, `case_title`, `iteration`,
+`output_artifact_type`, object `case_data`, `evidence_policy`, optional
+`revision_note` and `upstream_artifacts`. Only declared business input fields
+enter `case_data`; `kms_source_ids` are excluded and authorized references
+remain in the original separate `evidence` list. Delegated-user checks,
+registered runtime/skill selection and original Agent schema/release gates
+remain in force. Large integers, decimals, arrays and booleans retain their JSON
+values. Invalid or oversized requests fail before HTTP; this adapter never
+summarizes/shrinks structured business data. The engine's existing explicitly
+marked upstream-artifact excerpt bounds still apply.
+
+The `agent.started` audit event retains the selected contract and original
+engine-input hash. No credential, prompt or full business payload is added to
+audit. The selector is internal metadata and is not an extra Agent Studio API
+field. A portable release must resolve and pin this deployment binding along
+with the agent/version; the current candidate inventory is not such a release.
+Two database/HTTP transport fixtures exercise invoice and access-request input,
+owner draft review, independent approval and KMS exclusion using the same
+engine. They do not prove PDF extraction, live inference or two installed apps.
 
 Errors: network failures, timeouts, 408, 429 and 5xx are retryable (the step retries with backoff and a
 new attempt/idempotency key); other 4xx (400/401/403/404/409/422) are terminal — the step fails without

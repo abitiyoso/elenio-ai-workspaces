@@ -1,5 +1,9 @@
 # Live capability / acceptance matrix
 
+## Latest update — reusable typed business input
+
+Original Agent Studio adapter supports the trusted catalog contract `flowcase.case.v1`, preserving business values without SIM summarization. Unknown contracts/workflow overrides/invalid or oversized envelopes fail closed. Existing declared-field filtering, delegated identity, KMS exclusions, release/schema gates and independent approval are reused. Audit retains contract/hash only. 118 Flowcase tests pass, including two real-database/original-engine→explicit HTTP transport fixtures. No paid model, PDF extraction, new live registration or installed-app completion is claimed. [FINAL_LEAN_STATUS.md](FINAL_LEAN_STATUS.md).
+
 ## Latest update — case-linked usage snapshots
 
 Original Agent polling/signed callbacks report optional versioned source snapshots. Flowcase retains them only for the corresponding run/agent, including failures, and existing authorized CaseDocument/Solution execution exposes a contextual AI usage tab. Missing/partial coverage remains explicit and unpriced; usage never approves business output. Source runtime class does not prove customer deployment. Checks: 112 Flowcase + 93 Agent tests, additional focused database identity cases, 105 frontend, 43 browser regressions and nine native workspace cases. Two new screenshots are explicit synthetic API interface fixtures with scoped axe/mobile checks. Full pricing/FX/budgets and remaining A–E acceptance remain open. [FINAL_LEAN_STATUS.md](FINAL_LEAN_STATUS.md).
