@@ -250,5 +250,12 @@ func (s *Service) Update(ctx context.Context, p principal.Principal, id string, 
 	return item, tx.Commit(ctx)
 }
 func (s *Service) record(ctx context.Context, tx pgx.Tx, p principal.Principal, item Project, action string) error {
+	raw, err := json.Marshal(item)
+	if err != nil {
+		return err
+	}
+	if _, err = tx.Exec(ctx, `INSERT INTO solution_project_revisions(tenant_id,workspace_id,solution_id,revision,snapshot,origin,recorded_by) VALUES($1::uuid,$2::uuid,$3::uuid,$4,$5,'write',$6::uuid)`, p.TenantID, p.WorkspaceID, item.ID, item.Revision, raw, p.UserID); err != nil {
+		return err
+	}
 	return audit.Record(ctx, tx, audit.Event{ActorUserID: p.UserID, TenantID: p.TenantID, WorkspaceID: p.WorkspaceID, Action: action, TargetType: "solution", TargetID: item.ID, Decision: "allow", Metadata: map[string]any{"key": item.Definition.Key, "revision": item.Revision, "workflow_count": len(item.Definition.Workflows)}})
 }

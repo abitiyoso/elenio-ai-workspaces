@@ -239,6 +239,25 @@ test("guided Home saves one Solution across description, Composer and preview wi
     const axe=await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21aa","wcag22aa"]).analyze();
     expect(axe.violations.filter(v=>v.impact==="serious"||v.impact==="critical")).toEqual([]);
   }
+  await page.setViewportSize({width:1440,height:900});
+  await page.getByRole("button",{name:"Version history",exact:true}).click();
+  const history=page.getByRole("dialog",{name:"Solution version history"});
+  const firstRevision=history.locator("details").filter({hasText:"Revision 1 · Department request workspace"});
+  await firstRevision.locator("summary").click();
+  await expect(firstRevision.getByText(requirement,{exact:true})).toBeVisible();
+  await expect(firstRevision.getByText("No workflows linked.",{exact:true})).toBeVisible();
+  for(const width of [1440,390]){
+    await page.setViewportSize({width,height:900});
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+    await page.screenshot({path:`../../docs/elenio-handoff/evidence/solution-revisions-${width}.png`,fullPage:false});
+    const axe=await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21aa","wcag22aa"]).analyze();
+    expect(axe.violations.filter(v=>v.impact==="serious"||v.impact==="critical")).toEqual([]);
+  }
+  await page.getByRole("button",{name:"Close dialog",exact:true}).click();
+  const older=await (await page.request.get(`/api/v1/solutions/${solutionID}/revisions/1`)).json();
+  expect(older.plan.definition.description).toBe(requirement);
+  expect(older.origin).toBe("write");
+  expect(older.content_hash).toMatch(/^[a-f0-9]{64}$/);
 });
 
 test("real workspace: operator cannot gain builder app or solution rights via browser headers",async({page})=>{

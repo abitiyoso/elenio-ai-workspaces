@@ -1,11 +1,48 @@
 openapi: 3.1.0
 info:
   title: Elenio AI OS solution planning registry
-  version: 1.2.0
+  version: 1.3.0
   description: Workspace-scoped Solution plans, review candidates and delegated development executions. Flowcase remains case, data and domain approval authority. No customer installation or release approval is implied. Cookie session and same-origin CSRF protect writes.
 security:
   - session: []
 paths:
+  /api/v1/solutions/{id}/revisions:
+    parameters:
+      - {$ref: '#/components/parameters/ID'}
+    get:
+      summary: Read immutable saved Solution revisions in the current workspace
+      description: Requires solution viewing permission. Creation and each successful edit retain a complete snapshot transactionally with audit. No update/delete endpoint exists. Legacy migration retains only the observed current revision and does not invent overwritten earlier versions or editors. Historical read permission is checked on every request. Snapshot checksums are not release signatures or approvals.
+      parameters:
+        - {name: before, in: query, schema: {type: integer, minimum: 1}, description: Return revisions strictly older than this positive revision number; omit for newest}
+      responses:
+        '200':
+          description: At most 20 snapshots in descending revision order, with no-store caching
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items: {type: array, maxItems: 20, items: {$ref: '#/components/schemas/Revision'}}
+                  next_before: {type: integer, minimum: 1}
+        '400': {description: Invalid cursor}
+        '403': {description: Current workspace membership or viewing permission denied}
+        '404': {description: Solution outside current scope or missing}
+  /api/v1/solutions/{id}/revisions/{revision}:
+    parameters:
+      - {$ref: '#/components/parameters/ID'}
+      - {name: revision, in: path, required: true, schema: {type: integer, minimum: 1}}
+    get:
+      summary: Read the exact retained configuration of a saved Solution revision
+      responses:
+        '200':
+          description: Immutable snapshot with checksum ETag; active authorization still required
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Revision'}
+        '400': {description: Invalid revision}
+        '403': {description: Current workspace access denied}
+        '404': {description: Solution or retained revision unavailable in current scope}
   /api/v1/solutions/{id}/executions:
     parameters:
       - {$ref: '#/components/parameters/ID'}
@@ -259,6 +296,15 @@ components:
     ID: {name: id, in: path, required: true, schema: {type: string, format: uuid}}
     Csrf: {name: X-CSRF-Token, in: header, required: true, schema: {type: string}}
   schemas:
+    Revision:
+      type: object
+      required: [plan, content_hash, origin, recorded_at]
+      properties:
+        plan: {$ref: '#/components/schemas/Project'}
+        content_hash: {type: string, pattern: '^[0-9a-f]{64}$', description: SHA-256 of canonical wire plan JSON; checksum only}
+        origin: {enum: [write, migration_current]}
+        recorded_by: {type: string, format: uuid, description: Verified saving actor for authored revisions; omitted for legacy backfill}
+        recorded_at: {type: string, format: date-time, description: Retention time; legacy backfill does not claim the original editor/time}
     ExecutionResult:
       type: object
       required: [execution]

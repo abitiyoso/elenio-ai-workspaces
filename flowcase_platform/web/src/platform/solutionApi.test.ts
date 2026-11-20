@@ -2,6 +2,8 @@ import { describe, expect, it, vi, afterEach } from "vitest";
 import {
   assertSolution,
   assertExecution,
+  assertRevision,
+  listSolutionRevisions,
   listSolutionExecutions,
   startSolutionExecution,
   assertCandidate,
@@ -52,6 +54,23 @@ const reply = (body: unknown, status = 200) =>
   });
 afterEach(() => vi.unstubAllGlobals());
 describe("solution plans", () => {
+  const revision = {plan,content_hash:"a".repeat(64),origin:"write" as const,recorded_by:session.user.id,recorded_at:plan.updated_at};
+  it("validates immutable history scope and distinguishes authored from imported current revisions",()=>{
+    expect(assertRevision(revision,plan,session)).toEqual(revision);
+    expect(assertRevision({plan,content_hash:revision.content_hash,recorded_at:revision.recorded_at,origin:"migration_current"},plan,session).origin).toBe("migration_current");
+    expect(()=>assertRevision({...revision,origin:"migration_current"},plan,session)).toThrow();
+    expect(()=>assertRevision({...revision,plan:{...plan,id:session.workspace.id}},plan,session)).toThrow();
+    expect(()=>assertRevision({...revision,plan:{...plan,workspace_id:plan.id}},plan,session)).toThrow();
+    expect(()=>assertRevision({...revision,content_hash:"unverified"},plan,session)).toThrow();
+  });
+  it("reads revision pages with a bounded strict cursor and cookie scope",async()=>{
+    const fetcher=vi.fn().mockResolvedValueOnce(reply(session)).mockResolvedValueOnce(reply({items:[revision],next_before:1}));
+    vi.stubGlobal("fetch",fetcher);
+    expect(await listSolutionRevisions(session,plan,3)).toEqual({items:[revision],next_before:1});
+    expect(fetcher.mock.calls[1]?.[0]).toBe(`/control-api/v1/solutions/${plan.id}/revisions?before=3`);
+    await expect(listSolutionRevisions(session,plan,-1)).rejects.toThrow("cursor");
+    expect(fetcher).toHaveBeenCalledTimes(2);
+  });
   const execution = {
     execution: {id: "00000000-0000-4000-8000-000000000401", solution_id: plan.id, plan_revision: 1,
       workflow_key: "purchase-review", workflow_version: 1, case_id: "00000000-0000-4000-8000-000000000501", created_at: plan.created_at},
