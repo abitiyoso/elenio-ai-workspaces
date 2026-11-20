@@ -86,6 +86,13 @@ export interface Artifact {
 }
 
 export interface AgentRun {
+  runtime_run_id?: string;
+  usage_received_at?: string;
+  usage_observation?: {
+    schema: "elenio.agent-usage.v1"; class: "actual" | "test" | "mock";
+    coverage: "complete" | "partial" | "unavailable" | "legacy_final_attempt";
+    tokens_in: number; tokens_out: number; attempts: number; observed_attempts: number; pricing_status: "unpriced";
+  };
   node_id: string;
   attempt: number;
   provider: string;

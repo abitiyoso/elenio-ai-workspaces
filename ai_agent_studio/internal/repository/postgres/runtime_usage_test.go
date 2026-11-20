@@ -29,3 +29,21 @@ func TestRunUsageCoverageDoesNotTreatUnknownAttemptsAsZero(t *testing.T) {
 		})
 	}
 }
+
+func TestUsageSnapshotKeepsSourceClassAndMissingCoverage(t *testing.T) {
+	for _, tc := range []struct{ kind, mode, class string }{
+		{"production", "provider", "actual"}, {"sandbox", "provider", "test"},
+		{"evaluation", "provider", "test"}, {"sandbox", "dev_mock", "mock"},
+	} {
+		got := ObserveRunUsage(Run{Kind: tc.kind, ModelMode: tc.mode, Attempts: 2,
+			TokensIn: 30, TokensOut: 4, Usage: []RunUsage{{Attempt: 1, UsageReports: 1}}})
+		if got == nil || got.Class != tc.class || got.Coverage != "partial" ||
+			got.TokensIn != 30 || got.TokensOut != 4 || got.Attempts != 2 ||
+			got.ObservedAttempts != 1 || got.PricingStatus != "unpriced" || got.Schema != "elenio.agent-usage.v1" {
+			t.Fatalf("%s/%s snapshot: %+v", tc.kind, tc.mode, got)
+		}
+	}
+	if ObserveRunUsage(Run{}) != nil {
+		t.Fatal("unknown source mode must not invent usage")
+	}
+}

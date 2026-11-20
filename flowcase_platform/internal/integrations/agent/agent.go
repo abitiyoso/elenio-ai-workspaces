@@ -60,14 +60,47 @@ const (
 func (s RunStatus) Terminal() bool { return s == RunSucceeded || s == RunFailed || s == RunCancelled }
 
 type Run struct {
-	RunID          string          `json:"run_id"`
-	Status         RunStatus       `json:"status"`
-	AgentID        string          `json:"agent_id"`
-	SkillVersion   string          `json:"skill_version"`
-	Output         json.RawMessage `json:"output,omitempty"`
-	OutputChecksum string          `json:"output_checksum,omitempty"`
-	Error          string          `json:"error,omitempty"`
-	TraceIDs       []string        `json:"trace_ids,omitempty"`
+	RunID            string            `json:"run_id"`
+	Status           RunStatus         `json:"status"`
+	AgentID          string            `json:"agent_id"`
+	SkillVersion     string            `json:"skill_version"`
+	Output           json.RawMessage   `json:"output,omitempty"`
+	OutputChecksum   string            `json:"output_checksum,omitempty"`
+	Error            string            `json:"error,omitempty"`
+	TraceIDs         []string          `json:"trace_ids,omitempty"`
+	UsageObservation *UsageObservation `json:"usage_observation,omitempty"`
+}
+
+type UsageObservation struct {
+	Schema           string `json:"schema"`
+	Class            string `json:"class"`
+	Coverage         string `json:"coverage"`
+	TokensIn         int    `json:"tokens_in"`
+	TokensOut        int    `json:"tokens_out"`
+	Attempts         int    `json:"attempts"`
+	ObservedAttempts int    `json:"observed_attempts"`
+	PricingStatus    string `json:"pricing_status"`
+}
+
+func (o *UsageObservation) Valid() bool {
+	if o == nil || o.Schema != "elenio.agent-usage.v1" || o.PricingStatus != "unpriced" || o.TokensIn < 0 || o.TokensOut < 0 || o.TokensIn > 9007199254740991 || o.TokensOut > 9007199254740991 || o.Attempts < 0 || o.ObservedAttempts < 0 || o.ObservedAttempts > o.Attempts {
+		return false
+	}
+	if o.Class != "actual" && o.Class != "test" && o.Class != "mock" {
+		return false
+	}
+	switch o.Coverage {
+	case "complete":
+		return o.Attempts > 0 && o.ObservedAttempts == o.Attempts
+	case "partial":
+		return o.ObservedAttempts > 0
+	case "unavailable":
+		return o.TokensIn == 0 && o.TokensOut == 0
+	case "legacy_final_attempt":
+		return o.ObservedAttempts == 0
+	default:
+		return false
+	}
 }
 
 // CallbackEnvelope is the raw inbound callback; verification needs headers and body bytes as received.

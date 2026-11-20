@@ -1,5 +1,9 @@
 # Live capability / acceptance matrix
 
+## Latest update — case-linked usage snapshots
+
+Original Agent polling/signed callbacks report optional versioned source snapshots. Flowcase retains them only for the corresponding run/agent, including failures, and existing authorized CaseDocument/Solution execution exposes a contextual AI usage tab. Missing/partial coverage remains explicit and unpriced; usage never approves business output. Source runtime class does not prove customer deployment. Checks: 112 Flowcase + 93 Agent tests, additional focused database identity cases, 105 frontend, 43 browser regressions and nine native workspace cases. Two new screenshots are explicit synthetic API interface fixtures with scoped axe/mobile checks. Full pricing/FX/budgets and remaining A–E acceptance remain open. [FINAL_LEAN_STATUS.md](FINAL_LEAN_STATUS.md).
+
 ## Latest update — retry-inclusive Agent usage
 
 Original Agent worker persists immutable, tenant-scoped observations per attempt before retry/settlement; reads and Operations sum all observed attempts, prevent duplicate replay and retain unknown/partial coverage. Production actual, sandbox/evaluation test and mock stay distinct. Existing Run detail exposes attempts and unpriced status; original layout/font/logo retained with measured contrast/mobile fixes. 92 Agent tests + focused unprivileged RLS pass. Native suite: eight real unintercepted cases + one explicit synthetic usage UI contract case. No real provider call/billing verification. General Solution/case usage integration, pricing/FX/budgets and full economics acceptance remain open. [FINAL_LEAN_STATUS.md](FINAL_LEAN_STATUS.md).

@@ -304,7 +304,7 @@ func (c call) writeRun(status int, run postgres.Run) {
 		writeJSON(c.w, status, run)
 		return
 	}
-	result := postgres.FlowcaseRunResult{RunID: run.ID, Status: postgres.FlowcaseStatus(run.Status), AgentID: run.AgentKey, SkillVersion: run.AgentSemver, TraceIDs: []string{run.ID}}
+	result := postgres.FlowcaseRunResult{RunID: run.ID, Status: postgres.FlowcaseStatus(run.Status), AgentID: run.AgentKey, SkillVersion: run.AgentSemver, TraceIDs: []string{run.ID}, UsageObservation: postgres.ObserveRunUsage(run)}
 	if run.ErrorCode != nil {
 		result.Error = *run.ErrorCode
 	}

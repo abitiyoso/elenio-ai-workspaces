@@ -524,7 +524,7 @@ export function CaseDocument({ id }: { id: string }) {
       </div>
       {notice && <Notice>{notice}</Notice>}
       <nav className="tabs" aria-label="Case sections">
-        {["Work", "Activity", "Evidence"].map((t) => (
+        {["Work", "Activity", "Evidence", ...(data.agent_runs?.length ? ["AI usage"] : [])].map((t) => (
           <button
             key={t}
             className={tab === t ? "active" : ""}
@@ -534,7 +534,29 @@ export function CaseDocument({ id }: { id: string }) {
           </button>
         ))}
       </nav>
-      {tab === "Work" ? (
+      {tab === "AI usage" && (
+        <section aria-label="Reported model usage">
+          <h2>Reported model usage</h2>
+          <p>Reported tokens include runtime retries. Missing usage is not zero. Monetary cost is unavailable until rates are verified.</p>
+          {data.agent_runs?.map((run) => (
+            <article className="surface operations-card" key={run.runtime_run_id || `${run.node_id}:${run.attempt}:${run.created_at}`}>
+              <h3>{run.agent_ref} · step {run.node_id}</h3>
+              <p>Workflow attempt {run.attempt}{run.runtime_run_id ? ` · Runtime ${run.runtime_run_id}` : ""}</p>
+              {run.usage_observation ? (
+                <>
+                  <Badge>{run.usage_observation.class} · {run.usage_observation.coverage}</Badge>
+                  <p>{run.usage_observation.coverage === "unavailable"
+                    ? "Token usage has not been reported."
+                    : `Reported tokens: ${run.usage_observation.tokens_in} in / ${run.usage_observation.tokens_out} out.`}</p>
+                  <p>{run.usage_observation.observed_attempts} of {run.usage_observation.attempts} runtime attempts retained · Unpriced</p>
+                  {run.usage_received_at && <p>Snapshot received {new Date(run.usage_received_at).toLocaleString()}</p>}
+                </>
+              ) : <p>No verified usage snapshot is available.</p>}
+            </article>
+          ))}
+        </section>
+      )}
+      {tab === "AI usage" ? null : tab === "Work" ? (
         <div className="operations-work">
           <section>
             <h2>Tasks</h2>

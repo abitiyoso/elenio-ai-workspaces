@@ -1,4 +1,6 @@
-# Elenio development status — 2026-11-20 Asia/Jakarta
+# Elenio development status — 2026-11-21 Asia/Jakarta
+
+Case usage continuation follows [draft PR #15](https://github.com/abitiyoso/elenio-ai-workspaces/pull/15). Authenticated, versioned Agent snapshots now persist on original Flowcase case records, including failed runs, and appear in contextual AI usage within the same Solution case view. No price/zero/approval is inferred. Tests: 112 Flowcase + 93 Agent, focused database identity/invalid-metadata checks, 105 frontend, 43 browser regressions and nine native workspace cases. New screenshots are explicitly synthetic contract fixtures. All four native frontend builds pass; no new model call or deployment. [FINAL_LEAN_STATUS.md](FINAL_LEAN_STATUS.md) tracks full A–E gaps and per-tenant licensing later.
 
 Usage continuation follows [draft PR #14](https://github.com/abitiyoso/elenio-ai-workspaces/pull/14). Original Agent execution now retains immutable per-attempt observations before retry/cancellation handling, reports retry-inclusive totals with explicit coverage, and separates production actual/test/mock in existing Operations. No price is fabricated. Checks: 92 Agent tests, focused unprivileged PostgreSQL RLS, eight unintercepted native workspace cases + one clearly labeled UI contract fixture, frontend build and scoped axe/mobile checks. User's latest licensing direction is per tenant later; commercial limits/expiry remain open. [FINAL_LEAN_STATUS.md](FINAL_LEAN_STATUS.md).
 
