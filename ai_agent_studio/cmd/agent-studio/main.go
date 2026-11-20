@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"path"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -465,7 +466,7 @@ func sessionHandler(identity identityAdapter, exempt func(string) bool) http.Han
 			permissions = lister.PermissionsFor(principal)
 		}
 		_ = json.NewEncoder(w).Encode(map[string]any{
-			"subject": principal.Subject, "tenant_id": principal.TenantID, "identity_mode": mode, "permissions": permissions,
+			"subject": principal.Subject, "issuer": principal.Issuer, "tenant_id": principal.TenantID, "identity_mode": mode, "permissions": permissions,
 			"self_approval_exempt": exempt != nil && exempt(principal.Subject),
 		})
 	})
@@ -542,11 +543,21 @@ func spaHandler(directory string) http.Handler {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
-		name := strings.TrimPrefix(filepath.ToSlash(filepath.Clean("/"+r.URL.Path)), "/")
+		// URL paths are slash-separated on every OS. filepath.Clean("//assets/…")
+		// interprets a normal request as a UNC path on Windows and hides valid assets.
+		if strings.Contains(r.URL.Path, "\\") {
+			http.Error(w, "invalid path", http.StatusBadRequest)
+			return
+		}
+		name := strings.TrimPrefix(path.Clean("/"+r.URL.Path), "/")
 		if name == "." || name == "" {
 			name = "index.html"
 		}
 		if _, err := fs.Stat(root, name); err != nil {
+			if strings.HasPrefix(name, "assets/") || path.Ext(name) != "" {
+				http.NotFound(w, r)
+				return
+			}
 			name = "index.html"
 		}
 		if name != "index.html" {

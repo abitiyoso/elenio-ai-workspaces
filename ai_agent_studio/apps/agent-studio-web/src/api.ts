@@ -198,7 +198,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-export type Session = { subject: string; tenant_id: string; identity_mode: 'tailscale-serve' | 'development' | 'control-plane'; permissions?: string[]; self_approval_exempt?: boolean };
+export type Session = { subject: string; issuer?: string; tenant_id: string; identity_mode: 'tailscale-serve' | 'development' | 'control-plane'; permissions?: string[]; self_approval_exempt?: boolean };
 
 export type RunStatus = 'queued' | 'running' | 'succeeded' | 'needs_review' | 'failed' | 'cancelled';
 export type TrustStatus = 'approved' | 'unverified' | 'customer_source' | 'expired' | 'conflicted';

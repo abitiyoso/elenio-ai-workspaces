@@ -1,4 +1,6 @@
-# Elenio AI OS delivery reconciliation — 2026-11-19
+# Elenio AI OS delivery reconciliation — 2026-11-20
+
+Latest existing-service integration: [LOCAL_WORKSPACE.md](LOCAL_WORKSPACE.md). Native CP/Flowcase/Agent Studio now share real local sessions and keep independent permissions; original capability UI/API are reused and actual workflow→solution→candidate persistence is browser-tested. This advances internal engineering integration. The explicit local fixture IdP is not enterprise SSO; original Agent interior still needs shared visual adoption. KMS/UCW, full Economics, governed solution releases and installation scenarios stay open. No new model call, main merge or deployment.
 
 Current continuation: [PUBLISHER_CANDIDATES.md](PUBLISHER_CANDIDATES.md) adds validated app pages/preview, direct reference inventory and immutable review candidates. This advances addendum sections 3/4 but does not complete independent solution approval, transitive resolution, OCI bundles or installation. Original intake classifications below remain an audit trail. Existing design preserved; no new model calls or deployment.
 

@@ -105,16 +105,21 @@ func TestTrustedHostTokenEndToEnd(t *testing.T) {
 		t.Fatalf("valid token: expected 200, got %d %s", w.Code, w.Body)
 	}
 	var session struct {
-		UserID   string   `json:"user_id"`
-		TenantID string   `json:"tenant_id"`
-		Roles    []string `json:"roles"`
-		AuthMode string   `json:"auth_mode"`
+		UserID          string   `json:"user_id"`
+		TenantID        string   `json:"tenant_id"`
+		Roles           []string `json:"roles"`
+		AuthMode        string   `json:"auth_mode"`
+		IdentityIssuer  string   `json:"identity_issuer"`
+		IdentitySubject string   `json:"identity_subject"`
 	}
 	if err := json.NewDecoder(w.Body).Decode(&session); err != nil {
 		t.Fatal(err)
 	}
 	if session.TenantID != tenantID || session.UserID != userID || len(session.Roles) != 1 || session.Roles[0] != "case_owner" || session.AuthMode != "trusted_jwt" {
 		t.Fatalf("session must come from the directory, not headers: %+v", session)
+	}
+	if session.IdentityIssuer != issuer || session.IdentitySubject != "sub-ada" {
+		t.Fatalf("shared identity must come from verified claims: %+v", session)
 	}
 
 	rejections := map[string]string{

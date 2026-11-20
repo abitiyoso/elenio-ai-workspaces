@@ -18,6 +18,30 @@ import (
 
 type denyIdentity struct{}
 
+func TestSPAServesURLAssetsOnEveryOSAndDoesNotHideMissingAssets(t *testing.T) {
+	directory := t.TempDir()
+	if err := os.Mkdir(filepath.Join(directory, "assets"), 0700); err != nil {
+		t.Fatal(err)
+	}
+	for name, body := range map[string]string{"index.html": "<!doctype html><title>SPA</title>", "assets/app.js": "export const ready=true;"} {
+		if err := os.WriteFile(filepath.Join(directory, filepath.FromSlash(name)), []byte(body), 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	handler := spaHandler(directory)
+	for _, item := range []struct {
+		url    string
+		status int
+		body   string
+	}{{"/assets/app.js", 200, "export const ready=true;"}, {"/", 200, "<!doctype html>"}, {"/agents", 200, "<!doctype html>"}, {"/assets/missing.js", 404, "404 page not found"}, {"/private.env", 404, "404 page not found"}, {"/assets/../private.env", 404, "404 page not found"}} {
+		recorder := httptest.NewRecorder()
+		handler.ServeHTTP(recorder, httptest.NewRequest("GET", item.url, nil))
+		if recorder.Code != item.status || !strings.Contains(recorder.Body.String(), item.body) {
+			t.Errorf("%s: %d %q", item.url, recorder.Code, recorder.Body.String())
+		}
+	}
+}
+
 func TestRuntimeConfigCanDisableMocksWithoutEnablingThemInProduction(t *testing.T) {
 	t.Setenv("AGENT_STUDIO_DEV_MOCK_MODEL", "false")
 	cfg, err := loadRuntimeConfig(auth.EnvironmentDevelopment)

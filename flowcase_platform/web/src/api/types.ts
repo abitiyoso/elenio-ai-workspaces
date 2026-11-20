@@ -26,6 +26,8 @@ export interface Session {
   auth_mode: "trusted_jwt" | "dev_mock";
   environment: "development" | "test" | "staging" | "production";
   expires_at: string | null;
+  identity_issuer?: string;
+  identity_subject?: string;
 }
 
 export type IntegrationState = "ok" | "warning" | "disabled" | "stub" | "unavailable";

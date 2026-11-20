@@ -1,4 +1,12 @@
-# Elenio development status — 2026-11-19 Asia/Jakarta
+# Elenio development status — 2026-11-20 Asia/Jakarta
+
+Latest continuation: `feat/elenio-local-workspace-integration`, based on `08ef430701e2c36bc8cf8c5906bb882cf22b3220`. [LOCAL_WORKSPACE.md](LOCAL_WORKSPACE.md) connects the original CP, Flowcase and Agent Studio with real local sessions, independent grants and persisted databases. Existing Agent/Skills/Tools/Model/Eval/Release capabilities are reused rather than reimplemented. Shell navigation launches original governed views; the actual workspace/person control links to the existing CP selector. Fixed verified issuer/subject matching across distinct domain user IDs, the obsolete frontend probe-host restriction and the existing Windows asset-serving bug. Agreed shell design/logo preserved; the Agent Studio interior is still legacy UI.
+
+Current scoped validation: **53 CP + 110 Flowcase + 87 Agent backend tests**, **88 frontend unit/component**, **40 existing browser regressions**, **3 real workspace browser E2E** pass; zero backend failures/skips. New browser cases have no interception: real OIDC/CP session, existing module authoring/navigation, workflow→solution→immutable candidate persistence and negative operator authorization. Fixture IdP/personas are explicit; no new model calls or deployment. KMS/UCW native integration, full shared visual adoption and whole-product release/install acceptance remain open. This supersedes the prior statement that local preview has no persistent CP login; standalone 5173 remains a separate design/dev preview.
+
+## Prior Publisher checkpoint
+
+Latest integration implementation/evidence: `c09dfcda9660e326fc8b70d72e3c707f4e5c2f82`, [draft PR #9](https://github.com/abitiyoso/elenio-ai-workspaces/pull/9), base `feat/elenio-publisher-candidates`. The feature tip includes delivery metadata. Private owner origin verified; main and upstream are preserved. Full-history scan retains nine reviewed original non-secret matches and zero outside source ancestry; staged scan and named-credential absence check pass.
 
 Active branch: `feat/elenio-publisher-candidates`, based on solution-planning checkpoint `3f815fcc457768a00ef0d845fb51fbf7f2fb2092`. Owner continuation preserves the agreed design and permanent AI OS delivery outcome. Current increment: optional application composition/preview, direct reference inventory and immutable review candidates. [PUBLISHER_CANDIDATES.md](PUBLISHER_CANDIDATES.md) records exact functions, evidence and limits. Full product/all-phase acceptance remains open.
 

@@ -1,0 +1,219 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\metan\\.codex\\.chatgpt-projects\\g-p-6ab646d9842081918f21f99d9ecd1726\\elenio-ai-workspaces\\flowcase_platform\\web\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "playwright.workspace.config.ts"
+    ],
+    "configFile": "C:\\Users\\metan\\.codex\\.chatgpt-projects\\g-p-6ab646d9842081918f21f99d9ecd1726\\elenio-ai-workspaces\\flowcase_platform\\web\\playwright.workspace.config.ts",
+    "rootDir": "C:/Users/metan/.codex/.chatgpt-projects/g-p-6ab646d9842081918f21f99d9ecd1726/elenio-ai-workspaces/flowcase_platform/web/e2e-workspace",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/metan/.codex/.chatgpt-projects/g-p-6ab646d9842081918f21f99d9ecd1726/elenio-ai-workspaces/flowcase_platform/web/test-results/workspace",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "C:/Users/metan/.codex/.chatgpt-projects/g-p-6ab646d9842081918f21f99d9ecd1726/elenio-ai-workspaces/flowcase_platform/web/e2e-workspace",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 45000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "C:\\Users\\metan\\.codex\\.chatgpt-projects\\g-p-6ab646d9842081918f21f99d9ecd1726\\elenio-ai-workspaces\\flowcase_platform\\web\\test-results\\workspace",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "C:\\Users\\metan\\.codex\\.chatgpt-projects\\g-p-6ab646d9842081918f21f99d9ecd1726\\elenio-ai-workspaces\\flowcase_platform\\web\\e2e-workspace",
+        "snapshotDir": "C:\\Users\\metan\\.codex\\.chatgpt-projects\\g-p-6ab646d9842081918f21f99d9ecd1726\\elenio-ai-workspaces\\flowcase_platform\\web\\e2e-workspace",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 45000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8200",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "headless": true,
+          "trace": "off"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "../../docs/elenio-handoff/evidence/workspace-e2e-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.65.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "workspace.spec.ts",
+      "file": "workspace.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "real workspace: persistent login, independent domain IDs and existing Agent Studio navigation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3080,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-19T19:06:13.907Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b163ed09f68681248ada-bf9818f7d31cd9e3089e",
+          "file": "workspace.spec.ts",
+          "line": 27,
+          "column": 1
+        },
+        {
+          "title": "real workspace: create workflow, compose persisted solution, inspect and capture candidate",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4154,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-19T19:06:17.317Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b163ed09f68681248ada-47204c85a5607a87228d",
+          "file": "workspace.spec.ts",
+          "line": 69,
+          "column": 1
+        },
+        {
+          "title": "real workspace: operator cannot gain builder app or solution rights via browser headers",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 800,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-19T19:06:21.500Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b163ed09f68681248ada-df2b7c7df8652ce4ae74",
+          "file": "workspace.spec.ts",
+          "line": 120,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-19T19:06:13.115Z",
+    "duration": 9568.716,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

@@ -101,15 +101,17 @@ type personaView struct {
 }
 
 type sessionResponse struct {
-	Persona     string        `json:"persona,omitempty"`
-	DevPersonas []personaView `json:"dev_personas,omitempty"`
-	UserID      string        `json:"user_id"`
-	TenantID    string        `json:"tenant_id"`
-	DisplayName string        `json:"display_name"`
-	Roles       []string      `json:"roles"`
-	AuthMode    string        `json:"auth_mode"`
-	Environment string        `json:"environment"`
-	ExpiresAt   *time.Time    `json:"expires_at"`
+	Persona         string        `json:"persona,omitempty"`
+	DevPersonas     []personaView `json:"dev_personas,omitempty"`
+	UserID          string        `json:"user_id"`
+	TenantID        string        `json:"tenant_id"`
+	DisplayName     string        `json:"display_name"`
+	Roles           []string      `json:"roles"`
+	AuthMode        string        `json:"auth_mode"`
+	Environment     string        `json:"environment"`
+	ExpiresAt       *time.Time    `json:"expires_at"`
+	IdentityIssuer  string        `json:"identity_issuer,omitempty"`
+	IdentitySubject string        `json:"identity_subject,omitempty"`
 }
 
 func (s *server) session(w http.ResponseWriter, r *http.Request) {
@@ -119,6 +121,10 @@ func (s *server) session(w http.ResponseWriter, r *http.Request) {
 		roles = append(roles, string(role))
 	}
 	res := sessionResponse{UserID: id.UserID, TenantID: id.TenantID, DisplayName: id.DisplayName, Roles: roles, AuthMode: id.AuthMode, Environment: s.deps.Environment}
+	if id.AuthMode == "trusted_jwt" {
+		res.IdentityIssuer = id.Issuer
+		res.IdentitySubject = id.Subject
+	}
 	if !id.ExpiresAt.IsZero() {
 		exp := id.ExpiresAt.UTC()
 		res.ExpiresAt = &exp
