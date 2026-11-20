@@ -6,16 +6,18 @@ This is an implementation checklist, not a claim of parity. Keep the agreed logo
 
 Latest reconciliation: [HTML_WORKSPACE_INTEGRATION.md](HTML_WORKSPACE_INTEGRATION.md), branch `feat/elenio-html-navigation`. All 17 exact reference labels and five groups now have entries, with source-reference unit and browser checks. Seven native workspace cases verify reuse of the original services. A menu/launcher alone still does not close its page-content acceptance.
 
+Visual continuation: [SHARED_SERVICE_WORKBENCHES.md](SHARED_SERVICE_WORKBENCHES.md) adopts the same light foundation inside original KMS and UCW, with responsive/keyboard/browser evidence. Their prior dark shell styling is superseded; full per-page content and product UAT remain open.
+
 | HTML group / exact menu | Current implementation and existing authority | Remaining reconciliation |
 |---|---|---|
 | WORKSPACE / Home | Agreed hero/artwork with actual native authorized workflow resume, real builder/Agent links and CP scope | Broader solution lifecycle context |
 | WORKSPACE / AI Architect | Existing Agent/Eino real provider authoring; persisted run, diff, native Flowcase draft | Broader reusable capability discovery and full solution context |
 | WORKSPACE / Projects | Native Flowcase projects plus persisted CP multi-workflow solutions | One contextual lifecycle entry across the two existing objects |
-| WORKSPACE / Business Apps | Exact menu; original UCW native app launch, real CP user exchange and Flowcase cases | Original business interior shared visual adoption and approved model-backed intake/pilot |
+| WORKSPACE / Business Apps | Exact menu; original UCW with shared light shell, native launch, real CP user exchange and Flowcase cases | Full operator page-content acceptance and approved model-backed intake/pilot |
 | BUILD / Workflow Studio | Shared native graph, typed branching/parallel, edit/save/validate, version/trace | Remaining project-context refinements; retain true server graph |
 | BUILD / Agent Studio | Existing authoring/model/binding workbenches now share Elenio styling | Selected V10 registry/detail composition and agent visuals |
 | CAPABILITIES / Template Repository | Exact label/group and native Flowcase template-based creation | Rich reusable asset repository views |
-| CAPABILITIES / Knowledge Hub | Shared agreed explorer uses original KMS JWT/ACL metadata, collection creation, versions/PDF links, job/retry and search contracts | External storage/search/PDF/embedding pipeline, live-document acceptance and advanced governance shared styling |
+| CAPABILITIES / Knowledge Hub | Shared explorer uses original KMS JWT/ACL metadata, collection creation, versions/PDF links, job/retry and search contracts; original governance adopts shared light foundation | External storage/search/PDF/embedding pipeline and full live-document/governance acceptance |
 | CAPABILITIES / Integration Hub | Dedicated route/menu uses existing registered Flowcase connector catalog/operations | Source adapter readiness and richer authorized connection setup; no arbitrary unapproved execution |
 | CAPABILITIES / Skills & Tools | Existing Agent workbench with real draft/version API, published tools and bindings | Full shared entry/page composition; preserve existing publication/delegation gates |
 | CAPABILITIES / Model Hub | Existing provider/deployment/probe/approval/vault plus real 9Router registration | Exact menu and model-profile/rate comparison content |

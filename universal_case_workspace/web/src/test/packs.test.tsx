@@ -37,7 +37,9 @@ describe("Domain Pack Library", () => {
     const { container } = renderAt(`/packs/${encodeURIComponent(ok.pack_key)}/${ok.version}`);
     const code = await screen.findByLabelText("Manifest JSON");
     expect(code.textContent).toContain("<img src=x onerror=alert(1)>");
-    expect(container.querySelector("img")).toBeNull();
+    expect(code.querySelector("img")).toBeNull();
+    expect(container.querySelector('img[src="x"]')).toBeNull();
+    expect(screen.getByRole("img",{name:"Elenio"})).toHaveAttribute("src","/brand/elenio-logo.png");
     const preview = screen.getByRole("navigation", { name: "Navigation preview" });
     const listNav = (ok.navigation ?? []).find((n) => n.view === "artifact_list");
     await user.click(within(preview).getByRole("button", { name: new RegExp(listNav?.label ?? "") }));

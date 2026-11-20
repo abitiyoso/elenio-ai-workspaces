@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "typecheck": "tsc -b",
     "lint": "eslint . --max-warnings=0",
-    "test": "vitest run"
+    "test": "vitest run",
+    "predev": "node scripts/shared-ui.mjs",
+    "prebuild": "node scripts/shared-ui.mjs"
   },
   "dependencies": {
     "react": "^19.2.0",

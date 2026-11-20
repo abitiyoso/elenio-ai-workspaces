@@ -5,6 +5,27 @@ import AxeBuilder from "@axe-core/playwright";
 const mount="/apps/flowcase/elenio.html";
 const api="/apps/flowcase/api/v1";
 const unique=()=>`workspace-${randomUUID().slice(0,18)}`;
+async function verifyWorkbench(page:Page,name:string,mobileMenu:string){
+  const logo=page.getByRole("img",{name:"Elenio",exact:true});
+  const response=await page.request.get(await logo.getAttribute("src")??"");
+  const canonical=await readFile("public/brand/elenio-logo.png");
+  expect(createHash("sha256").update(await response.body()).digest("hex")).toBe(createHash("sha256").update(canonical).digest("hex"));
+  expect(await page.locator("body").evaluate(element=>getComputedStyle(element).fontFamily)).toContain("Inter Variable");
+  expect(await page.locator(".sidebar").evaluate(element=>getComputedStyle(element).backgroundColor)).toBe("rgb(255, 255, 255)");
+  expect(await page.evaluate(async()=> (await document.fonts.load('14px "Inter Variable"')).length)).toBeGreaterThan(0);
+  for(const width of [1440,1280,1024,768,390]){
+    await page.setViewportSize({width,height:900});
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+    await page.screenshot({path:`../../docs/elenio-handoff/evidence/${name}-${width}.png`,fullPage:false});
+    if(width===1440||width===390){const axe=await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21aa","wcag22aa"]).analyze();expect(axe.violations.filter(v=>v.impact==="serious"||v.impact==="critical")).toEqual([]);}
+  }
+  const trigger=page.getByRole("button",{name:mobileMenu,exact:true});
+  await trigger.click();await expect(page.locator(".sidebar a[href]").first()).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  expect(await page.locator(".sidebar").evaluate(element=>element.contains(document.activeElement))).toBe(true);
+  await page.keyboard.press("Escape");await expect(trigger).toBeFocused();
+  await page.setViewportSize({width:1440,height:900});
+}
 // Real CP cookies, PKCE, trusted JWT, domain grants and PostgreSQL; no interception.
 async function signIn(page:Page,persona="Demo All Access"){
   await page.goto(mount);
@@ -52,7 +73,11 @@ test("real workspace: persistent login, independent domain IDs and existing Agen
   await expect(page.getByRole("heading",{name:"Agent Registry",exact:true})).toBeVisible();
   const agentKey=unique();
   await page.getByLabel("Nama agent",{exact:true}).fill("Workspace acceptance agent");
-  await page.getByRole("textbox",{name:/^Agent key/}).fill(agentKey);
+  const agentKeyInput=page.getByRole("textbox",{name:/^Agent key/});
+  await agentKeyInput.fill("INVALID KEY");
+  expect(await agentKeyInput.evaluate((element:HTMLInputElement)=>element.validity.patternMismatch)).toBe(true);
+  await agentKeyInput.fill(agentKey);
+  expect(await agentKeyInput.evaluate((element:HTMLInputElement)=>element.validity.patternMismatch)).toBe(false);
   await page.getByLabel("Domain",{exact:true}).fill("local-acceptance");
   const created=page.waitForResponse(r=>r.request().method()==="POST"&&new URL(r.url()).pathname==="/apps/agent-studio/api/v1/agents");
   await page.getByRole("button",{name:"Buat draft agent",exact:true}).click();
@@ -71,6 +96,7 @@ test("real workspace: persistent login, independent domain IDs and existing Agen
   await expect(page).toHaveURL(/#models$/);
   await expect(page.getByRole("heading",{name:"Models & Providers",exact:true})).toBeVisible();
   await expect(page.getByText("9Router Elenio",{exact:false}).first()).toBeVisible();
+  expect(await page.locator("input[pattern]").evaluateAll(elements=>elements.every(element=>{try{new RegExp(element.getAttribute("pattern")??"","v");return true;}catch{return false;}}))).toBe(true);
 });
 test("real workspace: create workflow, compose persisted solution, inspect and capture candidate",async({page})=>{
   await signIn(page);
@@ -250,6 +276,7 @@ test("existing KMS tenant authority persists collection metadata and rejects a C
   const stored=await (await page.request.get("/apps/kms/api/v1/collections")).json();
   expect(stored.collections.some((item:{name:string})=>item.name===name)).toBe(true);
   await page.screenshot({path:"../../docs/elenio-handoff/evidence/html-existing-kms-1440.png",fullPage:false});
+  await verifyWorkbench(page,"shared-kms-collections","Open navigation menu");
   const deniedContext=await browser.newContext(),deniedPage=await deniedContext.newPage();
   await signIn(deniedPage,"Nadia Kusuma");
   const rejected=await deniedPage.request.get("/apps/kms/api/v1/session",{headers:{"X-KMS-User-Id":cp.user.id,"X-Roles":"platform_admin,knowledge_steward"}});
@@ -277,4 +304,5 @@ test("Business Apps opens original UCW and exchanges the real operator identity 
   expect(cases.ok()).toBe(true);
   await expect(page.locator("main")).toBeVisible();
   await page.screenshot({path:"../../docs/elenio-handoff/evidence/html-existing-business-workspace-1440.png",fullPage:false});
+  await verifyWorkbench(page,"shared-business-cases","Open navigation");
 });

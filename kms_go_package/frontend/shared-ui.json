@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "text_normalization": "LF",
+  "assets": [
+    {
+      "file": "src/design/tokens.css",
+      "canonical": "packages/ui/tokens.css",
+      "sha256": "7c391671110b5da1f37cc969de66b3d4965b7ca34bad185887ec747500b50618"
+    },
+    {
+      "file": "src/design/mobileNavigation.ts",
+      "canonical": "packages/ui/mobileNavigation.ts",
+      "sha256": "c34ddf39085dbb63fff7551c2017b2eb98ea828e8383315a5b67d0e52cb8c912"
+    },
+    {
+      "file": "scripts/shared-ui.mjs",
+      "canonical": "packages/ui/scripts/prepare-workbench.mjs",
+      "sha256": "9a502785e294c0edd8a2a32dd97eb2a9d41491d970609e1df79c31577e402454"
+    },
+    {
+      "file": "public/brand/elenio-logo.png",
+      "canonical": "flowcase_platform/web/public/brand/elenio-logo.png",
+      "sha256": "00e7cb514b48a4e5e52db62552397263b6aef2b914595afc714ea13711ecb254"
+    },
+    {
+      "file": "public/brand/elenio-icon.png",
+      "canonical": "flowcase_platform/web/public/brand/elenio-icon.png",
+      "sha256": "dc35ce1a2862a6111c591ab45d3486b8cf9071ad05ea18ce96c427abe2e1b238"
+    },
+    {
+      "file": "src/design/inter-latin-wght-normal.woff2",
+      "canonical": "flowcase_platform/web/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2",
+      "sha256": "3100e775e8616cd2611beecfa23a4263d7037586789b43f035236a2e6fbd4c62"
+    },
+    {
+      "file": "public/brand/INTER-LICENSE.txt",
+      "canonical": "flowcase_platform/web/node_modules/@fontsource-variable/inter/LICENSE",
+      "sha256": "3b0a5fca3d17942cde889069889dedbbbd075e9b599968c82a95f4d944e9b345"
+    }
+  ]
+}
