@@ -24,6 +24,8 @@ type solutionDependency struct {
 	DefinitionHash    string                         `json:"definition_hash,omitempty"`
 	Resources         []solutions.ResourceDependency `json:"resources"`
 	InventoryComplete bool                           `json:"inventory_complete"`
+	BindingSnapshot   *solutionBindingSnapshot       `json:"binding_snapshot,omitempty"`
+	BindingReason     string                         `json:"binding_reason,omitempty"`
 }
 type solutionReadiness struct {
 	SolutionID        string               `json:"solution_id"`
@@ -111,7 +113,7 @@ func (s *Server) collectSolutionReadiness(ctx context.Context, p principal.Princ
 				target.RawPath = ""
 				target.RawQuery = ""
 				target.Fragment = ""
-				dependency = s.checkSolutionWorkflow(ctx, client, target.String(), token, ref.Key, ref.Version)
+				dependency = s.checkSolutionWorkflow(ctx, client, target.String(), token, ref.Key, ref.Version, remainingResources)
 			}
 		}
 		if len(dependency.Resources) > remainingResources {
@@ -127,7 +129,7 @@ func (s *Server) collectSolutionReadiness(ctx context.Context, p principal.Princ
 	}
 	return out, nil
 }
-func (s *Server) checkSolutionWorkflow(ctx context.Context, client *http.Client, target, token, key string, version int) solutionDependency {
+func (s *Server) checkSolutionWorkflow(ctx context.Context, client *http.Client, target, token, key string, version, bindingLimit int) solutionDependency {
 	out := solutionDependency{Key: key, Version: version, State: "blocked", Reason: "Workflow service is unavailable or returned an invalid response.", Resources: []solutions.ResourceDependency{}}
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, target, nil)
 	if err != nil {
@@ -175,5 +177,6 @@ func (s *Server) checkSolutionWorkflow(ctx context.Context, client *http.Client,
 	out.Reason = "Published workflow version observed through its authorized service. Transitive dependencies and deployment remain separate gates."
 	out.DefinitionHash = snapshot.DefinitionHash
 	out.Resources, out.InventoryComplete = solutions.Inventory(snapshot.Definition, key, version)
+	observeSolutionBindings(ctx, client, target, token, &out, bindingLimit)
 	return out
 }

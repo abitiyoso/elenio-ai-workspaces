@@ -197,6 +197,38 @@ test("real workspace: create workflow, compose persisted solution, inspect and c
     await page.screenshot({path:`../../docs/elenio-handoff/evidence/solution-journey-${width}.png`,fullPage:true});
   }
 });
+test("native Publisher observes exact source deployment bindings without invoking an agent",async({page})=>{
+  await signIn(page);
+  const direct=await page.request.get(`${api}/workflows/sim-tender/versions/4/dependencies`);
+  expect(direct.ok()).toBe(true);
+  const source=await direct.json();
+  expect(source.schema).toBe("elenio.workflow-bindings.v1");
+  expect(source.bindings.some((b:{kind:string})=>b.kind==="agent")).toBe(true);
+  await page.goto(`${mount}#/solutions`);
+  await page.getByRole("button",{name:"New solution",exact:true}).click();
+  const key=unique();
+  await page.getByLabel("Solution name").fill(`Native binding evidence ${key}`);
+  await page.getByLabel("Solution key").fill(key);
+  await page.getByLabel("Workflow versions").fill("sim-tender@4");
+  await page.getByRole("button",{name:"Save solution plan",exact:true}).click();
+  const card=page.locator("article.solution-card").filter({hasText:`Native binding evidence ${key}`});
+  const checked=page.waitForResponse(response=>response.request().method()==="GET"&&/\/api\/v1\/solutions\/[^/]+\/readiness$/.test(new URL(response.url()).pathname));
+  await card.getByRole("button",{name:"Check workflow dependencies",exact:true}).click();
+  const result=await(await checked).json();
+  expect(result.release_ready).toBe(false);
+  expect(result.workflows[0].binding_snapshot.content_hash).toBe(source.content_hash);
+  expect(result.workflows[0].binding_snapshot.definition_hash).toBe(source.definition_hash);
+  await card.getByText(/Observed bindings · sim-tender@4/).click();
+  await expect(card.getByText(/runtime sim.intake/)).toBeVisible();
+  for(const width of [1440,390]){
+    await page.setViewportSize({width,height:1000});
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+    const audit=await new AxeBuilder({page}).include(".solution-card").analyze();
+    expect(audit.violations.filter(v=>v.impact==="serious"||v.impact==="critical")).toEqual([]);
+    await card.screenshot({path:`../../docs/elenio-handoff/evidence/native-binding-evidence-${width}.png`});
+  }
+});
+
 test("guided Home saves one Solution across description, Composer and preview without starting a model call",async({page})=>{
   await signIn(page);
   let modelCalls=0;

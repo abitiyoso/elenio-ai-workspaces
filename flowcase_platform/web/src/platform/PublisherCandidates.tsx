@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { BindingEvidence } from "./BindingEvidence";
 import {
   Badge,
   Button,
@@ -176,6 +177,9 @@ export function PublisherCandidates({
             <Button onClick={() => download(item)}>
               Download candidate JSON
             </Button>
+            {item.snapshot.readiness.workflows.map(workflow => (
+              <BindingEvidence key={workflow.key} workflow={workflow} />
+            ))}
           </article>
         ))}
       </div>

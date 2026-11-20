@@ -37,6 +37,7 @@ func (s *server) registerWorkflowRoutes(mux *http.ServeMux) {
 	route("GET /api/v1/workflows/{key}/versions", s.listVersions)
 	route("POST /api/v1/workflows/{key}/versions", s.createVersion)
 	route("GET /api/v1/workflows/{key}/versions/{version}", s.getVersion)
+	route("GET /api/v1/workflows/{key}/versions/{version}/dependencies", s.getVersionDependencies)
 	route("PATCH /api/v1/workflows/{key}/versions/{version}", s.updateVersion)
 	route("POST /api/v1/workflows/{key}/versions/{version}/validate", s.validateVersion)
 	route("POST /api/v1/workflows/{key}/versions/{version}/publish", s.publishVersion)
@@ -269,6 +270,21 @@ func (s *server) getVersion(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("ETag", etag(ver.VersionNum))
 	writeJSON(w, http.StatusOK, ver)
+}
+
+func (s *server) getVersionDependencies(w http.ResponseWriter, r *http.Request) {
+	v, ok := versionParam(w, r)
+	if !ok {
+		return
+	}
+	snapshot, err := s.deps.Registry.Service.ObserveBindings(r.Context(), identity(r), r.PathValue("key"), v)
+	if err != nil {
+		s.registryError(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set("ETag", strconv.Quote(snapshot.ContentHash))
+	writeJSON(w, http.StatusOK, snapshot)
 }
 
 func (s *server) updateVersion(w http.ResponseWriter, r *http.Request) {

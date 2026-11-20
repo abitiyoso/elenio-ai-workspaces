@@ -1,5 +1,9 @@
 # Live capability / acceptance matrix
 
+## Latest update — observed deployment bindings in Publisher
+
+Original Flowcase reports bounded current catalog metadata for exact authorized published workflows, with a deterministic binding digest separate from immutable workflow identity. CP reuses trusted delegation and validates exact references, scope, checksum, freshness and aggregate bounds before retaining observations in candidates. Current checks cannot overwrite older candidate evidence. One shared disclosure presents source bindings; all domain approval/installation gates stay blocked. 120 Flowcase + 62 CP Go, 106 frontend, 43 browser and ten native workspace cases pass; new native case verifies real source digest equality without inference. Runtime metadata and synthetic Publisher interface screenshots are labeled separately. [FINAL_LEAN_STATUS.md](FINAL_LEAN_STATUS.md).
+
 ## Latest update — reusable typed business input
 
 Original Agent Studio adapter supports the trusted catalog contract `flowcase.case.v1`, preserving business values without SIM summarization. Unknown contracts/workflow overrides/invalid or oversized envelopes fail closed. Existing declared-field filtering, delegated identity, KMS exclusions, release/schema gates and independent approval are reused. Audit retains contract/hash only. 118 Flowcase tests pass, including two real-database/original-engine→explicit HTTP transport fixtures. No paid model, PDF extraction, new live registration or installed-app completion is claimed. [FINAL_LEAN_STATUS.md](FINAL_LEAN_STATUS.md).

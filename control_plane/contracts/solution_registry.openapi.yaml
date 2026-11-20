@@ -273,6 +273,8 @@ paths:
                         reason: {type: string}
                         definition_hash: {type: string, pattern: '^[0-9a-f]{64}$'}
                         inventory_complete: {type: boolean, description: Direct reference discovery only; never transitive approval or release readiness}
+                        binding_reason: {type: string}
+                        binding_snapshot: {$ref: '#/components/schemas/BindingSnapshot'}
                         resources:
                           type: array
                           maxItems: 200
@@ -296,6 +298,34 @@ components:
     ID: {name: id, in: path, required: true, schema: {type: string, format: uuid}}
     Csrf: {name: X-CSRF-Token, in: header, required: true, schema: {type: string}}
   schemas:
+    BindingSnapshot:
+      type: object
+      description: Fresh authorized source catalog metadata observed for this exact published workflow. Snapshot checksum validated server-side; exact refs/kinds/node IDs, bounded count and freshness checked. Not a transitive release, policy authority, signature or installation. At most 200 source bindings across a report, within the direct resource limit. Historical candidates retain original observation time and digest.
+      required: [schema, workflow_key, version, definition_hash, content_hash, observed_at, bindings]
+      properties:
+        schema: {const: elenio.workflow-bindings.v1}
+        workflow_key: {type: string}
+        version: {type: integer, minimum: 1}
+        definition_hash: {type: string, pattern: '^[0-9a-f]{64}$'}
+        content_hash: {type: string, pattern: '^[0-9a-f]{64}$'}
+        observed_at: {type: string, format: date-time}
+        bindings:
+          type: array
+          maxItems: 200
+          items:
+            type: object
+            required: [kind, ref, node_id, registered]
+            properties:
+              kind: {enum: [agent, approval_policy, connector, assignee_role]}
+              ref: {type: string, maxLength: 128}
+              node_id: {type: string, maxLength: 128}
+              registered: {const: true}
+              runtime_agent_id: {type: string, maxLength: 128}
+              skill_version: {type: string, maxLength: 128}
+              input_contract: {enum: [sim.v1, flowcase.case.v1]}
+              operation: {type: string, maxLength: 128}
+              provisional: {type: boolean}
+              sod: {type: array, maxItems: 2, items: {enum: [not_case_owner, not_task_submitter]}}
     Revision:
       type: object
       required: [plan, content_hash, origin, recorded_at]

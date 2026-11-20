@@ -221,6 +221,18 @@ paths:
         "403": { $ref: "#/components/responses/Forbidden" }
         "404": { $ref: "#/components/responses/NotFound" }
         "409": { $ref: "#/components/responses/Conflict" }
+  /api/v1/workflows/{key}/versions/{version}/dependencies:
+    parameters: [{ $ref: "#/components/parameters/Key" }, { $ref: "#/components/parameters/Version" }]
+    get:
+      tags: [workflows]
+      operationId: observeWorkflowBindings
+      summary: Observe current deployment catalog bindings for an authorized published workflow
+      description: Read-only, tenant-scoped and no-store. The binding digest changes on catalog drift while the published workflow definition stays immutable. Registration is not an agent/model approval, policy ratification, installation or release. No workflow instructions, parameters, input values or credentials are returned.
+      responses:
+        "200": { description: Current metadata snapshot with checksum ETag, content: { application/json: { schema: { $ref: "#/components/schemas/BindingSnapshot" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
   /api/v1/workflows/{key}/versions/{version}:
     parameters: [{ $ref: "#/components/parameters/Key" }, { $ref: "#/components/parameters/Version" }]
     get:
@@ -1086,6 +1098,35 @@ components:
         subject_version: { type: [string, "null"] }
         trace_id: { type: [string, "null"] }
         data: { type: object }
+    BindingSnapshot:
+      type: object
+      additionalProperties: false
+      required: [schema, workflow_key, version, definition_hash, bindings, content_hash, observed_at]
+      properties:
+        schema: { const: elenio.workflow-bindings.v1 }
+        workflow_key: { type: string }
+        version: { type: integer, minimum: 1 }
+        definition_hash: { type: string, pattern: '^[0-9a-f]{64}$' }
+        content_hash: { type: string, pattern: '^[0-9a-f]{64}$', description: SHA-256 of canonical workflow_key/version/definition_hash/bindings JSON; excludes observation time. Checksum only, not signature or approval. }
+        observed_at: { type: string, format: date-time }
+        bindings:
+          type: array
+          maxItems: 500
+          items:
+            type: object
+            additionalProperties: false
+            required: [kind, ref, node_id, registered]
+            properties:
+              kind: { enum: [agent, approval_policy, connector, assignee_role] }
+              ref: { type: string }
+              node_id: { type: string }
+              registered: { type: boolean }
+              runtime_agent_id: { type: string }
+              skill_version: { type: string }
+              input_contract: { enum: [sim.v1, flowcase.case.v1], description: Omitted means provider default remains unresolved. }
+              operation: { type: string }
+              provisional: { type: boolean }
+              sod: { type: array, items: { enum: [not_case_owner, not_task_submitter] } }
     CaseRef:
       type: object
       properties: { id: { type: string }, reference: { type: string }, title: { type: string }, status: { type: string } }

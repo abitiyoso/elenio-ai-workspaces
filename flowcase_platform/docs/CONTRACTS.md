@@ -120,6 +120,32 @@ Two database/HTTP transport fixtures exercise invoice and access-request input,
 owner draft review, independent approval and KMS exclusion using the same
 engine. They do not prove PDF extraction, live inference or two installed apps.
 
+#### Published workflow binding evidence
+
+`GET /api/v1/workflows/{key}/versions/{version}/dependencies` uses the original
+workflow membership/tenant read boundary and accepts published versions only.
+It returns `elenio.workflow-bindings.v1`: exact workflow identity/hash,
+observation time and bounded current catalog metadata for agent, approval,
+connector and assignee-role nodes. It excludes definitions, instructions,
+parameters, customer input, endpoints and credentials. Response is no-store;
+ETag is the binding content checksum, not the workflow edit revision.
+
+The SHA-256 content hash covers canonical JSON of `workflow_key`, `version`,
+`definition_hash`, `bindings`; observation time is excluded. Catalog changes
+therefore produce a different hash without mutating the published workflow.
+Control Plane checks the authenticated trusted source, exact declared refs/
+nodes/kinds, freshness, aggregate bounds and checksum before retaining metadata
+in Solution readiness/candidates. Invalid, denied, stale, oversized or redirected
+responses leave binding evidence unavailable. Historical candidate snapshots
+retain the original observation and never silently acquire current bindings.
+
+Registration is not an agent/model release, skill/tool/KMS approval, policy
+authority, executable environment pin or installation. Omitted input contracts
+remain provider-default/unresolved. Publisher retains those blockers and does
+not infer permission or approval from a matching hash. Its existing interface
+shows metadata through keyboard-accessible disclosure; there is no new menu,
+runtime mutation, provider call or deployment.
+
 Errors: network failures, timeouts, 408, 429 and 5xx are retryable (the step retries with backoff and a
 new attempt/idempotency key); other 4xx (400/401/403/404/409/422) are terminal — the step fails without
 retrying the same request and the case is closed as failed. On polling, a 404 means the run is unknown

@@ -145,6 +145,18 @@ export interface SolutionReadiness {
     definition_hash?: string;
     resources?: ResourceDependency[];
     inventory_complete?: boolean;
+    binding_reason?: string;
+    binding_snapshot?: {
+      schema: "elenio.workflow-bindings.v1";
+      workflow_key: string; version: number; definition_hash: string;
+      content_hash: string; observed_at: string;
+      bindings: {
+        kind: "agent" | "approval_policy" | "connector" | "assignee_role";
+        ref: string; node_id: string; registered: boolean;
+        runtime_agent_id?: string; skill_version?: string; input_contract?: string;
+        operation?: string; provisional?: boolean; sod?: string[];
+      }[];
+    };
   }[];
   blockers: string[];
   application_issues?: string[];
@@ -184,6 +196,30 @@ function readinessDetailsValid(report: SolutionReadiness): boolean {
         Number.isInteger(w.version) &&
         ["verified", "blocked"].includes(w.state) &&
         typeof w.reason === "string" &&
+        (w.binding_reason === undefined || typeof w.binding_reason === "string") &&
+        (w.binding_snapshot === undefined || (
+          !!w.binding_snapshot &&
+          w.state === "verified" &&
+          w.binding_snapshot.schema === "elenio.workflow-bindings.v1" &&
+          w.binding_snapshot.workflow_key === w.key &&
+          w.binding_snapshot.version === w.version &&
+          w.binding_snapshot.definition_hash === w.definition_hash &&
+          /^[a-f0-9]{64}$/.test(w.binding_snapshot.definition_hash) &&
+          typeof w.binding_snapshot.content_hash === "string" &&
+          /^[a-f0-9]{64}$/.test(w.binding_snapshot.content_hash) &&
+          typeof w.binding_snapshot.observed_at === "string" &&
+          Number.isFinite(Date.parse(w.binding_snapshot.observed_at)) &&
+          Array.isArray(w.binding_snapshot.bindings) &&
+          w.binding_snapshot.bindings.length <= 200 &&
+          w.binding_snapshot.bindings.every(b => !!b &&
+            ["agent", "approval_policy", "connector", "assignee_role"].includes(b.kind) &&
+            typeof b.ref === "string" && b.ref.length <= 128 &&
+            typeof b.node_id === "string" && b.node_id.length <= 128 && b.registered === true &&
+            [b.runtime_agent_id,b.skill_version,b.input_contract,b.operation].every(v => v === undefined || (typeof v === "string" && v.length <= 128)) &&
+            (b.provisional === undefined || typeof b.provisional === "boolean") &&
+            (b.sod === undefined || (Array.isArray(b.sod) && b.sod.length <= 2 && b.sod.every(v => ["not_case_owner","not_task_submitter"].includes(v))))
+          )
+        )) &&
         (w.inventory_complete === undefined ||
           typeof w.inventory_complete === "boolean") &&
         (w.resources === undefined ||
