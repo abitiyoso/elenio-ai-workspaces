@@ -2,6 +2,21 @@
 
 Statuses reflect verified checkpoints, not a live deployment claim. The latest update below supersedes earlier model-absence statements.
 
+## Latest update — HTML navigation and original KMS/UCW integration
+
+| Capability | Current status | Evidence / authority | Acceptance |
+|---|---|---|---|
+| Exact HTML navigation and useful active context | enhancement, source-reference/unit/browser tested | 17 original V10/V9 labels, five groups, addendum Solutions, named native Studio selector | UX-01/02 partial |
+| Connected Home | enhancement, native browser tested | Actual authorized Flowcase resume; original hero retained; no fixture user/count | UX-02 |
+| Original KMS native identity/metadata | existing + native integration, DB/browser tested | Source tenant/principal directory and KMS audience; CP admin without KMS membership denied | KMS-01 partial, SEC-01 |
+| Shared live Knowledge explorer | enhancement, unit/native browser tested | Collection creation/reload; actual document/version metadata; PDF/search/job contracts; no fixture fallback | UX-04/05, KMS-01 partial |
+| KMS ingestion/retrieval dependencies | blocked configuration, contracts tested | S3/Elasticsearch/Docling/embedding unconfigured; readiness and disabled reasons visible | KMS-01 open |
+| Original UCW operator workspace | existing + native integration, real browser tested | Original CP exchange delegates actual Maya identity to Flowcase; actual context/cases | APP-01 partial, SEC-01 |
+| Testing/Evaluation/Integration/Control Center entries | existing functions + native navigation tested | Original Agent workbenches, connector catalog and capability-gated CP settings | UX-02, AI-01/02 partial |
+| Complete UI/content parity and standalone installation | open | Advanced original KMS/UCW interiors and remaining product functions tracked; no Docker sandbox | UX-01/02, OS-04/05/08/09 |
+
+Current proof: 55 CP, 107 KMS, 34 UCW Go tests; 100 frontend units; 41 browser regressions; 7 native workspace cases. No new model calls. Details: [HTML_WORKSPACE_INTEGRATION.md](HTML_WORKSPACE_INTEGRATION.md), [HTML_ROUTE_MATRIX.md](HTML_ROUTE_MATRIX.md). Historical rows below retain their original checkpoint context.
+
 ## Latest update — existing Agent workbench design adoption
 
 Original Agent React/API workbenches now use verified shared tokens, bundled Inter, the byte-identical official logo and the agreed light direction. Agent creation is primary; SIM pack is a disclosure. Actual CP workspace/person and entitled return route replace placeholders. Six table regions reuse keyboard-accessible `TableScroll`. Four real workspace E2E pass, with nine responsive screenshots and zero serious/critical axe findings for Agent/Skills/Models desktop/mobile. No backend changes/new model calls. The full exact-menu/content reconciliation remains open in [HTML_ROUTE_MATRIX.md](HTML_ROUTE_MATRIX.md); details and packaging rationale in [SHARED_AGENT_WORKSPACE.md](SHARED_AGENT_WORKSPACE.md).

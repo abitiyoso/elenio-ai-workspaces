@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import {basePath} from "../api/client";
+import {useResource} from "../api/useResource";
+import type {Page,WorkflowSummary} from "../api/workflows";
 import {
   ArrowRight,
   Boxes,
@@ -112,7 +115,7 @@ export function CapabilityMap({
         {selected === 1 ? <button onClick={onBuild}>Open Workflow Studio <ArrowRight size={14} /></button>
           : selected === 5 ? <Link to="/knowledge">Open Knowledge Hub <ArrowRight size={14} /></Link>
             : selected === 0 ? <button onClick={onArchitect}>Open AI Architect <ArrowRight size={14} /></button>
-              : selected === 2 ? <Link to="/connected/catalog">Explore catalog <ArrowRight size={14} /></Link>
+              : selected === 2 ? <Link to="/capabilities/agents">Open Agent Studio <ArrowRight size={14} /></Link>
                 : selected === 4 ? <Link to="/connected/operations">Open reviews <ArrowRight size={14} /></Link>
                   : <span>Connector registration required</span>}
       </footer>
@@ -128,6 +131,7 @@ export function Launchpad({
   onBuild: () => void;
   onArchitect: (brief: string) => void;
 }) {
+  const hosted=basePath==="/apps/flowcase";
   const [brief, setBrief] = useState(""),
     [modal, setModal] = useState<"manual" | "templates" | "agent" | null>(null);
   return (
@@ -140,7 +144,7 @@ export function Launchpad({
             Your engineering environment for customer-ready agentic systems.
           </p>
         </div>
-        <Badge>Local workspace · 1 project</Badge>
+        <Badge>{hosted?"Governed workspace":"Local workspace · 1 project"}</Badge>
       </header>
       <div className="launch-main">
         <section className="launch-copy">
@@ -204,7 +208,7 @@ export function Launchpad({
           </span>
           <ArrowRight size={16} />
         </button>
-        <Link to="/connected/catalog">
+        <Link to="/capabilities/agents">
           <Boxes size={22} />
           <span>
             <strong>Create an agent</strong>
@@ -216,8 +220,8 @@ export function Launchpad({
       <section className="workspace-outcome" aria-label="Deliver an operating workspace">
         <div><span className="eyebrow">FROM IDEA TO CUSTOMER OUTCOME</span><h2>Deliver an operating workspace.</h2><p>Customer-ready applications, model flexibility and cost visibility.</p></div>
         <div className="outcome-actions">
-          <Link to="/connected/operations"><Boxes size={18} /><span>Business Apps</span><ArrowRight size={14} /></Link>
-          <button disabled title="The model registry editor is not available in this workspace shell"><Layers size={18} /><span>Model Hub</span><small>Not connected</small></button>
+          <Link to="/business-apps"><Boxes size={18} /><span>Business Apps</span><ArrowRight size={14} /></Link>
+          <Link to="/capabilities/models"><Layers size={18} /><span>Model Hub</span><ArrowRight size={14} /></Link>
           <Link to="/economics"><GitBranch size={18} /><span>AI Economics</span><ArrowRight size={14} /></Link>
         </div>
       </section>
@@ -226,11 +230,11 @@ export function Launchpad({
           <h2>Pick up where you left off</h2>
           <p>Your solutions, ready to refine.</p>
         </div>
-        <Link to="/projects">
+        <Link to={hosted?"/connected":"/projects"}>
           All projects <ArrowRight size={14} />
         </Link>
       </div>
-      <button className="recent-project" onClick={onOpen}>
+      {hosted?<RecentWorkflows/>:<button className="recent-project" onClick={onOpen}>
         <span className="project-icon">
           <GitBranch size={24} />
         </span>
@@ -243,7 +247,7 @@ export function Launchpad({
           </p>
         </div>
         <ArrowRight size={18} />
-      </button>
+      </button>}
       {modal && (
         <DialogPanel
           title={
@@ -329,4 +333,16 @@ export function Launchpad({
       )}
     </section>
   );
+}
+
+function RecentWorkflows(){
+  const [resource,reload]=useResource<Page<WorkflowSummary>>("/api/v1/workflows");
+  if(resource.state==="loading")return <p role="status">Loading authorized workflows…</p>;
+  if(resource.state==="error")return <Notice error>{resource.error.message}<Button onClick={reload}>Retry workflows</Button></Notice>;
+  if(!Array.isArray(resource.data.items))return <Notice error>Invalid workflow registry response.</Notice>;
+  if(!resource.data.items.length)return <div className="surface catalog-section"><h3>Your workspace is ready</h3><p>Create a workflow or reuse a template to start your first solution.</p><Link className="e-button primary" to="/connected?create=blank">Create workflow</Link></div>;
+  return <div className="recent-workflows">{resource.data.items.slice(0,4).map(item=>{
+    const version=item.open_draft_version??item.latest_published_version;
+    return <Link key={item.key} className="recent-project" to={version===null?"/connected":`/connected/projects/${encodeURIComponent(item.key)}/${version}`}><span className="project-icon"><GitBranch size={24}/></span><div><div className="project-name">{item.name}<Badge tone={item.open_draft_version===null?"green":"amber"}>{item.open_draft_version===null?"Published":"Draft"}</Badge></div><p>{item.description||`${item.node_count} nodes · ${item.version_count} versions`}</p></div><ArrowRight size={18}/></Link>;
+  })}</div>;
 }

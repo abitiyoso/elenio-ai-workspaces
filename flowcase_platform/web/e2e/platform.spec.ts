@@ -49,7 +49,7 @@ test("home → project → graph; edit, persist, role boundary and knowledge evi
     "",
   );
   await page.getByRole("button", { name: "Open navigation" }).click();
-  await page.getByRole("link", { name: "Knowledge", exact: true }).click();
+  await page.getByRole("link", { name: "Knowledge Hub", exact: true }).click();
   await page.getByLabel("Search documents").fill("vendor");
   await expect(
     page.getByRole("button", { name: /^Vendor verification handbook.pdf/ }),

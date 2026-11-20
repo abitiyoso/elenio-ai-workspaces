@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import {
   Link,
-  NavLink,
   Route,
   Routes,
   useLocation,
@@ -9,22 +8,17 @@ import {
 } from "react-router-dom";
 import {
   ArrowRight,
-  BookOpen,
-  Boxes,
   Check,
   ChevronRight,
   CircleHelp,
   ExternalLink,
   FileText,
-  FolderOpen,
   GitBranch,
-  Home,
   Layers,
   Menu,
   Plus,
   Search,
   ShieldCheck,
-  Sparkles,
   X,
 } from "lucide-react";
 import {
@@ -49,6 +43,9 @@ import { Solutions } from "./Solutions";
 import {CapabilityWorkspace} from "./CapabilityWorkspace";
 import {WorkspaceIdentity} from "./WorkspaceIdentity";
 import {basePath} from "../api/client";
+import {workspaceNavigation,isWorkspaceMenuActive} from "./workspaceNavigation";
+import {BusinessApps,Deployments,ControlCenter} from "./GovernedWorkspaces";
+import {ConnectedKnowledge} from "./ConnectedKnowledge";
 
 export function Platform() {
   const location = useLocation(),
@@ -58,7 +55,7 @@ export function Platform() {
     ),
     [positions, setPositions] = useState<Positions>({}),
     [loaded, setLoaded] = useState(false),
-    [savedValue, setSavedValue] = useState(""),
+    [savedValue, setSavedValue] = useState(() => JSON.stringify({definition:vendorPayment,positions:{}})),
     [saving, setSaving] = useState(false),
     [message, setMessage] = useState(""),
     [error, setError] = useState(""),
@@ -73,7 +70,8 @@ export function Platform() {
   const architectMode = location.pathname === "/architect";
   const solutionMode = location.pathname === "/solutions";
   const capabilityMode = location.pathname.startsWith("/capabilities/");
-  const serviceMode = connectedMode || architectMode || solutionMode || capabilityMode;
+  const registryMode = ["/business-apps","/deployments","/control-center"].includes(location.pathname)||(["/","/knowledge"].includes(location.pathname)&&basePath==="/apps/flowcase");
+  const serviceMode = connectedMode || architectMode || solutionMode || capabilityMode || registryMode;
   const workflow = location.pathname.endsWith("/workflow"),
     editable = role === "Builder",
     value = JSON.stringify({ definition, positions }),
@@ -201,15 +199,12 @@ export function Platform() {
     setMenu(false);
     setCommand(false);
   }
+  const navGroups=workspaceNavigation(connectedMode||basePath==="/apps/flowcase");
+  const navItems=navGroups.flatMap(group=>group.items);
+  const pageTitle=navItems.find(item=>isWorkspaceMenuActive(item,location.pathname,location.search))?.name;
   const commands = [
-    { name: "Home", path: "/" },
-    { name: "AI Architect", path: "/architect" },
-    { name: "Cases & reviews", path: "/connected/operations" },
-    { name: "AI Economics", path: "/economics" },
-    { name: "Projects", path: "/projects" },
+    ...navItems.map(({name,path})=>({name,path})),
     { name: "Vendor payment · overview", path: "/projects/vendor-payment" },
-    { name: "Workflow Studio", path: "/projects/vendor-payment/workflow" },
-    { name: "Knowledge Hub", path: "/knowledge" },
     { name: "Design system · component gallery", path: "/design-system" },
   ];
   return (
@@ -258,96 +253,14 @@ export function Platform() {
           <span>Quick search</span>
           <kbd>⌘ K</kbd>
         </button>
-        <nav>
-          <NavLink end to="/" onClick={() => setMenu(false)}>
-            <Home size={18} />
-            Home
-          </NavLink>
-          <NavLink to="/architect" onClick={() => setMenu(false)}>
-            <Sparkles size={18} />
-            AI Architect
-          </NavLink>
-          <NavLink
-            end={connectedMode || workflow}
-            to={connectedMode ? "/connected" : "/projects"}
-            onClick={() => setMenu(false)}
-          >
-            <FolderOpen size={18} />
-            Projects
-          </NavLink>
-          <span className="nav-section">ENGINEERING</span>
-          <NavLink
-            to="/connected/operations"
-            className={({ isActive }) =>
-              isActive || location.pathname.startsWith("/connected/cases/")
-                ? "active"
-                : ""
-            }
-            onClick={() => setMenu(false)}
-          >
-            <FolderOpen size={18} />
-            Cases &amp; reviews
-          </NavLink>
-          <Link
-            className={
-              (
-                connectedMode
-                  ? location.pathname.startsWith("/connected/projects/")
-                  : workflow
-              )
-                ? "active"
-                : ""
-            }
-            to={
-              connectedMode ? "/connected" : "/projects/vendor-payment/workflow"
-            }
-            onClick={() => setMenu(false)}
-          >
-            <GitBranch size={18} />
-            Workflow Studio
-          </Link>
-          <NavLink to="/capabilities/agents" onClick={()=>setMenu(false)}>
-            <Boxes size={18} />
-            Agent Studio
-          </NavLink>
-          <span className="nav-section">CAPABILITY LIBRARY</span>
-          <NavLink
-            to={connectedMode ? "/connected/catalog" : "/knowledge"}
-            onClick={() => setMenu(false)}
-          >
-            <BookOpen size={18} />
-            Knowledge
-          </NavLink>
-          <Link to="/connected?create=template" onClick={() => setMenu(false)}>
-            <Layers size={18} />
-            Templates
-          </Link>
-          <NavLink to="/capabilities/skills" onClick={()=>setMenu(false)}>
-            <Boxes size={18} />
-            Skills &amp; Tools
-          </NavLink>
-          <NavLink to="/capabilities/models" onClick={()=>setMenu(false)}>
-            <Layers size={18} />
-            Models &amp; Providers
-          </NavLink>
-          <span className="nav-section">MANAGEMENT</span>
-          <NavLink to="/solutions" onClick={() => setMenu(false)}>
-            <FolderOpen size={18} />
-            Solutions
-          </NavLink>
-          <NavLink to="/economics" onClick={() => setMenu(false)}>
-            <GitBranch size={18} />
-            AI Economics
-          </NavLink>
-          <a href="./">
-            <GitBranch size={18} />
-            Existing Flowcase
-            <ExternalLink size={12} />
-          </a>
-          <NavLink to="/design-system" onClick={() => setMenu(false)}>
-            <Boxes size={18} />
-            Design system
-          </NavLink>
+        <nav aria-label="Main workspace">
+          {navGroups.map(group=><Fragment key={group.name}>
+            <span className="nav-section">{group.name}</span>
+            {group.items.map(item=>{
+              const active=isWorkspaceMenuActive(item,location.pathname,location.search),Icon=item.icon;
+              return <Link key={item.id} to={item.path} className={active?"active":""} aria-current={active?"page":undefined} onClick={()=>setMenu(false)}><Icon size={18}/>{item.name}</Link>;
+            })}
+          </Fragment>)}
         </nav>
         <div className="sidebar-bottom">
           <div className="preview-scope">
@@ -373,7 +286,7 @@ export function Platform() {
             <span className="user-avatar">
               {connectedMode
                 ? "WS"
-                : solutionMode || capabilityMode
+                : solutionMode || capabilityMode || registryMode
                   ? "CP"
                   : architectMode
                     ? "AI"
@@ -383,6 +296,8 @@ export function Platform() {
               <strong>
                 {connectedMode
                   ? "Workspace user"
+                  : registryMode
+                    ? "Workspace user"
                   : capabilityMode
                     ? "Capability workspace"
                   : solutionMode
@@ -394,7 +309,7 @@ export function Platform() {
               <small>
                 {connectedMode
                   ? "Sign in through workspace"
-                  : solutionMode || capabilityMode
+                  : solutionMode || capabilityMode || registryMode
                     ? "Control Plane session permissions"
                     : architectMode
                       ? "Agent Studio session permissions"
@@ -424,24 +339,7 @@ export function Platform() {
             <span className="topbar-workspace">Workspace</span>
             <ChevronRight size={14} />
             <span>
-              {location.pathname.startsWith("/connected/cases/") ||
-              location.pathname === "/connected/operations"
-                ? "Cases & reviews"
-                : workflow
-                  ? "Workflow Studio"
-                  : location.pathname.includes("projects")
-                    ? "Projects"
-                    : location.pathname.includes("knowledge")
-                      ? "Knowledge"
-                      : location.pathname === "/architect"
-                        ? "AI Architect"
-                        : capabilityMode
-                          ? "Capability library"
-                        : location.pathname === "/solutions"
-                          ? "Solutions"
-                          : location.pathname === "/economics"
-                            ? "AI Economics"
-                            : "Overview"}
+              {pageTitle??"Workspace"}
             </span>
           </div>
           <div>
@@ -484,6 +382,8 @@ export function Platform() {
               <span className="canvas-dot" />
               {connectedMode
                 ? "Service mode · session and permissions required"
+                : registryMode
+                  ? "Governed workspace · verified session required"
                 : capabilityMode
                   ? "Governed capabilities · verified workspace session required"
                 : solutionMode
@@ -526,13 +426,16 @@ export function Platform() {
               <Route path="/connected/*" element={<ConnectedWorkspace />} />
               <Route path="/economics" element={<Economics />} />
               <Route path="/solutions" element={<Solutions />} />
+              <Route path="/business-apps" element={<BusinessApps />} />
+              <Route path="/deployments" element={<Deployments />} />
+              <Route path="/control-center" element={<ControlCenter />} />
               <Route path="/capabilities/:capability" element={<CapabilityWorkspace />} />
               <Route
                 path="/"
                 element={
                   <Launchpad
-                    onOpen={() => go("/projects/vendor-payment")}
-                    onBuild={() => go("/projects/vendor-payment/workflow")}
+                    onOpen={() => go(basePath==="/apps/flowcase"?"/connected":"/projects/vendor-payment")}
+                    onBuild={() => go(basePath==="/apps/flowcase"?"/connected?create=blank":"/projects/vendor-payment/workflow")}
                     onArchitect={(value) => {
                       setBrief(value);
                       go("/architect");
@@ -583,7 +486,7 @@ export function Platform() {
                   />
                 }
               />
-              <Route path="/knowledge" element={<Knowledge />} />
+              <Route path="/knowledge" element={basePath==="/apps/flowcase"?<ConnectedKnowledge/>:<Knowledge />} />
               <Route path="/design-system" element={<Gallery />} />
               <Route
                 path="*"
@@ -620,7 +523,7 @@ export function Platform() {
                 c.name.toLowerCase().includes(commandQuery.toLowerCase()),
               )
               .map((c) => (
-                <button key={c.path} onClick={() => go(c.path)}>
+                <button key={`${c.name}:${c.path}`} onClick={() => go(c.path)}>
                   {c.name}
                   <ArrowRight size={15} />
                 </button>
@@ -668,6 +571,7 @@ export function Platform() {
               positions. It is not the authoritative project registry or a
               workflow runtime.
             </Notice>
+            <div className="button-row"><a className="e-button" href="./">Existing Flowcase</a><Link className="e-button" to="/design-system" onClick={()=>setHelp(false)}>Design system</Link></div>
           </div>
         </DialogPanel>
       )}

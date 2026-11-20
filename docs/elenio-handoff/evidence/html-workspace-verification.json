@@ -1,0 +1,116 @@
+{
+  "date": "2026-11-20",
+  "branch": "feat/elenio-html-navigation",
+  "base_sha": "849e3f9c40cdee86ae7fe4fc200a4ae7fc976dbf",
+  "exact_reference_menus": 17,
+  "groups": 5,
+  "additional_menu": "Solutions, permanent owner addendum",
+  "frontend_unit_tests": 100,
+  "frontend_lint": "pass",
+  "frontend_typecheck": "pass",
+  "mounted_build": "pass",
+  "browser_regressions": {
+    "startTime": "2026-11-20T01:10:54.189Z",
+    "duration": 75890.879,
+    "expected": 41,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "final_affected_browser_regressions": 24,
+  "workspace_e2e": {
+    "startTime": "2026-11-20T01:22:32.883Z",
+    "duration": 18780.034,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "native_route_interception": false,
+  "backend": {
+    "date": "2026-11-20",
+    "database": "PostgreSQL 16.16, loopback-only disposable databases",
+    "test_kind": "real database integration; provider/IdP doubles remain where existing tests specify them",
+    "modules": [
+      {
+        "module": "control-plane",
+        "exit_code": 0,
+        "passed": 55,
+        "failed": 0,
+        "skipped": 0,
+        "failures": []
+      },
+      {
+        "module": "kms",
+        "exit_code": 0,
+        "passed": 107,
+        "failed": 0,
+        "skipped": 0,
+        "failures": []
+      },
+      {
+        "module": "ucw",
+        "exit_code": 0,
+        "passed": 34,
+        "failed": 0,
+        "skipped": 0,
+        "failures": []
+      }
+    ]
+  },
+  "unchanged_backend_prior_checkpoint": {
+    "agent": 87,
+    "flowcase": 110
+  },
+  "gateway_and_fixture_identity_tests": "pass",
+  "targeted_go_vet": "pass",
+  "native_services": [
+    "Control Plane",
+    "Flowcase",
+    "Agent Studio",
+    "KMS",
+    "Universal Case Workspace"
+  ],
+  "kms_health": 200,
+  "kms_readiness": 503,
+  "kms_unconfigured": [
+    "object storage",
+    "Elasticsearch",
+    "Docling/PDF processing",
+    "embeddings"
+  ],
+  "ucw_model_intake": "original explicit unavailable state; approved release/service integration pending",
+  "viewports": [
+    1440,
+    1280,
+    1024,
+    768,
+    390
+  ],
+  "axe_serious_critical": 0,
+  "axe_scope": "native Knowledge at 1440/390; retained Agent/candidate scoped tests",
+  "official_logo": "unchanged",
+  "font": "existing bundled Inter",
+  "new_model_calls": 0,
+  "production_deployment": false,
+  "security": {
+    "checked_scope": "staged source/evidence and standalone/mounted public frontend builds",
+    "private_owner_repo": "abitiyoso/elenio-ai-workspaces",
+    "history_findings": 9,
+    "named_credential_matches": 0,
+    "named_credential_absent_checked_files": 222,
+    "staged_findings": 0,
+    "history_fingerprints": "same reviewed original matches",
+    "main_sha": "8bfae869e8ad3adaf10b496428ffbcf22c196db9",
+    "upstream_push": "DISABLED",
+    "outside_original_ancestry": 0
+  },
+  "remaining": [
+    "whole-product HTML page content and visual acceptance",
+    "advanced original KMS/UCW shared styling",
+    "approved model-backed business pilot",
+    "general Economics ledger and budgets",
+    "transitive independently approved solution releases",
+    "portable OCI/config releases and actual independent installation; no Docker sandbox"
+  ]
+}

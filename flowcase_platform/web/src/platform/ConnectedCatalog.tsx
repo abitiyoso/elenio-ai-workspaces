@@ -10,11 +10,12 @@ import {
   safeAppRoute,
   type AppSummary,
 } from "./controlPlaneApps";
-export function AppLauncher({appKey,view}:{appKey?:string;view?:"agents"|"skills"|"tools"|"models"|"evaluations"|"releases"}={}) {
+export function AppLauncher({appKey,view,categories,title="Governed capability workspaces"}:{appKey?:string;view?:"agents"|"skills"|"tools"|"models"|"playground"|"evaluations"|"releases";categories?:readonly string[];title?:string}={}) {
   const [apps, setApps] = useState<AppSummary[] | null>(null),
     [error, setError] = useState(""),
     [busy, setBusy] = useState("");
   const hosted = basePath === "/apps/flowcase";
+  const visibleApps=apps?.filter(a=>a.app_key!=="flowcase"&&(!appKey||a.app_key===appKey)&&(!categories||categories.includes(a.category??"")));
   useEffect(() => {
     if (!hosted) return;
     const ctrl = new AbortController();
@@ -67,7 +68,7 @@ export function AppLauncher({appKey,view}:{appKey?:string;view?:"agents"|"skills
   }
   return (
     <section className="surface catalog-section">
-      <h2>Governed capability workspaces</h2>
+      <h2>{title}</h2>
       <p>
         Use the existing Agent Studio, Knowledge Hub and integration workspaces
         through the Control Plane app registry. Their domain authorization
@@ -82,17 +83,16 @@ export function AppLauncher({appKey,view}:{appKey?:string;view?:"agents"|"skills
         </Notice>
       ) : apps === null && !error ? (
         <div role="status">Loading entitled apps…</div>
-      ) : apps && !apps.some((a)=>a.app_key!=="flowcase"&&(!appKey||a.app_key===appKey)) ? (
+      ) : visibleApps && !visibleApps.length ? (
         <Notice>No entitled workspace is available for this capability. Ask your workspace administrator to check app registration and access.</Notice>
       ) : (
         <div className="app-launch-list">
-          {apps
-            ?.filter((a) => a.app_key !== "flowcase" && (!appKey||a.app_key===appKey))
-            .map((app) => (
+          {visibleApps?.map((app) => (
               <article key={app.app_key}>
                 <div>
                   <h3>{app.display_name}</h3>
                   <p>{app.description}</p>
+                  {typeof app.health?.status==="string"&&<small>{app.health.status.replaceAll("_"," ")}{typeof app.health.detail==="string"&&app.health.detail?` · ${app.health.detail}`:""}</small>}
                 </div>
                 <Button
                   disabled={!!busy || app.integration !== "proxy"}
@@ -113,9 +113,9 @@ export function AppLauncher({appKey,view}:{appKey?:string;view?:"agents"|"skills
   );
 }
 
-export function ConnectedCatalog() {
+export function ConnectedCatalog({initialTab="Agents",title="Dependency catalog"}:{initialTab?:"Agents"|"Integrations"|"Approval policies";title?:string}={}) {
   const [resource, reload] = useResource<Catalog>("/api/v1/workflow-catalog");
-  const [tab, setTab] = useState("Agents");
+  const [tab, setTab] = useState(initialTab);
   const catalog = resource.state === "ready" ? resource.data : null;
   const valid =
     !!catalog &&
@@ -127,7 +127,7 @@ export function ConnectedCatalog() {
       <header className="page-heading">
         <div>
           <span className="eyebrow">REGISTERED CAPABILITIES</span>
-          <h1>Dependency catalog</h1>
+          <h1>{title}</h1>
           <p>
             Inspect references accepted by Flowcase before binding them to a
             draft.
@@ -149,7 +149,7 @@ export function ConnectedCatalog() {
       ) : (
         <section className="surface catalog-section">
           <div className="tabs">
-            {["Agents", "Integrations", "Approval policies"].map((t) => (
+            {(["Agents", "Integrations", "Approval policies"] as const).map((t) => (
               <button
                 key={t}
                 className={tab === t ? "active" : ""}

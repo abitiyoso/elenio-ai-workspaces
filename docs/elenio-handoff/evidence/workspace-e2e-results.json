@@ -118,12 +118,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1375,
+                  "duration": 2149,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-19T19:33:20.483Z",
+                  "startTime": "2026-11-20T01:22:33.321Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -152,12 +152,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 2331,
+                  "duration": 4693,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-19T19:33:22.018Z",
+                  "startTime": "2026-11-20T01:22:35.638Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -167,7 +167,7 @@
           ],
           "id": "b163ed09f68681248ada-47204c85a5607a87228d",
           "file": "workspace.spec.ts",
-          "line": 70,
+          "line": 75,
           "column": 1
         },
         {
@@ -186,12 +186,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 476,
+                  "duration": 552,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-19T19:33:24.358Z",
+                  "startTime": "2026-11-20T01:22:40.342Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -201,7 +201,7 @@
           ],
           "id": "b163ed09f68681248ada-df2b7c7df8652ce4ae74",
           "file": "workspace.spec.ts",
-          "line": 121,
+          "line": 126,
           "column": 1
         },
         {
@@ -220,12 +220,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 4092,
+                  "duration": 4645,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-19T19:33:24.842Z",
+                  "startTime": "2026-11-20T01:22:40.906Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -235,7 +235,109 @@
           ],
           "id": "b163ed09f68681248ada-f1eb16b030dec3a81fdd",
           "file": "workspace.spec.ts",
-          "line": 136,
+          "line": 141,
+          "column": 1
+        },
+        {
+          "title": "HTML delivery menus reuse real connector catalog, Agent tests and Control Plane settings",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1383,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-20T01:22:45.563Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b163ed09f68681248ada-7e45a40d5798e870bd31",
+          "file": "workspace.spec.ts",
+          "line": 185,
+          "column": 1
+        },
+        {
+          "title": "existing KMS tenant authority persists collection metadata and rejects a CP admin without KMS membership",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3686,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-20T01:22:46.958Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b163ed09f68681248ada-69d95386842edcc15916",
+          "file": "workspace.spec.ts",
+          "line": 213,
+          "column": 1
+        },
+        {
+          "title": "Business Apps opens original UCW and exchanges the real operator identity to Flowcase",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 825,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-20T01:22:50.655Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b163ed09f68681248ada-cdc3d34dd7aa02be9b55",
+          "file": "workspace.spec.ts",
+          "line": 264,
           "column": 1
         }
       ]
@@ -243,9 +345,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-19T19:33:20.066Z",
-    "duration": 9018.553,
-    "expected": 4,
+    "startTime": "2026-11-20T01:22:32.883Z",
+    "duration": 18780.034,
+    "expected": 7,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0
