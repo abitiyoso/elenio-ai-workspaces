@@ -16,6 +16,14 @@ const capabilities = {
     title: "Models & Providers", view: "models",
     description: "Manage provider metadata, backend credential status, capability probes and governed model approvals.",
   },
+  testing: {
+    title: "Testing Studio", view: "playground",
+    description: "Test pinned agent versions in the existing governed playground. Inspect workflow validation and execution separately in Workflow Studio.",
+  },
+  evaluation: {
+    title: "Evaluation & Releases", view: "evaluations",
+    description: "Evaluate pinned agent versions, inspect critical gates, then use the existing independent release reviews.",
+  },
   evaluations: {
     title: "Testing & Evaluation", view: "evaluations",
     description: "Run the existing pinned evaluation suites and inspect their schema, evidence and critical-failure gates.",

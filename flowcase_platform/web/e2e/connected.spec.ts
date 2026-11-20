@@ -687,7 +687,7 @@ test("Templates can open creation from an already loaded registry", async ({
   await expect(
     page.getByRole("heading", { name: "Workflow projects" }),
   ).toBeVisible();
-  await page.getByRole("link", { name: "Templates", exact: true }).click();
+  await page.getByRole("link", { name: "Template Repository", exact: true }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await expect(page.getByLabel("Registered template")).toBeVisible();
   await page.getByRole("button", { name: "Cancel", exact: true }).click();

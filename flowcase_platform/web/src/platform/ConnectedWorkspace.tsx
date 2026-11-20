@@ -146,7 +146,8 @@ function Gate() {
       </div>
       <Routes>
         <Route index element={<Registry session={resource.data} />} />
-        <Route path="catalog" element={<ConnectedCatalog />} />
+        <Route path="catalog" element={<ConnectedCatalog key="catalog" />} />
+        <Route path="integrations" element={<ConnectedCatalog key="integrations" initialTab="Integrations" title="Integration Hub" />} />
         <Route
           path="operations"
           element={<CaseOperations session={resource.data} />}
@@ -208,9 +209,9 @@ function Registry({ session }: { session: Session }) {
       <header className="page-heading">
         <div>
           <span className="eyebrow">CONNECTED ENGINEERING</span>
-          <h1>Workflow projects</h1>
+          <h1>{intent.get("view")==="studio"?"Workflow Studio":"Workflow projects"}</h1>
           <p>
-            Resume a registered solution or create a draft through Flowcase.
+            {intent.get("view")==="studio"?"Select a workflow to edit its native graph, or start a new draft.":"Resume a registered solution or create a draft through Flowcase."}
           </p>
         </div>
         <Button
@@ -232,8 +233,8 @@ function Registry({ session }: { session: Session }) {
         </Link>
       </div>
       <Notice>
-        Each workspace item maps to one canonical Flowcase workflow.
-        Multi-workflow project grouping is not connected yet.
+        Each item is a canonical Flowcase workflow. Group pinned workflows into
+        a multi-workflow solution in <Link to="/solutions">Solutions</Link>.
       </Notice>
       <label className="e-field">
         Find a workflow

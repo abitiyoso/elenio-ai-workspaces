@@ -90,6 +90,10 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .platform-sidebar nav > a {
   display: flex;
@@ -121,7 +125,7 @@
 }
 .sidebar-bottom {
   margin-top: auto;
-  padding-top: 40px;
+  padding-top: 16px;
 }
 .preview-scope {
   display: flex;
@@ -2541,3 +2545,24 @@
     font-size: 12px;
   }
 }
+.knowledge-actions,.knowledge-live-summary {display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.collections button span {min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.collections button svg,.collections button small {flex-shrink:0;}
+.knowledge-live-summary {margin-bottom:20px;font-size:13px;color:var(--e-muted);}
+.knowledge-live-summary a {margin-left:auto;}
+.knowledge-form {display:grid;gap:16px;}
+.knowledge-form label,.knowledge-search-form label {display:grid;gap:7px;font-size:13px;font-weight:500;}
+.knowledge-form input,.knowledge-form textarea,.knowledge-form select,.knowledge-search-form input,.knowledge-search-form select {width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid var(--e-line);border-radius:8px;background:var(--e-surface,#fff);color:var(--e-text);font:inherit;}
+.knowledge-form textarea {min-height:90px;resize:vertical;}
+.knowledge-search-form {display:flex;gap:14px;align-items:end;flex-wrap:wrap;margin:24px 0;}
+.knowledge-search-form label:first-child {flex:1;min-width:180px;}
+.knowledge-job-list article {display:flex;justify-content:space-between;align-items:center;gap:20px;border-top:1px solid var(--e-line);padding:18px 0;}
+.knowledge-results article,.knowledge-version {padding:20px 0;border-bottom:1px solid var(--e-line);overflow-wrap:anywhere;}
+.knowledge-citation {font-size:13px;color:var(--e-muted);}
+.recent-workflows {display:grid;gap:12px;}
+.control-setting {display:flex;align-items:center;justify-content:space-between;gap:24px;padding:24px;}
+.control-setting h2 {font-size:18px;margin:0 0 8px;}
+.control-setting p {margin:0;}
+.control-setting>div:last-child {display:flex;gap:10px;flex-wrap:wrap;}
+@media(max-width:768px){.control-setting{align-items:flex-start;flex-direction:column;gap:18px;padding:20px;}}
+@media(max-width:600px){.knowledge-actions{width:100%;}.knowledge-live-summary a{margin-left:0;}.knowledge-search-form{align-items:stretch;flex-direction:column;}}

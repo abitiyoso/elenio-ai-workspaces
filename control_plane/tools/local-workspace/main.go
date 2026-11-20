@@ -18,7 +18,7 @@ import (
 )
 
 func main() {
-	mode := flag.String("mode", "", "identity or gateway")
+	mode := flag.String("mode", "", "identity, gateway or kms-gateway")
 	secretFile := flag.String("client-secret-file", "", "local protected client secret file")
 	seedFile := flag.String("seed-file", "deploy/dev-seed.json", "synthetic CP seed file")
 	web := flag.String("web-dir", "", "mounted Flowcase web build")
@@ -49,30 +49,37 @@ func main() {
 		address = "127.0.0.1:8210"
 	case "gateway":
 		var err error
-		handler, err = gateway(*web)
+		handler, err = gateway(*web, "127.0.0.1:5280", "http://127.0.0.1:8280", []string{"index.html", "elenio.html"})
 		if err != nil {
 			fail(err)
 		}
 		address = "127.0.0.1:5280"
+	case "kms-gateway":
+		var err error
+		handler, err = gateway(*web, "127.0.0.1:5380", "http://127.0.0.1:8380", []string{"index.html"})
+		if err != nil {
+			fail(err)
+		}
+		address = "127.0.0.1:5380"
 	default:
-		fail(errors.New("choose identity or gateway mode"))
+		fail(errors.New("choose identity, gateway or kms-gateway mode"))
 	}
 	server := &http.Server{Addr: address, Handler: handler, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 20 * time.Second, WriteTimeout: 180 * time.Second, IdleTimeout: 30 * time.Second, MaxHeaderBytes: 32 << 10}
 	if err := server.ListenAndServe(); err != nil {
 		fail(errors.New("local workspace listener unavailable"))
 	}
 }
-func gateway(web string) (http.Handler, error) {
+func gateway(web, host, backend string, required []string) (http.Handler, error) {
 	dir, err := filepath.Abs(web)
 	if err != nil || web == "" {
 		return nil, errors.New("built mounted web directory required")
 	}
-	for _, file := range []string{"index.html", "elenio.html"} {
+	for _, file := range required {
 		if _, err := os.Stat(filepath.Join(dir, file)); err != nil {
 			return nil, errors.New("build the CP-mounted Elenio frontend first")
 		}
 	}
-	target, _ := url.Parse("http://127.0.0.1:8280")
+	target, _ := url.Parse(backend)
 	proxy := httputil.NewSingleHostReverseProxy(target)
 	original := proxy.Director
 	proxy.Director = func(r *http.Request) { original(r); r.Header.Del("Cookie"); r.Header.Del("Proxy-Authorization") }
@@ -81,7 +88,7 @@ func gateway(web string) (http.Handler, error) {
 	}
 	files := http.FileServer(http.Dir(dir))
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Host != "127.0.0.1:5280" {
+		if r.Host != host {
 			http.Error(w, "loopback gateway host required", 403)
 			return
 		}
@@ -96,7 +103,7 @@ func gateway(web string) (http.Handler, error) {
 			http.Error(w, "method not allowed", 405)
 			return
 		}
-		if strings.HasSuffix(r.URL.Path, "/") {
+		if r.URL.Path != "/" && strings.HasSuffix(r.URL.Path, "/") {
 			http.NotFound(w, r)
 			return
 		}

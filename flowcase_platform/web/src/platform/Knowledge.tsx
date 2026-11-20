@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   ArrowDownAZ,
   ChevronRight,
@@ -15,21 +15,35 @@ import {
   DialogPanel,
   Notice,
 } from "../../../../packages/ui/primitives";
-import { documents, type KnowledgeDocument } from "./fixtures";
+import { documents as fixtureDocuments } from "./fixtures";
 
-export function Knowledge() {
-  const [collection, setCollection] = useState("All documents"),
+export interface KnowledgeRecord {
+  id: string; name: string; collection: string; status: string;
+  version?: string; owner?: string; updated: string; pages?: number; content?: string;
+}
+export interface KnowledgeConnection {
+  documents: KnowledgeRecord[];
+  collections: {id:string;name:string;count:number}[];
+  actions: ReactNode;
+  notice?: ReactNode;
+  renderTab: (tab:string)=>ReactNode;
+  renderDocument: (document:KnowledgeRecord)=>ReactNode;
+}
+
+export function Knowledge({connection}:{connection?:KnowledgeConnection}={}) {
+  const documents=connection?.documents??fixtureDocuments;
+  const [collection, setCollection] = useState("all"),
     [query, setQuery] = useState(""),
     [status, setStatus] = useState("All statuses"),
     [sort, setSort] = useState(false),
-    [selected, setSelected] = useState<KnowledgeDocument | null>(null),
+    [selected, setSelected] = useState<KnowledgeRecord | null>(null),
     [tab, setTab] = useState("Documents");
   const filtered = useMemo(
     () =>
       documents
         .filter(
           (d) =>
-            (collection === "All documents" || d.collection === collection) &&
+            (collection === "all" || d.collection === collection) &&
             d.name.toLowerCase().includes(query.toLowerCase()) &&
             (status === "All statuses" || d.status === status),
         )
@@ -38,7 +52,7 @@ export function Knowledge() {
             ? a.name.localeCompare(b.name)
             : documents.indexOf(a) - documents.indexOf(b),
         ),
-    [collection, query, status, sort],
+    [collection, query, status, sort, documents],
   );
   return (
     <section className="page knowledge-page">
@@ -48,13 +62,14 @@ export function Knowledge() {
           <h1>Knowledge Hub</h1>
           <p>Trusted sources. Clear provenance. Better decisions.</p>
         </div>
-        <div title="Live KMS session required. Current ingestion supports PDF only.">
+        {connection?connection.actions:<div title="Live KMS session required. Current ingestion supports PDF only.">
           <Button disabled>
             <Upload size={16} /> Ingest PDF
           </Button>
           <small className="disabled-reason">Requires connected KMS</small>
-        </div>
+        </div>}
       </header>
+      {connection?.notice}
       <div className="knowledge-tabs tabs">
         {["Documents", "Ingestion jobs", "Retrieval playground"].map((t) => (
           <button
@@ -66,7 +81,7 @@ export function Knowledge() {
           </button>
         ))}
       </div>
-      {tab !== "Documents" ? (
+      {tab !== "Documents" && connection ? connection.renderTab(tab) : tab !== "Documents" ? (
         <div className="surface">
           <div className="e-empty">
             <Library size={30} />
@@ -89,37 +104,27 @@ export function Knowledge() {
         <div className="knowledge-layout">
           <aside className="collections">
             <span className="eyebrow">COLLECTIONS</span>
-            {[
-              "All documents",
-              "Finance",
-              "Governance",
-              "People",
-              "Engineering",
-            ].map((c) => (
+            {[{id:"all",name:"All documents",count:documents.length},...(connection?.collections??["Finance","Governance","People","Engineering"].map(name=>({id:name,name,count:documents.filter(d=>d.collection===name).length})))].map((item) => {
+              const c=item.id;
+              return (
               <button
                 key={c}
                 className={collection === c ? "active" : ""}
                 onClick={() => setCollection(c)}
               >
-                {c === "All documents" ? (
+                {c === "all" ? (
                   <Library size={17} />
                 ) : (
                   <Folder size={17} />
                 )}
-                <span>{c}</span>
-                <small>
-                  {c === "All documents"
-                    ? documents.length
-                    : documents.filter((d) => d.collection === c).length}
-                </small>
+                <span title={item.name}>{item.name}</span><small>{item.count}</small>
               </button>
-            ))}
+            );})}
             <div className="knowledge-scope">
               <ShieldCheck size={19} />
-              <strong>Workspace scoped</strong>
+              <strong>{connection?"Tenant & collection access":"Workspace scoped"}</strong>
               <p>
-                Access and publication are enforced by KMS in a connected
-                environment.
+                {connection?"KMS checks your tenant membership, document access and publication independently.":"Access and publication are enforced by KMS in a connected environment."}
               </p>
             </div>
           </aside>
@@ -140,13 +145,13 @@ export function Knowledge() {
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
               >
-                {[
+                {(connection?["All statuses",...new Set(documents.map(d=>d.status))]:[
                   "All statuses",
                   "Published",
                   "In review",
                   "Indexing",
                   "Revoked",
-                ].map((s) => (
+                ]).map((s) => (
                   <option key={s}>{s}</option>
                 ))}
               </select>
@@ -159,8 +164,8 @@ export function Knowledge() {
               </Button>
             </div>
             <div className="document-list-heading">
-              <span>{collection}</span>
-              <small>{filtered.length} synthetic documents</small>
+              <span>{collection==="all"||collection==="All documents"?"All documents":connection?.collections.find(c=>c.id===collection)?.name??collection}</span>
+              <small>{filtered.length} {connection?"authorized":"synthetic"} documents</small>
             </div>
             <div className="document-table-wrap">
               <table className="document-table">
@@ -169,7 +174,7 @@ export function Knowledge() {
                     <th>Document</th>
                     <th>Status</th>
                     <th>Owner</th>
-                    <th>Updated</th>
+                    <th>{connection?"Created":"Updated"}</th>
                     <th>
                       <span className="sr-only">Open</span>
                     </th>
@@ -189,8 +194,7 @@ export function Knowledge() {
                           <span>
                             <strong>{d.name}</strong>
                             <small>
-                              {d.collection} · PDF · v{d.version} · {d.pages}{" "}
-                              pages
+                              {connection?.collections.find(c=>c.id===d.collection)?.name??d.collection} · PDF{d.version?` · v${d.version}`:" · Version pending"}{d.pages!==undefined?` · ${d.pages} pages`:""}
                             </small>
                           </span>
                         </button>
@@ -210,7 +214,7 @@ export function Knowledge() {
                           {d.status}
                         </Badge>
                       </td>
-                      <td>{d.owner}</td>
+                      <td>{d.owner??"Not provided"}</td>
                       <td>{d.updated}</td>
                       <td>
                         <button
@@ -229,23 +233,23 @@ export function Knowledge() {
             {!filtered.length && (
               <div className="e-empty">
                 <Search size={28} />
-                <h3>No matching documents</h3>
-                <p>Try another collection, status or search term.</p>
-                <Button
+                <h3>{connection&&!documents.length?"No documents yet":"No matching documents"}</h3>
+                <p>{connection&&!documents.length?"Add a PDF when storage and processing are ready. Only sources authorized for your session appear here.":"Try another collection, status or search term."}</p>
+                {(!connection||documents.length>0)&&<Button
                   onClick={() => {
-                    setCollection("All documents");
+                    setCollection("all");
                     setQuery("");
                     setStatus("All statuses");
                   }}
                 >
                   Clear filters
-                </Button>
+                </Button>}
               </div>
             )}
             <footer className="document-footer">
               <span>
                 <span className="canvas-dot" />
-                Synthetic content for design review
+                {connection?"Live KMS · authorized metadata":"Synthetic content for design review"}
               </span>
               <span>PDF ingestion contract · versions preserved</span>
             </footer>
@@ -255,11 +259,11 @@ export function Knowledge() {
       {selected && (
         <DialogPanel
           title={selected.name}
-          description={`Synthetic source · ${selected.collection} · version ${selected.version} · ${selected.pages} pages`}
+          description={connection?"Version history and source evidence from KMS.":`Synthetic source · ${selected.collection} · version ${selected.version} · ${selected.pages} pages`}
           onClose={() => setSelected(null)}
           wide
         >
-          <div className="preview-meta">
+          {connection?connection.renderDocument(selected):<><div className="preview-meta">
             <Badge tone={selected.status === "Published" ? "green" : "amber"}>
               {selected.status}
             </Badge>
@@ -285,7 +289,7 @@ export function Knowledge() {
                 : "View version history"}
             </Button>
             <small>Governance actions require a connected KMS session.</small>
-          </div>
+          </div></>}
         </DialogPanel>
       )}
     </section>

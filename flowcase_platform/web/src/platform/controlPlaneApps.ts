@@ -5,6 +5,8 @@ export interface AppSummary {
   route_base: string;
   status: string;
   integration: string;
+  category?: string;
+  health?: {status:string;detail:string};
 }
 export function safeAppRoute(key: string, route: unknown): route is string {
   return /^[a-z][a-z0-9-]*$/.test(key) && route === `/apps/${key}/`;

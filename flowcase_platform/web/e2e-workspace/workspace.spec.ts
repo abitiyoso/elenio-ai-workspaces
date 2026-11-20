@@ -14,7 +14,7 @@ async function signIn(page:Page,persona="Demo All Access"){
   await expect(page).toHaveURL(new RegExp("^http://127\\.0\\.0\\.1:8200/apps/flowcase/"));
   await page.goto("/");
   await page.getByRole("button",{name:/Active workspace:.*Switch workspace/}).click();
-  const workspace=persona==="Demo All Access"?"Platform Engineering":"SIM B2B Solutions";
+  const workspace=["Maya Putri","Dimas Wijaya"].includes(persona)?"SIM B2B Solutions":"Platform Engineering";
   await page.getByRole("menuitemradio",{name:new RegExp(workspace,"i")}).click();
   await expect(page.getByRole("button",{name:new RegExp(`Active workspace: ${workspace}.*Switch workspace`,"i")})).toBeVisible();
   await page.goto(mount);
@@ -27,6 +27,11 @@ test.beforeEach(async({request})=>{
 });
 test("real workspace: persistent login, independent domain IDs and existing Agent Studio navigation",async({page})=>{
   await signIn(page);
+  await expect(page.getByText("Governed workspace",{exact:true})).toBeVisible();
+  await expect(page.getByText("Local workspace · 1 project",{exact:true})).toHaveCount(0);
+  await expect(page.getByText("Abitiyoso",{exact:true})).toHaveCount(0);
+  const registered=await (await page.request.get(`${api}/workflows`)).json();
+  if(registered.items.length)await expect(page.locator(".recent-workflows")).toContainText(registered.items[0].name);
   const cp=await (await page.request.get("/api/v1/me")).json();
   expect(cp.environment).toBe("development");
   const flow=await (await page.request.get(`${api}/session`)).json();
@@ -175,4 +180,101 @@ test("existing Agent workbenches use the agreed shared light system, exact brand
   await expect(page.getByRole("link",{name:"Solution engineering",exact:true})).toBeVisible();
   await page.getByRole("link",{name:"Solution engineering",exact:true}).click();
   await expect(page).toHaveURL(/\/apps\/flowcase\/elenio\.html#\/connected$/);
+});
+
+test("HTML delivery menus reuse real connector catalog, Agent tests and Control Plane settings",async({page})=>{
+  await signIn(page);
+  await page.getByRole("navigation",{name:"Main workspace"}).getByRole("link",{name:"Workflow Studio",exact:true}).click();
+  await expect(page.getByRole("heading",{name:"Workflow Studio",level:1})).toBeVisible();
+  await expect(page.getByRole("navigation",{name:"Main workspace"}).getByRole("link",{name:"Workflow Studio",exact:true})).toHaveAttribute("aria-current","page");
+  await page.goto(`${mount}#/connected/integrations`);
+  await expect(page.getByRole("heading",{name:"Integration Hub",level:1})).toBeVisible();
+  const catalog=await (await page.request.get(`${api}/workflow-catalog`)).json();
+  expect(catalog.connectors.length).toBeGreaterThan(0);
+  await expect(page.getByRole("table")).toContainText(catalog.connectors[0].name);
+  await page.goto(`${mount}#/capabilities/testing`);
+  await page.getByRole("button",{name:"Open workspace",exact:true}).click();
+  await expect(page.getByRole("heading",{name:"Playground",level:1})).toBeVisible();
+  await page.goto(`${mount}#/capabilities/evaluation`);
+  await page.getByRole("button",{name:"Open workspace",exact:true}).click();
+  await expect(page.getByRole("heading",{name:"Evaluations",level:1})).toBeVisible();
+  await page.goto(`${mount}#/control-center`);
+  await expect(page.getByRole("heading",{name:"Control Center",level:1})).toBeVisible();
+  await expect(page.getByRole("link",{name:"Manage people",exact:true})).toHaveAttribute("href","/people");
+  for(const width of [1440,390]){
+    await page.setViewportSize({width,height:900});
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+    await page.screenshot({path:`../../docs/elenio-handoff/evidence/html-control-center-${width}.png`,fullPage:false});
+  }
+  await page.getByRole("link",{name:"Manage people",exact:true}).click();
+  await expect(page).toHaveURL("http://127.0.0.1:8200/people");
+});
+
+test("existing KMS tenant authority persists collection metadata and rejects a CP admin without KMS membership",async({page,browser})=>{
+  const unexpectedDialogs:string[]=[];
+  page.on("dialog",async dialog=>{unexpectedDialogs.push(dialog.type());await dialog.dismiss();});
+  await signIn(page);
+  const cp=await (await page.request.get("/api/v1/me")).json();
+  const identityResponse=await page.request.get("/apps/kms/api/v1/session");
+  expect(identityResponse.ok()).toBe(true);
+  expect(await identityResponse.json()).toMatchObject({user_id:cp.user.id,tenant_id:"00000000-0000-4000-8000-000000000001",roles:expect.arrayContaining(["knowledge_steward"])});
+  await page.getByRole("navigation",{name:"Main workspace"}).getByRole("link",{name:"Knowledge Hub",exact:true}).click();
+  await expect(page.getByText("Verified KMS session",{exact:true})).toBeVisible();
+  const sharedName=unique();
+  await page.getByRole("button",{name:"New collection",exact:true}).click();
+  await page.getByLabel("Collection name",{exact:true}).fill(sharedName);
+  await page.getByRole("button",{name:"Create collection",exact:true}).click();
+  await expect(page.getByRole("button",{name:new RegExp(sharedName)})).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("button",{name:new RegExp(sharedName)})).toBeVisible();
+  await expect(page.getByRole("button",{name:"Ingest PDF",exact:true})).toBeDisabled();
+  for(const width of [1440,1280,1024,768,390]){
+    await page.setViewportSize({width,height:900});
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+    await page.screenshot({path:`../../docs/elenio-handoff/evidence/html-live-knowledge-${width}.png`,fullPage:false});
+    if(width===1440||width===390){const axe=await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21aa","wcag22aa"]).analyze();expect(axe.violations.filter(v=>v.impact==="serious"||v.impact==="critical")).toEqual([]);}
+  }
+  await page.getByRole("button",{name:"Ingestion jobs",exact:true}).click();
+  await expect(page.getByRole("heading",{name:"No ingestion jobs",exact:true})).toBeVisible();
+  await page.getByRole("button",{name:"Retrieval playground",exact:true}).click();
+  await expect(page.getByText("The search index is unavailable.",{exact:true})).toBeVisible();
+  await page.setViewportSize({width:1440,height:900});
+  await page.getByRole("link",{name:"Open governance workspace",exact:true}).click();
+  await expect(page).toHaveURL("http://127.0.0.1:8200/apps/kms/");
+  expect(unexpectedDialogs).toEqual([]);
+  await page.getByRole("button",{name:"Collections",exact:true}).click();
+  const name=unique();
+  await page.getByLabel("Collection name",{exact:true}).fill(name);
+  await page.getByRole("button",{name:"Create collection",exact:true}).click();
+  await expect(page.getByText(name,{exact:true})).toBeVisible();
+  const stored=await (await page.request.get("/apps/kms/api/v1/collections")).json();
+  expect(stored.collections.some((item:{name:string})=>item.name===name)).toBe(true);
+  await page.screenshot({path:"../../docs/elenio-handoff/evidence/html-existing-kms-1440.png",fullPage:false});
+  const deniedContext=await browser.newContext(),deniedPage=await deniedContext.newPage();
+  await signIn(deniedPage,"Nadia Kusuma");
+  const rejected=await deniedPage.request.get("/apps/kms/api/v1/session",{headers:{"X-KMS-User-Id":cp.user.id,"X-Roles":"platform_admin,knowledge_steward"}});
+  expect(rejected.status()).toBe(401);
+  await deniedPage.goto(`${mount}#/knowledge`);
+  await expect(deniedPage.getByRole("button",{name:"Retry Knowledge connection",exact:true})).toBeVisible();
+  await expect(deniedPage.getByText("Verified KMS session",{exact:true})).toHaveCount(0);
+  await expect(deniedPage.getByText("Finance approval policy.pdf",{exact:true})).toHaveCount(0);
+  await deniedContext.close();
+});
+
+test("Business Apps opens original UCW and exchanges the real operator identity to Flowcase",async({page})=>{
+  await signIn(page,"Maya Putri");
+  const cp=await (await page.request.get("/api/v1/me")).json();
+  await page.goto(`${mount}#/business-apps`);
+  await expect(page.getByRole("heading",{name:"Business Apps",level:1})).toBeVisible();
+  await page.getByRole("button",{name:"Open workspace",exact:true}).click();
+  await expect(page).toHaveURL("http://127.0.0.1:8200/apps/case-workspace/");
+  const response=await page.request.get("/apps/case-workspace/api/v1/workspace/me/context");
+  expect(response.ok()).toBe(true);
+  const context=await response.json();
+  expect(context).toMatchObject({user_id:cp.user.id,tenant_key:"acme-demo",workspace_key:"sim-b2b",flowcase:{available:true,can_create_cases:true,roles:expect.arrayContaining(["case_owner"])}});
+  expect(context.flowcase.roles).not.toContain("tenant_admin");
+  const cases=await page.request.get("/apps/case-workspace/api/v1/workspace/cases");
+  expect(cases.ok()).toBe(true);
+  await expect(page.locator("main")).toBeVisible();
+  await page.screenshot({path:"../../docs/elenio-handoff/evidence/html-existing-business-workspace-1440.png",fullPage:false});
 });

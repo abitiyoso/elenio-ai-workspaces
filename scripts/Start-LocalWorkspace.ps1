@@ -26,21 +26,22 @@ function Ready([string]$URL){
  for($attempt=0;$attempt -lt 35;$attempt++){try{$result=Invoke-WebRequest $URL -TimeoutSec 2;if($result.StatusCode -eq 200){return}}catch{};Start-Sleep -Milliseconds 400};throw "Local service readiness failed: $URL. Inspect private logs."
 }
 function Sql([string]$Database,[string]$Statement){
- if($Database -notin @('postgres','control_plane_workspace_live','flowcase_workspace_live')){throw 'Unexpected sandbox database'}
- $result=& "$pg/psql.exe" -h 127.0.0.1 -p 55448 -U elenio_test -d $Database -v ON_ERROR_STOP=1 -Atq -c $Statement;Check;return $result
+ if($Database -notin @('postgres','control_plane_workspace_live','flowcase_workspace_live','kms_workspace_live','ucw_workspace_live')){throw 'Unexpected sandbox database'}
+ $priorPassword=$env:PGPASSWORD
+ try{$env:PGPASSWORD=[IO.File]::ReadAllText((Join-Path $state 'database-password'));$result=& "$pg/psql.exe" -h 127.0.0.1 -p 55448 -U elenio_test -d $Database -v ON_ERROR_STOP=1 -Atq -c $Statement;Check;return $result}finally{$env:PGPASSWORD=$priorPassword;$priorPassword=$null}
 }
 function Literal([string]$Value){return "'"+$Value.Replace("'","''")+"'"}
 & (Join-Path $PSScriptRoot 'Start-LocalE2E.ps1') -GoExe $go -PostgresBin $pg -DatabaseOnly;Check
 [IO.Directory]::CreateDirectory($private)|Out-Null;Protect $private
-foreach($file in @('oidc-client','csrf-key','token-encryption-key')){$path=Join-Path $private $file;if(!(Test-Path -LiteralPath $path)){[IO.File]::WriteAllText($path,[Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(32)))}}
-$executables=@{'workspace-identity'=(Join-Path $state 'local-workspace.exe');'workspace-gateway'=(Join-Path $state 'local-workspace.exe');'workspace-control'=(Join-Path $state 'control-plane.exe');'workspace-api'=(Join-Path $state 'workspace-flowcase-api.exe');'workspace-worker'=(Join-Path $state 'workspace-flowcase-worker.exe');'workspace-agent'=(Join-Path $state 'workspace-agent-studio.exe')}
+foreach($file in @('oidc-client','csrf-key','token-encryption-key','ucw-exchange-client')){$path=Join-Path $private $file;if(!(Test-Path -LiteralPath $path)){[IO.File]::WriteAllText($path,[Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(32)))}}
+$executables=@{'workspace-identity'=(Join-Path $state 'local-workspace.exe');'workspace-gateway'=(Join-Path $state 'local-workspace.exe');'workspace-kms-gateway'=(Join-Path $state 'local-workspace.exe');'workspace-control'=(Join-Path $state 'control-plane.exe');'workspace-api'=(Join-Path $state 'workspace-flowcase-api.exe');'workspace-worker'=(Join-Path $state 'workspace-flowcase-worker.exe');'workspace-agent'=(Join-Path $state 'workspace-agent-studio.exe');'workspace-kms'=(Join-Path $state 'workspace-kms.exe');'workspace-ucw'=(Join-Path $state 'workspace-ucw.exe')}
 if($Restart){foreach($name in $executables.Keys){StopOwned $name $executables[$name]}}
 # Rebuild only when owned services are stopped; never overwrite a running executable.
-$running=Get-Process -Name local-workspace,control-plane,workspace-flowcase-api,workspace-flowcase-worker,workspace-agent-studio -ErrorAction SilentlyContinue
+$running=Get-Process -Name local-workspace,control-plane,workspace-flowcase-api,workspace-flowcase-worker,workspace-agent-studio,workspace-kms,workspace-ucw -ErrorAction SilentlyContinue
 if($running){throw 'Workspace services already running. Use -Restart to apply source/config updates.'}
 $env:ELENIO_LOCAL_E2E='1';$env:APP_ENV='development';$env:PGPASSWORD=[IO.File]::ReadAllText((Join-Path $state 'database-password'))
 try{
- foreach($db in @('control_plane_workspace_live','flowcase_workspace_live')){if((Sql postgres "SELECT 1 FROM pg_database WHERE datname='$db'") -ne '1'){& "$pg/createdb.exe" -h 127.0.0.1 -p 55448 -U elenio_test $db;Check}}
+ foreach($db in @('control_plane_workspace_live','flowcase_workspace_live','kms_workspace_live','ucw_workspace_live')){if((Sql postgres "SELECT 1 FROM pg_database WHERE datname='$db'") -ne '1'){& "$pg/createdb.exe" -h 127.0.0.1 -p 55448 -U elenio_test $db;Check}}
  Push-Location (Join-Path $repo 'control_plane')
  try{
   & $go build -o $executables['workspace-control'] ./cmd/control-plane-api;Check
@@ -60,7 +61,10 @@ try{
  $env:COOKIE_INSECURE_DEV_ACKNOWLEDGE='i-understand-cookies-are-not-secure';$env:DEV_SEED='true';$env:DEV_SEED_FILE=Join-Path $repo 'control_plane/deploy/dev-seed.json'
  $env:WEB_DIR=Join-Path $repo 'control_plane/web/dist'
  if(!(Test-Path -LiteralPath (Join-Path $env:WEB_DIR 'index.html'))){throw 'Build control_plane/web before starting the workspace.'}
- $env:TRUSTED_APP_UPSTREAMS=@{flowcase=@{url='http://127.0.0.1:5280';audience='flowcase';mode='proxy';strip_prefix=$true;health_url='http://127.0.0.1:5280/readyz'};'agent-studio'=@{url='http://127.0.0.1:8290';audience='agent-studio';mode='proxy';strip_prefix=$true;health_url='http://127.0.0.1:8290/health/ready'};kms=@{mode='pending';pending_reason='KMS native workspace adapter is not configured.'};'case-workspace'=@{mode='pending';pending_reason='UCW workspace adapter is not configured.'}}|ConvertTo-Json -Depth 8 -Compress
+ $env:TRUSTED_APP_UPSTREAMS=@{flowcase=@{url='http://127.0.0.1:5280';audience='flowcase';mode='proxy';strip_prefix=$true;health_url='http://127.0.0.1:5280/readyz'};'agent-studio'=@{url='http://127.0.0.1:8290';audience='agent-studio';mode='proxy';strip_prefix=$true;health_url='http://127.0.0.1:8290/health/ready'};kms=@{url='http://127.0.0.1:5380';audience='kms';mode='proxy';strip_prefix=$true;health_url='http://127.0.0.1:5380/readyz'};'case-workspace'=@{url='http://127.0.0.1:8480';audience='case-workspace';mode='proxy';strip_prefix=$true;health_url='http://127.0.0.1:8480/readyz'}}|ConvertTo-Json -Depth 8 -Compress
+ $exchangeSecret=[IO.File]::ReadAllText((Join-Path $private 'ucw-exchange-client'));$exchangeHash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($exchangeSecret))).ToLowerInvariant();$exchangeSecret=$null
+ $env:TOKEN_EXCHANGE_CLIENTS=@{'case-workspace'=@{secret_sha256=$exchangeHash;audiences=@('flowcase')}}|ConvertTo-Json -Depth 5 -Compress
+ $env:TOKEN_EXCHANGE_CLIENTS_FILE='';$env:TRUSTED_APP_UPSTREAMS_FILE=''
  StartOwned 'workspace-control' $executables['workspace-control'] @('serve') (Join-Path $repo 'control_plane')
  Ready 'http://127.0.0.1:8200/readyz'
  $cpUsers=@((Sql control_plane_workspace_live "SELECT COALESCE(json_agg(json_build_object('subject',idp_subject,'id',id,'name',display_name)),'[]') FROM users")|ConvertFrom-Json)
@@ -100,5 +104,29 @@ try{
  $env:AGENT_STUDIO_DATABASE_URL='postgres://elenio_test@127.0.0.1:55448/agent_live?sslmode=disable';$env:AGENT_STUDIO_DATABASE_PASSWORD_FILE=Join-Path $state 'database-password';$env:AGENT_STUDIO_HTTP_ADDR='127.0.0.1:8290';$env:AGENT_STUDIO_WEB_DIR=$agentWeb
  $env:AGENT_STUDIO_VAULT_DIR=Join-Path $state 'agent-private/vault';$env:AGENT_STUDIO_VAULT_MASTER_KEY_FILE=Join-Path $state 'agent-private/master.key';$env:AGENT_STUDIO_PROVIDER_HTTPS_HOSTS='9router.elenio.id';$env:AGENT_STUDIO_DEV_MOCK_MODEL='false';$env:AGENT_STUDIO_WORKER_CONCURRENCY='1';$env:AGENT_STUDIO_SELF_APPROVAL_EXEMPT_SUBJECTS=''
  StartOwned 'workspace-agent' $executables['workspace-agent'] @() (Join-Path $repo 'ai_agent_studio');Ready 'http://127.0.0.1:8290/health/ready'
- Write-Output 'Local workspace ready: http://127.0.0.1:8200/apps/flowcase/elenio.html . Explicit local OIDC identities, real CP/Flowcase/Agent services; no production identity or deployment.'
-}finally{Remove-Item Env:PGPASSWORD,Env:DATABASE_URL -ErrorAction SilentlyContinue}
+ # Existing KMS API: real metadata/ACL authority; storage/search/conversion stay explicitly unavailable.
+ Push-Location (Join-Path $repo 'kms_go_package/backend');try{& $go build -o $executables['workspace-kms'] ./cmd/kms-api;Check}finally{Pop-Location}
+ $env:DATABASE_URL="postgres://elenio_test:$([IO.File]::ReadAllText((Join-Path $state 'database-password')))@127.0.0.1:55448/kms_workspace_live?sslmode=disable"
+ $env:APP_ENV='development';$env:HTTP_ADDRESS='127.0.0.1:8380';$env:AUTH_MODE='control_plane_jwt';$env:AUTH_ISSUER='http://127.0.0.1:8200';$env:AUTH_AUDIENCE='kms';$env:AUTH_JWKS_URL='http://127.0.0.1:8200/.well-known/jwks.json';$env:AUTH_TENANT_MAP='acme-demo=00000000-0000-4000-8000-000000000001'
+ $env:MIGRATIONS_DIR=Join-Path $repo 'kms_go_package/backend/migrations';$env:ELASTICSEARCH_URL='http://127.0.0.1:19200';$env:ELASTICSEARCH_INDEX='elenio_workspace_chunks'
+ foreach($name in @('OBJECT_STORAGE_ENDPOINT','OBJECT_STORAGE_ACCESS_KEY','OBJECT_STORAGE_SECRET_KEY','OBJECT_STORAGE_BUCKET','EMBEDDING_ENDPOINT','EMBEDDING_API_KEY','EMBEDDING_MODEL_ID','DOCLING_BASE_URL','DOCLING_API_KEY','SELF_APPROVAL_EXEMPT_SUBJECTS')){[Environment]::SetEnvironmentVariable($name,'','Process')};$env:EMBEDDING_DIMENSIONS='0'
+ StartOwned 'workspace-kms' $executables['workspace-kms'] @() (Join-Path $repo 'kms_go_package/backend');Ready 'http://127.0.0.1:8380/healthz'
+ Remove-Item Env:DATABASE_URL -ErrorAction SilentlyContinue
+ $kmsDirectory=Get-Content (Join-Path $repo 'control_plane/deploy/kms-cp/directory.json') -Raw|ConvertFrom-Json
+ $kmsStatements=[Collections.Generic.List[string]]::new();$kmsStatements.Add("BEGIN; INSERT INTO tenants(id,name) VALUES('00000000-0000-4000-8000-000000000001','Elenio local workspace') ON CONFLICT(id) DO NOTHING;")
+ foreach($entry in $kmsDirectory.users){$user=@($cpUsers|Where-Object subject -eq $entry.subject);if($user.Count -ne 1){throw 'KMS source directory identity missing from CP'};$uid=Literal $user[0].id;$name=Literal $user[0].name;$roleItems=@($entry.roles|ForEach-Object {Literal $_});$roles=if($roleItems.Count){'ARRAY['+($roleItems -join ',')+']::text[]'}else{"'{}'::text[]"};$kmsStatements.Add("INSERT INTO tenant_principals(tenant_id,principal_id,display_name,status,roles) VALUES('00000000-0000-4000-8000-000000000001',$uid,$name,'active',$roles) ON CONFLICT(tenant_id,principal_id) DO UPDATE SET display_name=EXCLUDED.display_name,status=EXCLUDED.status,roles=EXCLUDED.roles;")}
+ $kmsStatements.Add('COMMIT;');$null=Sql kms_workspace_live ($kmsStatements -join "`n")
+ $kmsWeb=Join-Path $state 'workspace-kms-web';$env:KMS_BASE_PATH='/apps/kms/'
+ Push-Location (Join-Path $repo 'kms_go_package/frontend');try{& npm run build -- --outDir $kmsWeb > (Join-Path $private 'kms-web-build.log');Check}finally{Pop-Location;Remove-Item Env:KMS_BASE_PATH -ErrorAction SilentlyContinue}
+ StartOwned 'workspace-kms-gateway' $executables['workspace-kms-gateway'] @('-mode=kms-gateway',"-web-dir=$kmsWeb") $repo;Ready 'http://127.0.0.1:5380/healthz'
+ # Existing UCW BFF delegates the actual user to Flowcase through the original CP exchange contract.
+ $ucwWeb=Join-Path $state 'workspace-ucw-web';$env:UCW_BASE_PATH='/apps/case-workspace/'
+ Push-Location (Join-Path $repo 'universal_case_workspace/web');try{& npm run build -- --outDir $ucwWeb > (Join-Path $private 'ucw-web-build.log');Check}finally{Pop-Location;Remove-Item Env:UCW_BASE_PATH -ErrorAction SilentlyContinue}
+ Push-Location (Join-Path $repo 'universal_case_workspace');try{& $go build -o $executables['workspace-ucw'] ./cmd/workspace-api;Check}finally{Pop-Location}
+ $env:UCW_ENV='development';$env:UCW_ADDR='127.0.0.1:8480';$env:UCW_DATABASE_URL="postgres://elenio_test:$([IO.File]::ReadAllText((Join-Path $state 'database-password')))@127.0.0.1:55448/ucw_workspace_live?sslmode=disable"
+ $env:UCW_CP_ISSUER='http://127.0.0.1:8200';$env:UCW_CP_JWKS_URL='http://127.0.0.1:8200/.well-known/jwks.json';$env:UCW_CP_AUDIENCE='case-workspace';$env:UCW_TENANT_KEY='acme-demo';$env:UCW_CP_INTERNAL_URL='http://127.0.0.1:8200';$env:UCW_CP_CLIENT_ID='case-workspace';$env:UCW_CP_CLIENT_SECRET_FILE=Join-Path $private 'ucw-exchange-client'
+ $env:UCW_FLOWCASE_URL='http://127.0.0.1:8280';$env:UCW_FLOWCASE_UI_PATH='/apps/flowcase';$env:UCW_WEB_DIR=$ucwWeb;$env:UCW_PACKS_DIR=Join-Path $repo 'universal_case_workspace/domain-packs'
+ $env:UCW_AGENT_STUDIO_URL='';$env:UCW_AGENT_STUDIO_TOKEN_FILE='';$env:UCW_DOCLING_URL='';$env:UCW_DOCLING_API_KEY_FILE=''
+ StartOwned 'workspace-ucw' $executables['workspace-ucw'] @() (Join-Path $repo 'universal_case_workspace');Ready 'http://127.0.0.1:8480/readyz'
+ Write-Output 'Local workspace ready: http://127.0.0.1:8200/apps/flowcase/elenio.html . Explicit local OIDC identities, real CP/Flowcase/Agent/KMS/UCW services. KMS storage/search/PDF processing and UCW AI intake remain unconfigured; no production identity or deployment.'
+}finally{Remove-Item Env:PGPASSWORD,Env:DATABASE_URL,Env:UCW_DATABASE_URL -ErrorAction SilentlyContinue}
