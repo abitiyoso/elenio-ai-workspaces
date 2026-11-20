@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useBlocker } from "react-router-dom";
+import { Link, useBlocker } from "react-router-dom";
 import { ArrowRight, FolderOpen, Plus, RefreshCw } from "lucide-react";
 import {
   Badge,
@@ -313,6 +313,7 @@ export function Solutions() {
                       : "View solution plan"}
                     <ArrowRight size={15} />
                   </Button>
+                  <Link className="e-button" to={`/solutions/${item.id}/describe`}>Open Solution journey</Link>
                   <Button onClick={() => setPreview(item)}>
                     Preview application
                   </Button>
@@ -536,14 +537,14 @@ export function Solutions() {
           </form>
         </DialogPanel>
       )}
-      {preview && (
+      {preview && session && (
         <DialogPanel
           title="Application preview"
-          description="Configured business pages using the shared components. This preview does not create a URL or load customer records."
+          description="Saved application pages with real workflow execution and case permissions. A separate customer installation is still required."
           onClose={() => setPreview(undefined)}
           wide
         >
-          <ApplicationPreview definition={preview.definition} />
+          <ApplicationPreview key={`${preview.id}:${preview.revision}`} definition={preview.definition} runtime={{plan: preview, session}} />
         </DialogPanel>
       )}
       {publisher && session && (

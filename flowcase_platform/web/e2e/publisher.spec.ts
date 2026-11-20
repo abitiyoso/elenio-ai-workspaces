@@ -87,6 +87,8 @@ async function fixture(
       });
     if (url.pathname.endsWith("/readiness"))
       return route.fulfill({ json: readiness() });
+    if (url.pathname.endsWith("/executions"))
+      return route.fulfill({json:{items:[],scope:"current_user_solution_executions"}});
     if (url.pathname.includes("/candidates")) {
       if (req.method() === "GET")
         return route.fulfill({ json: { items: candidates } });
@@ -146,6 +148,7 @@ test("compose business pages, preview responsive views, capture an immutable can
   page,
 }) => {
   const state = await fixture(page);
+  await page.route("**/api/v1/workflows/purchase-review/versions/1",route=>route.fulfill({status:403,json:{error:{code:"forbidden",message:"Contract fixture denies workflow access"}}}));
   await page.goto("/elenio.html#/solutions");
   await page.getByRole("button", { name: "New solution" }).click();
   await page.getByLabel("Solution name").fill("Finance application");
@@ -175,11 +178,11 @@ test("compose business pages, preview responsive views, capture an immutable can
     .click();
   await page.getByRole("button", { name: "New request", exact: true }).click();
   await expect(
-    page.getByRole("button", { name: "Submit request" }),
-  ).toBeDisabled();
+    page.getByRole("button", { name: "Start case",exact:true }),
+  ).toHaveCount(0);
   await page.getByRole("button", { name: "Reviews", exact: true }).click();
   await expect(
-    page.getByText("No tasks are loaded", { exact: false }),
+    page.getByText("No executions for this page in the loaded history.", { exact: true }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Results", exact: true }).click();
   await expect(

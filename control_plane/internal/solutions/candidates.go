@@ -59,21 +59,26 @@ func candidateInput(id string, revision int, version, requestKey string) error {
 // CanonicalSnapshotHash survives JSONB key ordering and preserves numeric precision.
 // It is a checksum, not a signature or approval.
 func CanonicalSnapshotHash(raw []byte) (string, error) {
-	dec := json.NewDecoder(bytes.NewReader(raw))
-	dec.UseNumber()
-	var value any
-	if err := dec.Decode(&value); err != nil {
-		return "", err
-	}
-	if err := dec.Decode(new(any)); !errors.Is(err, io.EOF) {
-		return "", apperr.BadRequest("INVALID_SNAPSHOT", "Expected one snapshot object")
-	}
-	canonical, err := json.Marshal(value)
+	canonical, err := CanonicalJSON(raw)
 	if err != nil {
 		return "", err
 	}
 	sum := sha256.Sum256(canonical)
 	return hex.EncodeToString(sum[:]), nil
+}
+
+// CanonicalJSON keeps retry bodies stable without rounding large JSON numbers.
+func CanonicalJSON(raw []byte) ([]byte, error) {
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	dec.UseNumber()
+	var value any
+	if err := dec.Decode(&value); err != nil {
+		return nil, err
+	}
+	if err := dec.Decode(new(any)); !errors.Is(err, io.EOF) {
+		return nil, apperr.BadRequest("INVALID_SNAPSHOT", "Expected one snapshot object")
+	}
+	return json.Marshal(value)
 }
 
 // Replay is checked before collecting another dependency snapshot, including after the plan advances.

@@ -1,11 +1,68 @@
 openapi: 3.1.0
 info:
   title: Elenio AI OS solution planning registry
-  version: 1.1.0
-  description: Workspace-scoped planning metadata, not execution, publication, licensing or deployment authority. Cookie session and same-origin CSRF protect writes.
+  version: 1.2.0
+  description: Workspace-scoped Solution plans, review candidates and delegated development executions. Flowcase remains case, data and domain approval authority. No customer installation or release approval is implied. Cookie session and same-origin CSRF protect writes.
 security:
   - session: []
 paths:
+  /api/v1/solutions/{id}/executions:
+    parameters:
+      - {$ref: '#/components/parameters/ID'}
+    get:
+      summary: Read your own development executions in the active Solution and workspace
+      description: Requires solution viewing permission. Each confirmed case is re-read with the current caller identity through the configured trusted Flowcase upstream. Business data and domain authority remain in Flowcase. A denied source read fails the request; no fake empty history is returned.
+      parameters:
+        - {name: cursor, in: query, schema: {type: string, format: uuid}}
+      responses:
+        '200':
+          description: At most 20 caller-owned associations with authorized current source status; no-store
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, scope]
+                properties:
+                  scope: {const: current_user_solution_executions}
+                  items: {type: array, maxItems: 20, items: {$ref: '#/components/schemas/ExecutionResult'}}
+                  next_cursor: {type: string, description: UUID cursor or empty string}
+        '403': {description: Current workspace or source case access denied}
+        '404': {description: Solution outside current workspace or missing}
+        '502': {description: Invalid source case or pin mismatch}
+        '503': {description: Trusted source unavailable; no data fabricated}
+    post:
+      summary: Start a real Flowcase case using a workflow version pinned in the saved Solution
+      description: Requires solution author permission, app entitlement and independent Flowcase case creation permission. Stores a durable intent before delegating. Retry the exact original input, revision and request key after a lost response, even after editing the plan. A new input requires a new key and the current revision. Remote idempotency key derives from the persisted intent. Does not publish, approve, install or imply sandboxing of external effects.
+      parameters:
+        - {$ref: '#/components/parameters/Csrf'}
+        - {name: If-Match, in: header, required: true, schema: {type: string, example: '"1"'}}
+        - {name: Idempotency-Key, in: header, required: true, schema: {type: string, pattern: '^[a-zA-Z0-9_-]{8,128}$'}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [workflow_key, title]
+              properties:
+                workflow_key: {type: string, description: Must be pinned in the saved Solution revision}
+                title: {type: string, minLength: 1, maxLength: 300}
+                variables: {type: object, description: Original Flowcase input-schema validation applies; at most 256 KiB serialized input}
+      responses:
+        '200':
+          description: Persisted association and freshly authorized current case; repeat returns same intent and case
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/ExecutionResult'}
+        '400': {description: Invalid input, pin or retry key; source input schema may reject variables}
+        '403': {description: CSRF, workspace, author, app or independent domain permission denied}
+        '404': {description: Solution or pinned source workflow missing}
+        '409': {description: Conflicting input for a retry key, or source runtime/dependency conflict}
+        '412': {description: New execution requires the latest saved Solution revision}
+        '428': {description: Strong saved revision required}
+        '502': {description: Source returned a case outside the requested pin}
+        '503': {description: Source unavailable; retry unchanged input and key to recover the pending intent}
   /api/v1/solutions/{id}/candidates:
     parameters:
       - {$ref: '#/components/parameters/ID'}
@@ -202,6 +259,33 @@ components:
     ID: {name: id, in: path, required: true, schema: {type: string, format: uuid}}
     Csrf: {name: X-CSRF-Token, in: header, required: true, schema: {type: string}}
   schemas:
+    ExecutionResult:
+      type: object
+      required: [execution]
+      properties:
+        execution:
+          type: object
+          required: [id, solution_id, plan_revision, workflow_key, workflow_version, created_at]
+          properties:
+            id: {type: string, format: uuid}
+            solution_id: {type: string, format: uuid}
+            plan_revision: {type: integer, minimum: 1}
+            workflow_key: {type: string}
+            workflow_version: {type: integer, minimum: 1}
+            case_id: {type: string, format: uuid, description: Absent until a source case has been confirmed}
+            created_at: {type: string, format: date-time}
+        case:
+          type: object
+          description: Authorized source summary, omitted for pending intents; variables and evidence are not copied into Control Plane
+          required: [id, reference, title, status, workflow_key, workflow_version, definition_hash]
+          properties:
+            id: {type: string, format: uuid}
+            reference: {type: string}
+            title: {type: string}
+            status: {type: string}
+            workflow_key: {type: string}
+            workflow_version: {type: integer, minimum: 1}
+            definition_hash: {type: string, pattern: '^[a-f0-9]{64}$'}
     Candidate:
       type: object
       required: [id, solution_id, version, plan_revision, status, snapshot, content_hash, created_at]

@@ -1,0 +1,30 @@
+# Final Lean continuation — 2026-11-20
+
+**NOT DONE.** This is the current continuation checkpoint, not full-product acceptance. Sources are the owner's [Final Lean master prompt](v2/MASTER_PROMPT_FINAL_LEAN.md), [guided HTML](v2/Elenio_AI_OS_V10_Updated_Guided.html) and [PRD V2](v2/Elenio_AI_OS_PRD_v2.docx), copied once from Downloads. Synced `sources/` and the original supplied files are unchanged. Follow Ponytail: reuse original services/components and deliver tested changes without unrelated refactoring.
+
+## Implemented in this continuation
+
+- Continued the verified open draft PR chain #1–#12 from `0a6a45f`, on `feat/elenio-solution-runtime`. Owner origin remains public; upstream push stays disabled. Main is untouched.
+- Home keeps its V10 composition and unchanged official assets; its primary action opens **Describe → Blueprint → Configure → Preview & Test → Publish**. Every saved stage has a durable Solution URL. Describe/configuration save the existing CP definition with strong revisions; unsaved navigation is protected.
+- Existing Architect still requires an explicit model request, proposal review, server validation and draft confirmation. Within a Solution, requirements are saved first, current scope/revision is checked, workflow provenance includes Solution ID/revision, and the reviewed native Flowcase draft is linked back into that same Solution. A failed link retains the created draft and names it for recovery; no duplicate Composer or engine was introduced.
+- Existing Application Composer is inside Configure. The same saved pages now support **development execution**: original published input schema, exact saved workflow version, stable retries, durable Solution→case association, authorized current status, original tasks/reviews/results/evidence. CP stores association/pins/hashes, not case variables or document content. Flowcase independently authorizes every creation/read/action. History is explicitly current-user/Solution scoped, paginated at 20, not a business-wide customer queue.
+- Fixed both original case creation UIs to submit the version whose input schema was displayed. The engine already supported explicit version pins; its implementation was preserved.
+- Source failures, entitlement revocation, redirects, malformed/oversized responses and pin mismatches fail closed. Pending intents do not fabricate cases. Retrying identical input/key/revision survives a later Solution edit and preserves large JSON numbers across the service boundary.
+
+## Evidence and limits
+
+Control Plane: **57 passed / 0 failed / 0 skipped**, real disposable PostgreSQL and original session/policy stack; Flowcase upstream in the new negative/retry tests is an explicit HTTP contract double. Frontend: **103 passed**, lint/typecheck/build pass. **42 browser regressions and 8 native workspace tests pass**, recorded in `evidence/e2e-results.json` and `evidence/workspace-e2e-results.json`. Native tests use original CP/Flowcase/Agent/KMS/UCW services, fixture loopback OIDC identities and PostgreSQL without interception. The Architect bridge test uses a labeled provider contract fixture; **no new model call or charge** was initiated. Native execution uses a synthetic start/end workflow, not Invoice Approval acceptance.
+
+Native preview: `http://127.0.0.1:8200/apps/flowcase/elenio.html`. Reproduce with `scripts/Start-LocalWorkspace.ps1`, then the existing frontend unit/browser commands and `ELENIO_LOCAL_E2E=1 ELENIO_WORKSPACE_E2E=1` native Playwright configuration. Credentials/raw auth logs stay ignored. Screenshots: `solution-execution-*`, `solution-journey-*`, `solution-describe-*`. Shared logo/font/tokens remain unchanged; prose requirements use the existing Inter family rather than the shared code-textarea monospace default.
+
+## Remaining mandatory end states
+
+| Master | Current status and remaining work |
+|---|---|
+| A — Solution Factory | **Partial.** Guided saved context and real development execution now connected. Full revision history, richer typed blueprint/resource bindings, reusable business data/UI mapping, contextual evaluation/economics and independently approved Solution releases remain implementation work. Native workbench links alone are not completion. |
+| B — Independent customer installation | **NOT DONE.** Complete transitive resolver, independent release approval, pinned OCI/config bundle and unified installer/maintenance validation. Clean separate Docker host, customer IdP, DNS/TLS and signing material are not supplied. Docker executable is still unavailable here. No manifest/candidate is install evidence. |
+| C — Two reusable business applications | **NOT DONE.** Invoice PDF→authorized extraction→correction→independent Finance decision→durable trace/usage and a materially different second app remain required. Existing model authoring, runtime and source approval tests do not prove these combined business scenarios. KMS storage/search/PDF processing and approved UCW agent intake are unconfigured. |
+| D — Enterprise edition | **NOT DONE.** Source workspace/RBAC isolation exists. Server-enforced commercial license/offline activation, two independently published departmental apps and isolated customer-host proof remain. Final Lean makes licensing mandatory; earlier lower-priority notes are historical. |
+| E — Readiness | **Partial.** Original security/approval boundaries and regression evidence retained. General actual/test/estimated event ledger/rates/budgets, remaining governance, operations and full PRD FR/UAT are open. Final visual/business acceptance requires owner/independent reviewers. |
+
+Next dependency: retain immutable Solution revisions and bind later approval/evaluation evidence to those exact revisions, then extend the existing release and runtime capabilities. Pending execution recovery currently requires the original request input and key; a browser reload lists a pending intent but cannot reconstruct input intentionally not stored in CP. Independent installation and business approval gates remain open; do not mark the product complete, merge main or deploy production.

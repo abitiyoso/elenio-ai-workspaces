@@ -118,12 +118,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 2623,
+                  "duration": 1815,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T02:02:20.359Z",
+                  "startTime": "2026-11-20T12:55:09.549Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -152,12 +152,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 4282,
+                  "duration": 5746,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T02:02:23.336Z",
+                  "startTime": "2026-11-20T12:55:11.556Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -168,6 +168,40 @@
           "id": "b163ed09f68681248ada-47204c85a5607a87228d",
           "file": "workspace.spec.ts",
           "line": 101,
+          "column": 1
+        },
+        {
+          "title": "guided Home saves one Solution across description, Composer and preview without starting a model call",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2968,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-20T12:55:17.315Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b163ed09f68681248ada-6c3ce37b5aa1618107f9",
+          "file": "workspace.spec.ts",
+          "line": 200,
           "column": 1
         },
         {
@@ -186,12 +220,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 679,
+                  "duration": 611,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T02:02:27.640Z",
+                  "startTime": "2026-11-20T12:55:20.298Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -201,7 +235,7 @@
           ],
           "id": "b163ed09f68681248ada-df2b7c7df8652ce4ae74",
           "file": "workspace.spec.ts",
-          "line": 152,
+          "line": 244,
           "column": 1
         },
         {
@@ -220,12 +254,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 4697,
+                  "duration": 5424,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T02:02:28.331Z",
+                  "startTime": "2026-11-20T12:55:20.924Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -235,7 +269,7 @@
           ],
           "id": "b163ed09f68681248ada-f1eb16b030dec3a81fdd",
           "file": "workspace.spec.ts",
-          "line": 167,
+          "line": 259,
           "column": 1
         },
         {
@@ -254,12 +288,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1614,
+                  "duration": 1566,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T02:02:33.037Z",
+                  "startTime": "2026-11-20T12:55:26.360Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -269,7 +303,7 @@
           ],
           "id": "b163ed09f68681248ada-7e45a40d5798e870bd31",
           "file": "workspace.spec.ts",
-          "line": 211,
+          "line": 303,
           "column": 1
         },
         {
@@ -288,12 +322,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 4812,
+                  "duration": 5310,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T02:02:34.663Z",
+                  "startTime": "2026-11-20T12:55:27.939Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -303,7 +337,7 @@
           ],
           "id": "b163ed09f68681248ada-69d95386842edcc15916",
           "file": "workspace.spec.ts",
-          "line": 239,
+          "line": 331,
           "column": 1
         },
         {
@@ -322,12 +356,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 2027,
+                  "duration": 2175,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T02:02:39.483Z",
+                  "startTime": "2026-11-20T12:55:33.263Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -337,7 +371,7 @@
           ],
           "id": "b163ed09f68681248ada-cdc3d34dd7aa02be9b55",
           "file": "workspace.spec.ts",
-          "line": 291,
+          "line": 383,
           "column": 1
         }
       ]
@@ -345,9 +379,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-20T02:02:19.360Z",
-    "duration": 22349.054,
-    "expected": 7,
+    "startTime": "2026-11-20T12:55:08.906Z",
+    "duration": 26729.699999999997,
+    "expected": 8,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

@@ -175,7 +175,7 @@ export interface DataSchema {
 
 const ifMatch = (n: number) => ({ "If-Match": `"${n}"` });
 
-export async function createCase(input: { workflow_key: string; title: string; variables: Record<string, unknown> }) {
+export async function createCase(input: { workflow_key: string; version?: number; title: string; variables: Record<string, unknown> }) {
   return (await apiRequest<CaseDetail>("POST", "/api/v1/cases", { body: input, headers: { "Idempotency-Key": newIdempotencyKey() } })).data;
 }
 

@@ -1,5 +1,7 @@
 # Elenio AI Workspaces — persistent Codex instructions
 
+- Current continuation: follow `v2/MASTER_PROMPT_FINAL_LEAN.md`, guided HTML and PRD V2. `FINAL_LEAN_STATUS.md` is the concise active checkpoint. Full mandatory A–E acceptance remains open; licensing is now mandatory. Keep Home V10, contextual Solution stages and the existing Composer inside Configure. Stage navigation is never completion evidence.
+
 - Visibility override (2026-11-20): the owner explicitly requested `abitiyoso/elenio-ai-workspaces` become public after a private-access 404. PUBLIC visibility and unauthenticated API/web access were verified. This supersedes historical private-only wording in the copied master prompt and delivery references. Do not change visibility again without an owner instruction. No main merge, upstream write, production deployment or license-file addition is authorized by this visibility change.
 
 - Permanent delivery outcome: PRODUCT_DELIVERY_ADDENDUM.md extends the original master prompt. Product name: Elenio AI OS — Enterprise Agentic AI Platform. Preserve the owner's agreed design. Internal engineering, standalone customer solution and full enterprise modes use shared core services. Prioritize one complete customer solution and Docker Compose before advanced licensing/Kubernetes/billing. A manifest is not installation evidence. AI_OS_DELIVERY.md tracks requirements. Owner confirmed no Docker sandbox on 2026-11-19; continue local work and record the installation gate. No production deployment or merge approval was given.

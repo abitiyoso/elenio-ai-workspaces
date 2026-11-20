@@ -173,7 +173,7 @@ export function Launchpad({
                 Requirement to blueprint
               </span>
               <Button variant="primary" onClick={() => onArchitect(brief)}>
-                Create with AI <ArrowRight size={16} />
+                Create a solution <ArrowRight size={16} />
               </Button>
             </div>
           </div>

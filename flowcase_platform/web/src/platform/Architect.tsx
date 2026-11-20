@@ -50,10 +50,18 @@ export function ArchitectBrief({
   brief,
   onBrief,
   onBuild,
+  solutionContext,
+  onBeforeGenerate,
+  onBeforeApply,
+  onCreated,
 }: {
   brief: string;
   onBrief: (value: string) => void;
   onBuild: () => void;
+  solutionContext?: {id: string; revision: number};
+  onBeforeGenerate?: () => Promise<void>;
+  onBeforeApply?: () => Promise<void>;
+  onCreated?: (workflow: {key: string; version: number}) => Promise<void>;
 }) {
   const navigate = useNavigate();
   const [ready, setReady] = useState<ArchitectReady | null>(null),
@@ -159,13 +167,14 @@ export function ArchitectBrief({
             run_id: run.id,
             agent_version_id: run.agent_version_id,
             model_mode: run.model_mode,
+            ...(solutionContext ? {solution_id: solutionContext.id, solution_revision: solutionContext.revision} : {}),
           },
         },
       },
       null,
       2,
     );
-  }, [workflow, run, edit]);
+  }, [workflow, run, edit, solutionContext]);
   const draft = useMemo(() => {
     if (!jsonText || !ready) return { definition: null, issues: [], error: "" };
     try {
@@ -195,6 +204,7 @@ export function ArchitectBrief({
     setSending(true);
     setError("");
     try {
+      await onBeforeGenerate?.();
       const fresh = await loadArchitect();
       if (!sameScope(ready, fresh)) {
         setRun(null);
@@ -275,6 +285,9 @@ export function ArchitectBrief({
         );
       const latest = await getAuthoringRun(run.id);
       parseProposal(latest);
+      if (solutionContext && latest.input.requirement !== brief.trim())
+        throw new Error("The saved Solution requirement differs from this run. Review or generate a matching blueprint before applying.");
+      await onBeforeApply?.();
       const report = await validateDocument(draft.definition);
       setValidated({ text: jsonText, report });
       if (!report.valid)
@@ -293,9 +306,8 @@ export function ArchitectBrief({
         },
         creation.current.key,
       );
-      navigate(
-        `/connected/projects/${encodeURIComponent(saved.version.workflow_key)}/${saved.version.version}`,
-      );
+      if (onCreated) await onCreated({key: saved.version.workflow_key, version: saved.version.version});
+      else navigate(`/connected/projects/${encodeURIComponent(saved.version.workflow_key)}/${saved.version.version}`);
     } catch (e) {
       setError(errorText(e));
     } finally {

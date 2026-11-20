@@ -68,7 +68,7 @@ describe("Cases: new case", () => {
     await waitFor(() => expect(calls.some((c) => c.method === "POST")).toBe(true));
     const post = calls.find((c) => c.method === "POST");
     expect(post?.url).toBe("/api/v1/cases");
-    expect(JSON.parse(String(post?.init.body))).toEqual({ workflow_key: "poc", title: "Branch PoC", variables: {} });
+    expect(JSON.parse(String(post?.init.body))).toEqual({ workflow_key: "poc", version: 1, title: "Branch PoC", variables: {} });
   });
 
   it("offers the AI assistant as a secondary link to the Case Workspace intake", async () => {

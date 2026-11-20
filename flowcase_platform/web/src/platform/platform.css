@@ -2560,6 +2560,16 @@
 .knowledge-results article,.knowledge-version {padding:20px 0;border-bottom:1px solid var(--e-line);overflow-wrap:anywhere;}
 .knowledge-citation {font-size:13px;color:var(--e-muted);}
 .recent-workflows {display:grid;gap:12px;}
+.solution-stages {display:flex;gap:8px;flex-wrap:wrap;margin:24px 0;}
+.solution-stages>a,.solution-stages>span {display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--e-line);border-radius:8px;color:var(--e-muted);background:var(--e-surface,#fff);text-decoration:none;font-size:14px;}
+.solution-stages [aria-current="step"] {color:var(--e-text);border-color:var(--e-brand,#2864ec);font-weight:600;}
+.solution-stages>span {opacity:.65;}
+.solution-stage-note {color:var(--e-muted);font-size:14px;}
+.e-field textarea.solution-requirement {font-family:inherit;font-size:14px;}
+.solution-build-form {padding:24px;display:grid;gap:20px;max-width:1100px;}
+.solution-build-form fieldset {border:0;padding:0;margin:0;display:grid;gap:20px;min-width:0;}
+.solution-journey .architect-page {padding:0;}
+@media(max-width:600px){.solution-build-form{padding:18px;}.solution-stages>a,.solution-stages>span{padding:10px;font-size:13px;}}
 .control-setting {display:flex;align-items:center;justify-content:space-between;gap:24px;padding:24px;}
 .control-setting h2 {font-size:18px;margin:0 0 8px;}
 .control-setting p {margin:0;}
