@@ -1,5 +1,7 @@
 # Elenio AI Workspaces — persistent Codex instructions
 
+- Owner follow-up 2026-11-20: licensing is intended **per tenant, later**. Do not invent commercial quotas, grace periods or expiry behavior, or treat the proposed technical baseline as approved. Continue core delivery; retain the licensing requirement as an open later gate.
+
 - Current continuation: follow `v2/MASTER_PROMPT_FINAL_LEAN.md`, guided HTML and PRD V2. `FINAL_LEAN_STATUS.md` is the concise active checkpoint. Full mandatory A–E acceptance remains open; licensing is now mandatory. Keep Home V10, contextual Solution stages and the existing Composer inside Configure. Stage navigation is never completion evidence.
 
 - Visibility override (2026-11-20): the owner explicitly requested `abitiyoso/elenio-ai-workspaces` become public after a private-access 404. PUBLIC visibility and unauthenticated API/web access were verified. This supersedes historical private-only wording in the copied master prompt and delivery references. Do not change visibility again without an owner instruction. No main merge, upstream write, production deployment or license-file addition is authorized by this visibility change.

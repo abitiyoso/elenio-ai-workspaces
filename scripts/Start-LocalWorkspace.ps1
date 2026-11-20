@@ -32,6 +32,7 @@ function Sql([string]$Database,[string]$Statement){
 }
 function Literal([string]$Value){return "'"+$Value.Replace("'","''")+"'"}
 & (Join-Path $PSScriptRoot 'Start-LocalE2E.ps1') -GoExe $go -PostgresBin $pg -DatabaseOnly;Check
+& (Join-Path $PSScriptRoot 'Start-LocalAgentStudio.ps1') -GoExe $go -PostgresBin $pg -DatabaseOnly;Check
 [IO.Directory]::CreateDirectory($private)|Out-Null;Protect $private
 foreach($file in @('oidc-client','csrf-key','token-encryption-key','ucw-exchange-client')){$path=Join-Path $private $file;if(!(Test-Path -LiteralPath $path)){[IO.File]::WriteAllText($path,[Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(32)))}}
 $executables=@{'workspace-identity'=(Join-Path $state 'local-workspace.exe');'workspace-gateway'=(Join-Path $state 'local-workspace.exe');'workspace-kms-gateway'=(Join-Path $state 'local-workspace.exe');'workspace-control'=(Join-Path $state 'control-plane.exe');'workspace-api'=(Join-Path $state 'workspace-flowcase-api.exe');'workspace-worker'=(Join-Path $state 'workspace-flowcase-worker.exe');'workspace-agent'=(Join-Path $state 'workspace-agent-studio.exe');'workspace-kms'=(Join-Path $state 'workspace-kms.exe');'workspace-ucw'=(Join-Path $state 'workspace-ucw.exe')}

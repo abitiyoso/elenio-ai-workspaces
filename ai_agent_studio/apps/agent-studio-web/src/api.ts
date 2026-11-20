@@ -241,6 +241,8 @@ export type Run = {
   tokens_in: number;
   tokens_out: number;
   tool_calls: number;
+  usage_coverage?: 'complete' | 'partial' | 'unavailable' | 'legacy_final_attempt';
+  usage?: {attempt: number; deployment_id?: string; config_version: number; tokens_in: number; tokens_out: number; tool_calls: number; usage_reports: number; missing_usage: number; recorded_at: string}[];
   eval_run_id?: string;
   eval_case_id?: string;
   created_at: string;
@@ -418,6 +420,7 @@ export type RunMetrics = {
   p95_duration_ms: number | null;
   tokens_in: number;
   tokens_out: number;
+  usage_by_class?: Record<string,{tokens_in:number;tokens_out:number;runs:number;incomplete_runs:number}>;
   tool_denials: number;
   grounded_rate: number | null;
   eval_runs_completed: number;

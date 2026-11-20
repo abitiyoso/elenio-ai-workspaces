@@ -1,5 +1,9 @@
 # Live capability / acceptance matrix
 
+## Latest update — retry-inclusive Agent usage
+
+Original Agent worker persists immutable, tenant-scoped observations per attempt before retry/settlement; reads and Operations sum all observed attempts, prevent duplicate replay and retain unknown/partial coverage. Production actual, sandbox/evaluation test and mock stay distinct. Existing Run detail exposes attempts and unpriced status; original layout/font/logo retained with measured contrast/mobile fixes. 92 Agent tests + focused unprivileged RLS pass. Native suite: eight real unintercepted cases + one explicit synthetic usage UI contract case. No real provider call/billing verification. General Solution/case usage integration, pricing/FX/budgets and full economics acceptance remain open. [FINAL_LEAN_STATUS.md](FINAL_LEAN_STATUS.md).
+
 ## Latest update — retained Solution versions
 
 Each successful CP Solution creation/edit retains its full configuration transactionally with audit. Scoped read-only history, SHA-256 wire checksums, bounded pagination and database immutability are implemented; migration labels the observed legacy current version and does not invent missing earlier versions/editors. Existing Journey header opens the history without another menu. Real database upgrade/isolation/immutability tests and native browser proof retain the original requirement after multiple edits. Current checks: 59 CP, 105 frontend, eight native workspace cases; prior PR #13 browser baseline: 42. Release approval and installation remain open. [FINAL_LEAN_STATUS.md](FINAL_LEAN_STATUS.md).

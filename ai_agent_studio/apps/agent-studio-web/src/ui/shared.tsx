@@ -307,7 +307,7 @@ export function RunDetailView({ runId, session, onChanged }: { runId: string; se
         <div className="record-main">
           <strong>{run.agent_key} · v{run.agent_semver}</strong>
           <span>Run <code>{run.id}</code> · {run.kind} · dibuat {formatDate(run.created_at)}</span>
-          <small>Caller: {run.caller_subject} · Attempt {run.attempts}/{run.max_attempts} · Durasi {runDuration(run)} · Token {run.tokens_in}/{run.tokens_out} · Tool calls {run.tool_calls}</small>
+          <small>Caller: {run.caller_subject} · Attempt {run.attempts}/{run.max_attempts} · Durasi {runDuration(run)} · Tool calls {run.tool_calls}</small>
         </div>
         <div className="badge-stack">
           <StatusBadge value={run.status} />
@@ -315,6 +315,14 @@ export function RunDetailView({ runId, session, onChanged }: { runId: string; se
           {run.cancel_requested && <span className="status-badge status-cancelled">pembatalan diminta</span>}
         </div>
       </div>
+      <section aria-label="Usage per percobaan">
+        <h3>Usage {run.model_mode==='dev_mock'?'mock':run.model_mode==='provider'?(run.kind==='production'?'actual':'test'):'unknown'}</h3>
+        <p>{run.usage_coverage==='complete'?`Token semua percobaan: ${run.tokens_in} in / ${run.tokens_out} out.`:run.usage_coverage==='partial'?`Token terlapor: ${run.tokens_in} in / ${run.tokens_out} out. Sebagian usage belum tersedia.`:run.usage_coverage==='unavailable'?'Model belum melaporkan usage; bukan berarti nol token.':`Token historis: ${run.tokens_in} in / ${run.tokens_out} out. Percobaan sebelumnya tidak dapat direkonstruksi.`} Biaya belum dihitung dari tarif terverifikasi.</p>
+        {Array.isArray(run.usage)&&run.usage.length>0&&<TableScroll label="Usage per percobaan"><table><caption className="sr-only">Usage per percobaan</caption>
+          <thead><tr><th>Percobaan</th><th>Token in</th><th>Token out</th><th>Pelaporan usage</th><th>Model deployment</th></tr></thead>
+          <tbody>{run.usage.map(item=><tr key={item.attempt}><td>{item.attempt}</td><td>{item.usage_reports>0?item.tokens_in:'Belum dilaporkan'}</td><td>{item.usage_reports>0?item.tokens_out:'Belum dilaporkan'}</td><td>{item.usage_reports>0?(item.missing_usage>0?'Sebagian':'Dilaporkan'):'Tidak tersedia'}</td><td>{item.deployment_id?`${item.deployment_id} · config ${item.config_version}`:'Tidak tersedia'}</td></tr>)}</tbody>
+        </table></TableScroll>}
+      </section>
       {run.model_mode === 'dev_mock' && <div className="alert mock-alert" role="note"><strong>Dev mock model — bukan model nyata.</strong> Output ini berasal dari model tiruan untuk pengujian alur, bukan dari provider LLM.</div>}
       <div className="alert draft-alert" role="note">Output agent selalu berstatus <strong>draft</strong> dan perlu ditinjau manusia sebelum dipakai. Status run tidak berarti persetujuan.</div>
       {run.error_code && <div className="alert error" role="alert">Error code: <code>{run.error_code}</code></div>}

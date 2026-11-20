@@ -21,6 +21,7 @@ type Store interface {
 	BeginRunExecution(ctx context.Context, tenantID, runID string) (postgres.RunExecution, error)
 	AppendRunEvents(ctx context.Context, tenantID, runID string, events []postgres.RunEvent) error
 	RecordEvidence(ctx context.Context, tenantID, runID string, refs []postgres.EvidenceRef) error
+	RecordRunUsage(ctx context.Context, tenantID, runID string, usage postgres.RunUsage) error
 	FinishRun(ctx context.Context, tenantID, runID string, result postgres.RunResult) (postgres.Run, error)
 	RequeueRun(ctx context.Context, tenantID, runID, errorCode, providerError string, delay time.Duration) error
 	CancelRequested(ctx context.Context, tenantID, runID string) (bool, error)
@@ -168,6 +169,16 @@ func (w *Worker) processRun(ctx context.Context, item postgres.WorkItem) {
 	mu.Lock()
 	wasCancelled, lost := cancelled, leaseLost
 	mu.Unlock()
+	usage := postgres.RunUsage{Attempt: exec.Run.Attempts, TokensIn: outcome.TokensIn, TokensOut: outcome.TokensOut, ToolCalls: outcome.ToolCalls, UsageReports: outcome.UsageReports, MissingUsage: outcome.MissingUsage}
+	if exec.Model != nil {
+		usage.DeploymentID = exec.Model.DeploymentID
+		usage.ConfigVersion = exec.Model.ConfigVersion
+	}
+	if err := w.Store.RecordRunUsage(persist, item.TenantID, item.RefID, usage); err != nil {
+		w.logf("record usage %s: %v", item.RefID, err)
+		_ = w.Store.RescheduleWork(persist, "run", item.RefID, w.ID, 10*time.Second)
+		return
+	}
 
 	if err := w.Store.RecordEvidence(persist, item.TenantID, item.RefID, outcome.Evidence); err != nil {
 		w.logf("record evidence %s: %v", item.RefID, err)

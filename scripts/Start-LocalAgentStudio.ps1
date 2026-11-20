@@ -1,4 +1,4 @@
-param([Parameter(Mandatory)][string]$GoExe,[Parameter(Mandatory)][string]$PostgresBin)
+param([Parameter(Mandatory)][string]$GoExe,[Parameter(Mandatory)][string]$PostgresBin,[switch]$DatabaseOnly)
 $ErrorActionPreference='Stop'
 $repo=Split-Path $PSScriptRoot -Parent
 $state=Join-Path $repo '.local-e2e'
@@ -43,6 +43,7 @@ try {
  }
 
 }finally{Remove-Item Env:PGPASSWORD -ErrorAction SilentlyContinue}
+if($DatabaseOnly){Write-Output 'Local Agent Studio schema ready.';exit 0}
 $env:AGENT_STUDIO_DATABASE_URL='postgres://elenio_test@127.0.0.1:55448/agent_live?sslmode=disable'
 $env:AGENT_STUDIO_DATABASE_PASSWORD_FILE=Join-Path $state 'database-password'
 $env:AGENT_STUDIO_ENV='development';$env:AGENT_STUDIO_DEV_LOGIN='local-architect@elenio.local'

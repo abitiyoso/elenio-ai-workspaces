@@ -56,6 +56,8 @@ type Run struct {
 	TokensIn              int             `json:"tokens_in"`
 	TokensOut             int             `json:"tokens_out"`
 	ToolCalls             int             `json:"tool_calls"`
+	Usage                 []RunUsage      `json:"usage"`
+	UsageCoverage         string          `json:"usage_coverage"`
 	EvalRunID             *string         `json:"eval_run_id,omitempty"`
 	EvalCaseID            *string         `json:"eval_case_id,omitempty"`
 	CreatedAt             time.Time       `json:"created_at"`
@@ -147,8 +149,12 @@ type ModelTarget struct {
 const runColumns = `r.id::text, r.agent_id::text, a.agent_key, r.agent_version_id::text, v.semver, r.run_kind, r.caller_kind,
 	r.caller_subject, r.idempotency_key, r.external_correlation_id, r.case_ref, r.input_json, r.evidence_input_json,
 	r.status, r.model_mode, r.pinned_json, r.output_json, r.output_checksum, r.validation_json, r.error_code,
-	r.attempts, r.max_attempts, r.deadline_at, r.cancel_requested, r.tokens_in, r.tokens_out, r.tool_calls,
-	r.eval_run_id::text, r.eval_case_id::text, r.created_at, r.started_at, r.completed_at, r.delegated_user`
+	r.attempts, r.max_attempts, r.deadline_at, r.cancel_requested,
+	COALESCE((SELECT sum(u.tokens_in) FROM agent_run_usage u WHERE u.tenant_id=r.tenant_id AND u.run_id=r.id),r.tokens_in),
+	COALESCE((SELECT sum(u.tokens_out) FROM agent_run_usage u WHERE u.tenant_id=r.tenant_id AND u.run_id=r.id),r.tokens_out),
+	COALESCE((SELECT sum(u.tool_calls) FROM agent_run_usage u WHERE u.tenant_id=r.tenant_id AND u.run_id=r.id),r.tool_calls),
+	r.eval_run_id::text, r.eval_case_id::text, r.created_at, r.started_at, r.completed_at, r.delegated_user,
+	COALESCE((SELECT jsonb_agg(jsonb_build_object('attempt',u.attempt,'deployment_id',COALESCE(u.deployment_id::text,''),'config_version',u.config_version,'tokens_in',u.tokens_in,'tokens_out',u.tokens_out,'tool_calls',u.tool_calls,'usage_reports',u.usage_reports,'missing_usage',u.missing_usage,'recorded_at',u.recorded_at) ORDER BY u.attempt) FROM agent_run_usage u WHERE u.tenant_id=r.tenant_id AND u.run_id=r.id),'[]'::jsonb)`
 
 const runFrom = ` FROM agent_runs r JOIN agents a ON a.tenant_id=r.tenant_id AND a.id=r.agent_id
 	JOIN agent_versions v ON v.tenant_id=r.tenant_id AND v.id=r.agent_version_id`
@@ -157,12 +163,16 @@ type rowScanner interface{ Scan(...any) error }
 
 func scanRun(row rowScanner) (Run, error) {
 	var item Run
-	var output []byte
+	var output, usage []byte
 	err := row.Scan(&item.ID, &item.AgentID, &item.AgentKey, &item.AgentVersionID, &item.AgentSemver, &item.Kind, &item.CallerKind,
 		&item.CallerSubject, &item.IdempotencyKey, &item.ExternalCorrelationID, &item.CaseRef, &item.Input, &item.EvidenceInput,
 		&item.Status, &item.ModelMode, &item.Pinned, &output, &item.OutputChecksum, &item.Validation, &item.ErrorCode,
 		&item.Attempts, &item.MaxAttempts, &item.DeadlineAt, &item.CancelRequested, &item.TokensIn, &item.TokensOut, &item.ToolCalls,
-		&item.EvalRunID, &item.EvalCaseID, &item.CreatedAt, &item.StartedAt, &item.CompletedAt, &item.DelegatedUser)
+		&item.EvalRunID, &item.EvalCaseID, &item.CreatedAt, &item.StartedAt, &item.CompletedAt, &item.DelegatedUser, &usage)
+	if err == nil {
+		err = json.Unmarshal(usage, &item.Usage)
+		item.UsageCoverage = runUsageCoverage(item)
+	}
 	if output != nil {
 		item.Output = output
 	}

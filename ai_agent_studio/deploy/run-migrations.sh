@@ -92,6 +92,7 @@ GRANT INSERT, UPDATE, DELETE ON TABLE
     release_requests, releases, feedback_items TO agent_studio_app;
 -- Trace rows are inserted, and deleted only by the retention purge trigger path.
 GRANT INSERT, DELETE ON TABLE agent_run_events TO agent_studio_app;
+GRANT INSERT ON TABLE agent_run_usage TO agent_studio_app;
 GRANT SELECT ON public.agent_studio_schema_migrations TO agent_studio_app;
 SELECT format(
     'ALTER DEFAULT PRIVILEGES FOR ROLE %I IN SCHEMA public GRANT SELECT ON TABLES TO agent_studio_app',

@@ -417,3 +417,43 @@ test("Business Apps opens original UCW and exchanges the real operator identity 
   await page.screenshot({path:"../../docs/elenio-handoff/evidence/html-existing-business-workspace-1440.png",fullPage:false});
   await verifyWorkbench(page,"shared-business-cases","Open navigation");
 });
+
+// Explicit UI contract fixture: real mounted Agent UI/session, intercepted usage payloads, no model execution or database metrics seeded.
+test("Agent usage UI contract fixture separates test, partial and unpriced observations",async({page})=>{
+  await signIn(page);
+  const runID="00000000-0000-4000-8000-000000000711",stamp="2026-11-20T12:00:00Z";
+  const fixture={id:runID,agent_id:"00000000-0000-4000-8000-000000000712",agent_key:"usage.contract-fixture",agent_version_id:"00000000-0000-4000-8000-000000000713",agent_semver:"1.0.0",kind:"sandbox",caller_kind:"user",caller_subject:"explicit-contract-fixture",idempotency_key:"explicit-usage-fixture",input:{},evidence_input:[],status:"succeeded",model_mode:"provider",pinned:{},output:{summary:"UI contract fixture, not a provider execution"},validation:{schema_valid:true,risk_flags:[]},attempts:2,max_attempts:3,deadline_at:stamp,cancel_requested:false,tokens_in:300,tokens_out:30,tool_calls:0,created_at:stamp,started_at:stamp,completed_at:stamp,usage_coverage:"complete",
+    usage:[1,2].map(attempt=>({attempt,config_version:1,tokens_in:attempt*100,tokens_out:attempt*10,tool_calls:0,usage_reports:1,missing_usage:0,recorded_at:stamp}))};
+  let writes=0;
+  page.on("request",request=>{if(request.url().includes("/apps/agent-studio/api/v1/")&&request.method()!=="GET")writes++;});
+  await page.route("**/apps/agent-studio/api/v1/runs**",async route=>{
+    const path=new URL(route.request().url()).pathname;
+    if(route.request().method()!=="GET")throw new Error("Usage UI attempted a mutation");
+    if(path.endsWith("/events"))return route.fulfill({json:{items:[]}});
+    return route.fulfill({json:path.endsWith(runID)?{run:fixture,evidence:[]}:{items:[fixture],total:1}});
+  });
+  await page.goto("/apps/agent-studio/#runs");
+  await page.getByRole("button",{name:"Detail",exact:true}).click();
+  await expect(page.getByRole("heading",{name:"Usage test",exact:true})).toBeVisible();
+  await expect(page.getByText("Token semua percobaan: 300 in / 30 out.",{exact:false})).toBeVisible();
+  await expect(page.getByRole("table",{name:"Usage per percobaan",exact:true}).getByRole("row")).toHaveCount(3);
+  for(const width of [1440,390]){
+    await page.setViewportSize({width,height:1000});
+    await page.getByRole("heading",{name:"Usage test",exact:true}).scrollIntoViewIfNeeded();
+    const layout=await page.evaluate(()=>({width:window.innerWidth,scrollWidth:document.documentElement.scrollWidth,overflow:[...document.querySelectorAll("main *")].filter(element=>element.getBoundingClientRect().right>window.innerWidth+1).slice(0,12).map(element=>({tag:element.tagName,class:element.className,right:element.getBoundingClientRect().right}))}));
+    expect(layout.scrollWidth,JSON.stringify(layout)).toBeLessThanOrEqual(layout.width);
+    await page.screenshot({path:`../../docs/elenio-handoff/evidence/agent-usage-contract-${width}.png`,fullPage:false});
+    const axe=await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21aa","wcag22aa"]).analyze();
+    expect(axe.violations.filter(v=>v.impact==="serious"||v.impact==="critical")).toEqual([]);
+  }
+  fixture.usage_coverage="partial";fixture.tokens_in=200;fixture.tokens_out=20;
+  const unknown=fixture.usage[0];if(unknown){unknown.usage_reports=0;unknown.tokens_in=0;unknown.tokens_out=0;}
+  await page.reload();await page.getByRole("button",{name:"Detail",exact:true}).click();
+  await expect(page.getByText("Sebagian usage belum tersedia.",{exact:false})).toBeVisible();
+  await expect(page.getByRole("table",{name:"Usage per percobaan",exact:true})).toContainText("Belum dilaporkan");
+  await page.route("**/apps/agent-studio/api/v1/metrics**",route=>route.fulfill({json:{window_hours:24,by_status:{succeeded:1},by_kind:{sandbox:1},p50_duration_ms:null,p95_duration_ms:null,tokens_in:200,tokens_out:20,tool_denials:0,grounded_rate:null,eval_runs_completed:0,eval_gate_blocked:0,rollbacks:0,active_releases:0,pending_release_requests:0,outbox_pending:0,outbox_dead:0,usage_by_class:{test:{tokens_in:200,tokens_out:20,runs:1,incomplete_runs:1}}}}));
+  await page.goto("/apps/agent-studio/#overview");
+  await expect(page.getByRole("table",{name:"Usage menurut jenis",exact:true})).toContainText("test");
+  await expect(page.getByRole("table",{name:"Usage menurut jenis",exact:true})).toContainText("200 / 20");
+  expect(writes).toBe(0);
+});

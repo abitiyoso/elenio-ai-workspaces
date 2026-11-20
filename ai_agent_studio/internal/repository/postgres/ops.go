@@ -9,26 +9,33 @@ import (
 
 // RunMetrics are pilot baselines (PRD §12), not SLO targets.
 type RunMetrics struct {
-	WindowHours        int            `json:"window_hours"`
-	ByStatus           map[string]int `json:"by_status"`
-	ByKind             map[string]int `json:"by_kind"`
-	P50DurationMillis  *float64       `json:"p50_duration_ms"`
-	P95DurationMillis  *float64       `json:"p95_duration_ms"`
-	TokensIn           int            `json:"tokens_in"`
-	TokensOut          int            `json:"tokens_out"`
-	ToolDenials        int            `json:"tool_denials"`
-	GroundedRate       *float64       `json:"grounded_rate"`
-	EvalRunsCompleted  int            `json:"eval_runs_completed"`
-	EvalGateBlocked    int            `json:"eval_gate_blocked"`
-	Rollbacks          int            `json:"rollbacks"`
-	ActiveReleases     int            `json:"active_releases"`
-	PendingReleaseReqs int            `json:"pending_release_requests"`
-	OutboxPending      int            `json:"outbox_pending"`
-	OutboxDead         int            `json:"outbox_dead"`
+	WindowHours        int                    `json:"window_hours"`
+	ByStatus           map[string]int         `json:"by_status"`
+	ByKind             map[string]int         `json:"by_kind"`
+	P50DurationMillis  *float64               `json:"p50_duration_ms"`
+	P95DurationMillis  *float64               `json:"p95_duration_ms"`
+	TokensIn           int                    `json:"tokens_in"`
+	TokensOut          int                    `json:"tokens_out"`
+	UsageByClass       map[string]UsageRollup `json:"usage_by_class"`
+	ToolDenials        int                    `json:"tool_denials"`
+	GroundedRate       *float64               `json:"grounded_rate"`
+	EvalRunsCompleted  int                    `json:"eval_runs_completed"`
+	EvalGateBlocked    int                    `json:"eval_gate_blocked"`
+	Rollbacks          int                    `json:"rollbacks"`
+	ActiveReleases     int                    `json:"active_releases"`
+	PendingReleaseReqs int                    `json:"pending_release_requests"`
+	OutboxPending      int                    `json:"outbox_pending"`
+	OutboxDead         int                    `json:"outbox_dead"`
+}
+type UsageRollup struct {
+	TokensIn       int `json:"tokens_in"`
+	TokensOut      int `json:"tokens_out"`
+	Runs           int `json:"runs"`
+	IncompleteRuns int `json:"incomplete_runs"`
 }
 
 func (r *ModelRegistry) RunMetrics(ctx context.Context, tenantID string, window time.Duration) (RunMetrics, error) {
-	m := RunMetrics{WindowHours: int(window.Hours()), ByStatus: map[string]int{}, ByKind: map[string]int{}}
+	m := RunMetrics{WindowHours: int(window.Hours()), ByStatus: map[string]int{}, ByKind: map[string]int{}, UsageByClass: map[string]UsageRollup{}}
 	err := r.withTenant(ctx, tenantID, func(tx *sql.Tx) error {
 		since := time.Now().Add(-window)
 		rows, err := tx.QueryContext(ctx, `SELECT status, run_kind, count(*) FROM agent_runs WHERE tenant_id=$1::uuid AND created_at >= $2 GROUP BY status, run_kind`, tenantID, since)
@@ -49,13 +56,36 @@ func (r *ModelRegistry) RunMetrics(ctx context.Context, tenantID string, window 
 		if err := tx.QueryRowContext(ctx, `SELECT
 				percentile_cont(0.5) WITHIN GROUP (ORDER BY extract(epoch FROM completed_at - started_at) * 1000),
 				percentile_cont(0.95) WITHIN GROUP (ORDER BY extract(epoch FROM completed_at - started_at) * 1000),
-				coalesce(sum(tokens_in),0), coalesce(sum(tokens_out),0),
 				CASE WHEN count(*) FILTER (WHERE status IN ('succeeded','needs_review')) = 0 THEN NULL ELSE
 					(count(*) FILTER (WHERE status IN ('succeeded','needs_review') AND NOT (validation_json->'risk_flags' ?| ARRAY['unsupported_claim','unknown_citation'])))::float8
 					/ count(*) FILTER (WHERE status IN ('succeeded','needs_review')) END
 			FROM agent_runs WHERE tenant_id=$1::uuid AND created_at >= $2 AND completed_at IS NOT NULL AND started_at IS NOT NULL`, tenantID, since).
-			Scan(&m.P50DurationMillis, &m.P95DurationMillis, &m.TokensIn, &m.TokensOut, &m.GroundedRate); err != nil {
+			Scan(&m.P50DurationMillis, &m.P95DurationMillis, &m.GroundedRate); err != nil {
 			return err
+		}
+		usageRows, err := tx.QueryContext(ctx, `SELECT CASE WHEN r.model_mode='dev_mock' THEN 'mock' WHEN r.run_kind='production' THEN 'actual' ELSE 'test' END,
+         COALESCE(sum(COALESCE(u.tokens_in,r.tokens_in)),0),COALESCE(sum(COALESCE(u.tokens_out,r.tokens_out)),0),count(*),
+         count(*) FILTER(WHERE u.records<r.attempts OR u.records=0 OR u.reports=0 OR u.missing>0 OR u.unavailable>0)
+         FROM agent_runs r LEFT JOIN LATERAL (SELECT sum(tokens_in) AS tokens_in,sum(tokens_out) AS tokens_out,count(*) AS records,COALESCE(sum(usage_reports),0) AS reports,COALESCE(sum(missing_usage),0) AS missing,count(*) FILTER(WHERE usage_reports=0) AS unavailable FROM agent_run_usage WHERE tenant_id=r.tenant_id AND run_id=r.id)u ON true
+         WHERE r.tenant_id=$1::uuid AND r.created_at>=$2 GROUP BY 1`, tenantID, since)
+		if err != nil {
+			return err
+		}
+		for usageRows.Next() {
+			var class string
+			var totals UsageRollup
+			if err := usageRows.Scan(&class, &totals.TokensIn, &totals.TokensOut, &totals.Runs, &totals.IncompleteRuns); err != nil {
+				usageRows.Close()
+				return err
+			}
+			m.UsageByClass[class] = totals
+			m.TokensIn += totals.TokensIn
+			m.TokensOut += totals.TokensOut
+		}
+		usageErr := usageRows.Err()
+		usageRows.Close()
+		if usageErr != nil {
+			return usageErr
 		}
 		queries := []struct {
 			dest  *int
