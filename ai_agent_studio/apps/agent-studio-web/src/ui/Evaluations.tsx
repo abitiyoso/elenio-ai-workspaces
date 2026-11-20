@@ -185,7 +185,7 @@ export default function Evaluations({ session }: { session: Session | null }) {
             ))}</div>}
             <form className="catalog-form" onSubmit={submitSuite}>
               <h3>Suite baru</h3>
-              <label className="field"><span>Suite key</span><input name="suiteKey" pattern="[a-z][a-z0-9_.-]{0,62}" maxLength={63} required disabled={!canWrite || busy} /></label>
+              <label className="field"><span>Suite key</span><input name="suiteKey" pattern="[a-z][a-z0-9_.\-]{0,62}" maxLength={63} required disabled={!canWrite || busy} /></label>
               <label className="field"><span>Deskripsi</span><input name="suiteDescription" maxLength={2000} disabled={!canWrite || busy} /></label>
               <button className="button" type="submit" disabled={!canWrite || busy}>Buat suite</button>
               <PermissionNote session={session} permission="eval.write" action="Membuat suite" />
@@ -210,7 +210,7 @@ export default function Evaluations({ session }: { session: Session | null }) {
               <form className="catalog-form" onSubmit={submitCase}>
                 <h3>Kasus baru</h3>
                 <div className="field-grid">
-                  <label className="field"><span>Case key</span><input name="caseKey" pattern="[a-z][a-z0-9_.-]{0,62}" maxLength={63} required disabled={!canWrite || busy} /></label>
+                  <label className="field"><span>Case key</span><input name="caseKey" pattern="[a-z][a-z0-9_.\-]{0,62}" maxLength={63} required disabled={!canWrite || busy} /></label>
                   <label className="field"><span>Klasifikasi</span><select name="classification" disabled={!canWrite || busy}>{classifications.map((item) => <option key={item} value={item}>{statusLabel(item)}</option>)}</select></label>
                 </div>
                 <label className="field checkbox-field"><span><input name="critical" type="checkbox" disabled={!canWrite || busy} /> Critical (kegagalan memblokir gate)</span></label>

@@ -11,9 +11,9 @@
 
 /* Readable minimum sizes: the reference design used 8–10px labels, too small for sustained reading. */
 .nav-item{font-size:13px}
-.nav-section,.brand small,.tenant-card small,.profile small,.storage-note,.storage-head span+span,.nav-count{font-size:11px}
+.nav-section,.brand small,.tenant-card small,.profile small,.storage-note,.storage-head span+span,.nav-count{font-size:12px}
 .tenant-card strong,.profile strong,.storage-head{font-size:12px}
-.crumb,.system-state,.page-footer,.eyebrow,.panel-kicker,.status-chip,.empty-label,.document-id,.text-button{font-size:11px}
+.crumb,.system-state,.page-footer,.eyebrow,.panel-kicker,.status-chip,.empty-label,.document-id,.text-button{font-size:12px}
 .page-heading p,.welcome-panel p,.notice,.notice strong{font-size:13px}
 .button,.button.compact{font-size:12px}
 .foundation-card strong,.empty-card strong{font-size:13px}
@@ -23,5 +23,5 @@
 
 /* Muted text darkened to at least 4.5:1 against white and the page background. */
 .crumb,.system-state,.page-footer,.section-heading p,.foundation-card p,.empty-card p,.page-heading p,.panel-heading p,.results-heading p,.inline-empty p,.document-id,.notice{color:#5d6f83}
-.nav-section{color:#a9bdd5}
-.brand small,.tenant-card small,.profile small,.storage-note,.storage-head span+span{color:#b4c6da}
+.nav-section{color:var(--e-muted)}
+.brand small,.tenant-card small,.profile small,.storage-note,.storage-head span+span{color:var(--e-muted)}

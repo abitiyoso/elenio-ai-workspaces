@@ -2,6 +2,10 @@
 
 Statuses reflect verified checkpoints, not a live deployment claim. The latest update below supersedes earlier model-absence statements.
 
+## Latest update — existing KMS/UCW shared workbenches
+
+Original KMS governance and UCW business UI now adopt the agreed light tokens, official unchanged logo/icon, bundled Inter and 228px shell while preserving existing page/API behavior. Shared `mobileNavigation.ts` provides keyboard focus/Tab/Escape restoration; pinned source snapshots retain separate packaging. Browser-discovered contrast/layout issues and original modern-HTML form patterns were fixed. Validation: 37 UCW + 100 Flowcase frontend tests, 41 browser regressions, seven expanded real workspace cases, ten additional responsive captures and scoped zero serious/critical axe findings. Four frontend builds and UCW/Flowcase lint pass. No Go/backend authority changes or new model call initiated. Full page-content parity is still open. See [SHARED_SERVICE_WORKBENCHES.md](SHARED_SERVICE_WORKBENCHES.md).
+
 ## Latest update — HTML navigation and original KMS/UCW integration
 
 | Capability | Current status | Evidence / authority | Acceptance |

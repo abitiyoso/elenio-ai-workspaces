@@ -1,0 +1,79 @@
+{
+  "date": "2026-11-20",
+  "branch": "feat/elenio-existing-workbench-polish",
+  "base_sha": "e6464d91adeabf7acaa7abd9f0649c1897347529",
+  "source_backend_changes": 0,
+  "react_versions_unchanged": true,
+  "frontend_unit": {
+    "ucw": 37,
+    "flowcase": 100
+  },
+  "frontend_lint": "Flowcase and UCW pass; KMS/Agent have no configured lint scripts",
+  "mounted_typechecked_builds": [
+    "flowcase",
+    "agent",
+    "kms",
+    "ucw"
+  ],
+  "browser_regressions": {
+    "startTime": "2026-11-20T02:01:40.861Z",
+    "duration": 79336.55,
+    "expected": 41,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "native_workspace_e2e": {
+    "startTime": "2026-11-20T02:02:19.36Z",
+    "duration": 22349.054,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "native_route_interception": false,
+  "viewports": [
+    1440,
+    1280,
+    1024,
+    768,
+    390
+  ],
+  "new_workbench_screenshots": 10,
+  "axe_serious_critical": 0,
+  "axe_scope": "KMS Collections and UCW My Cases at desktop/mobile; retained Agent/Knowledge/candidate checks",
+  "branding": "served official logo hash matches canonical, actual bundled Inter loaded, white sidebar",
+  "mobile_keyboard": "first focus, Tab wrap, Escape and trigger restoration verified for KMS and UCW",
+  "source_snapshot": "seven pins per app; monorepo plus isolated CRLF preflight pass, deliberate token drift rejected; Linux/container runtime not tested",
+  "form_validation": "native browser rejects invalid Agent key and accepts valid key; model/provider pattern syntax compiles in modern Unicode-set mode",
+  "new_model_calls_initiated": 0,
+  "production_deployed": false,
+  "security": {
+    "main_sha": "8bfae869e8ad3adaf10b496428ffbcf22c196db9",
+    "outside_original_ancestry": 0,
+    "named_credential": {
+      "checked_files": 218,
+      "matches": 0,
+      "scope": "staged source, approved asset snapshots, evidence and standalone/mounted public frontend builds"
+    },
+    "upstream_push": "DISABLED",
+    "history_findings": 9,
+    "same_reviewed_history_fingerprints": true,
+    "staged_findings": 0
+  },
+  "retained_backend_checkpoints": {
+    "ucw": 34,
+    "cp": 55,
+    "kms": 107,
+    "agent": 87,
+    "flowcase": 110
+  },
+  "remaining": [
+    "full HTML page-content and product UAT acceptance",
+    "configured KMS storage, PDF conversion, index and embeddings",
+    "approved model-backed UCW business pilot",
+    "general Economics ledger/rates/budgets",
+    "transitive independently approved solution releases and pinned OCI/configuration delivery",
+    "actual standalone/enterprise installation, upgrade, backup/restore/rollback; Docker sandbox unavailable"
+  ]
+}

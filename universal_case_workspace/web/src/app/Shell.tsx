@@ -4,6 +4,7 @@ import { Icon } from "../components/Icon";
 import { initials } from "../components/format";
 import { useCaseNav } from "./caseNavContext";
 import { useSession } from "./sessionContext";
+import {manageDrawerFocus} from "../design/mobileNavigation";
 
 function crumb(pathname: string): string {
   if (pathname.startsWith("/cases/new")) return "New case";
@@ -35,10 +36,9 @@ export function Shell({ children }: { children: ReactNode }) {
   const closeDrawer = useCallback(() => setDrawerFor(null), []);
   useEffect(() => {
     if (!drawerOpen) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") { setDrawerOpen(false); menuButton.current?.focus(); } };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [drawerOpen, setDrawerOpen]);
+    const drawer=document.getElementById("sidebar");
+    if(drawer&&menuButton.current)return manageDrawerFocus(drawer,menuButton.current,closeDrawer);
+  }, [drawerOpen, closeDrawer]);
 
   if (ended) return <SessionEnded />;
   const ctx = me.state === "ready" ? me.data : null;
@@ -49,10 +49,9 @@ export function Shell({ children }: { children: ReactNode }) {
     <div className="layout">
       <a className="skip-link" href="#main-content">Skip to content</a>
       <aside className={drawerOpen ? "sidebar open" : "sidebar"} id="sidebar" aria-label="Primary">
-        <a className="cp-back" href="/" aria-label="Back to the AI Workspace Control Plane"><span aria-hidden="true">←</span> Control Plane</a>
         <div className="logo">
-          <div className="logo-mark"><Icon name="grid" size="lg" /></div>
-          <div><div className="logo-name">Casebase<span>.</span></div><div className="logo-desc">UNIVERSAL WORKSPACE</div></div>
+          <img src={`${import.meta.env.BASE_URL}brand/elenio-logo.png`} alt="Elenio" />
+          <div className="logo-desc">BUSINESS WORKSPACE</div>
         </div>
         {ctx && (
           <div className="tenant">
@@ -60,6 +59,7 @@ export function Shell({ children }: { children: ReactNode }) {
             <div><strong>{ctx.workspace_key}</strong><small>{ctx.tenant_key}</small></div>
           </div>
         )}
+        <a className="cp-back" href="/" aria-label="Back to the AI Workspace Control Plane"><span aria-hidden="true">←</span> Control Plane</a>
         <div className="nav-title">WORKSPACE</div>
         <nav className="side-nav" aria-label="Workspace">
           <NavLink to="/" end className={() => (casesActive && !nav ? "active" : "")} aria-current={location.pathname === "/" ? "page" : undefined}>
@@ -82,9 +82,8 @@ export function Shell({ children }: { children: ReactNode }) {
         )}
         <div className="sidefooter">
           <div className="provider-box">
-            <strong>Four connected layers</strong>
-            <p>The Control Plane hosts this reusable case shell.</p>
-            <div className="provider-row"><span>Flowcase</span><span>KMS</span><span>Agent Studio</span></div>
+            <strong>Your business workspace</strong>
+            <p>Continue your assigned cases, tasks and reviews.</p>
           </div>
           <div className="sidebar-user">
             <div className="avatar" aria-hidden="true">{initials(name)}</div>

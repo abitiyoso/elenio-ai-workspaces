@@ -446,7 +446,7 @@ export default function App() {
                   <form onSubmit={submitAgent}>
                     <div className="panel-heading"><div><h2>Buat agent draft</h2><p>Versi awal 0.1.0 dibuat bersama record.</p></div></div>
                     <label className="field"><span>Nama agent</span><input name="agentName" maxLength={200} required disabled={saving || agentState !== 'ready'} /></label>
-                    <label className="field"><span>Agent key</span><input name="agentKey" pattern="[a-z][a-z0-9_.-]{0,62}" maxLength={63} required disabled={saving || agentState !== 'ready'} /><small>Huruf kecil, angka, titik, garis bawah, atau tanda hubung.</small></label>
+                    <label className="field"><span>Agent key</span><input name="agentKey" pattern="[a-z][a-z0-9_.\-]{0,62}" maxLength={63} required disabled={saving || agentState !== 'ready'} /><small>Huruf kecil, angka, titik, garis bawah, atau tanda hubung.</small></label>
                     <label className="field"><span>Domain</span><input name="agentDomain" maxLength={100} required disabled={saving || agentState !== 'ready'} /></label>
                     <button className="button primary full" type="submit" disabled={saving || agentState !== 'ready'}>Buat draft agent</button>
                   </form>
@@ -486,9 +486,9 @@ export default function App() {
                 <form className="panel form-panel" onSubmit={submitProvider}>
                   <div className="panel-heading"><div><h2>Register provider</h2><p>Mulai dari metadata. Kredensial tidak diterima di form ini.</p></div></div>
                   <label className="field"><span>Nama koneksi</span><input name="providerName" autoComplete="off" maxLength={200} required placeholder="Gateway internal" disabled={!apiReady || saving} /></label>
-                  <label className="field"><span>Provider key</span><input name="providerKey" autoComplete="off" pattern="[a-z][a-z0-9_-]{0,62}" required placeholder="internal_gateway" disabled={!apiReady || saving} /><small>Huruf kecil, angka, garis bawah, atau tanda hubung.</small></label>
+                  <label className="field"><span>Provider key</span><input name="providerKey" autoComplete="off" pattern="[a-z][a-z0-9_\-]{0,62}" required placeholder="internal_gateway" disabled={!apiReady || saving} /><small>Huruf kecil, angka, garis bawah, atau tanda hubung.</small></label>
                   <label className="field"><span>Adapter type</span><select name="adapterType" required disabled={!apiReady || saving}><option value="openai_compatible">OpenAI-compatible</option><option value="openai">OpenAI</option><option value="azure_openai">Azure OpenAI</option><option value="ollama">Ollama</option><option value="custom">Custom adapter</option></select></label>
-                  <label className="field"><span>Base URL</span><input name="baseUrl" type="url" required pattern="https://[^/@?#]+(?:/[^?#]*)?" placeholder="https://gateway.example/v1" disabled={!apiReady || saving} /><small>HTTPS diperlukan. Host harus ada di allowlist egress server; uji koneksi lewat Provider probe.</small></label>
+                  <label className="field"><span>Base URL</span><input name="baseUrl" type="url" required pattern="https://[^\/@?#]+(?:/[^?#]*)?" placeholder="https://gateway.example/v1" disabled={!apiReady || saving} /><small>HTTPS diperlukan. Host harus ada di allowlist egress server; uji koneksi lewat Provider probe.</small></label>
                   <button className="button primary full" type="submit" disabled={!apiReady || saving}>{saving ? 'Menyimpan…' : 'Simpan provider'}</button>
                   {!apiReady && <p className="form-hint" id="provider-form-hint">Form aktif setelah API dan sesi host tersedia.</p>}
                 </form>
@@ -528,7 +528,7 @@ export default function App() {
                   <div className="panel-heading"><div><h2>Register model deployment</h2><p>Deployment baru menunggu probe dan approval backend.</p></div></div>
                   <div className="field-grid">
                     <label className="field"><span>Nama deployment</span><input name="modelName" maxLength={200} required placeholder="General drafting" disabled={!apiReady || saving} /></label>
-                    <label className="field"><span>Deployment key</span><input name="deploymentKey" pattern="[a-z][a-z0-9_-]{0,62}" required placeholder="general_drafting" disabled={!apiReady || saving} /></label>
+                    <label className="field"><span>Deployment key</span><input name="deploymentKey" pattern="[a-z][a-z0-9_\-]{0,62}" required placeholder="general_drafting" disabled={!apiReady || saving} /></label>
                   </div>
                   <label className="field"><span>Provider connection</span><select name="providerId" required disabled={!apiReady || saving || providers.length === 0}><option value="">Pilih provider</option>{providers.map((provider) => <option key={provider.id} value={provider.id}>{provider.display_name}</option>)}</select></label>
                   <label className="field"><span>Provider model ID</span><input name="modelId" maxLength={256} required placeholder="Exact model identifier" disabled={!apiReady || saving} /></label>

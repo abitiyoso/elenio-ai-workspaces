@@ -1,5 +1,7 @@
 # HTML navigation and existing-service integration — 2026-11-20
 
+Subsequent shared styling of the original KMS/UCW interiors and form corrections: [SHARED_SERVICE_WORKBENCHES.md](SHARED_SERVICE_WORKBENCHES.md). The checkpoint below retains this increment's original scope and evidence.
+
 Branch: `feat/elenio-html-navigation`, based on PR #10 tip `849e3f9c40cdee86ae7fe4fc200a4ae7fc976dbf`. This implements the owner's continuation to use the previous team's functions in the agreed UI. It preserves the original backend authorities, official logo, Inter font and shared light components. It does not close whole-master or visual acceptance.
 
 ## Implemented

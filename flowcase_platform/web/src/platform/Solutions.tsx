@@ -421,7 +421,7 @@ export function Solutions() {
                 Solution key
                 <input
                   required
-                  pattern="[a-z][a-z0-9-]{1,62}"
+                  pattern="[a-z][a-z0-9\-]{1,62}"
                   disabled={!!editor.item}
                   value={editor.definition.key}
                   onChange={(e) =>

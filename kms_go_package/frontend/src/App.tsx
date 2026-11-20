@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import {manageDrawerFocus} from './design/mobileNavigation'
 
 type Identity = { user_id: string; tenant_id: string; roles: string[] }
 type Page = 'Overview' | 'Documents' | 'Collections' | 'Review queue' | 'Evidence search' | 'Processing' | 'Audit log' | 'Settings'
@@ -18,7 +19,7 @@ type OpsStatus = {
   ingestion: QueueCounts; outbox: QueueCounts
 }
 type SessionState = 'loading' | 'ready' | 'unauthenticated' | 'unavailable' | 'error'
-const phaseLabel = 'Phase 4 · Operations'
+const phaseLabel = 'Governed knowledge'
 type VersionRecord = {
   id: string; version_number: number; checksum_sha256?: string; created_by?: string; created_at?: string
   parser_status?: string; index_status?: string; review_status?: string; trust_status?: string
@@ -101,9 +102,15 @@ export default function App() {
   const [sessionState, setSessionState] = useState<SessionState>('loading')
   const [sessionAttempt, setSessionAttempt] = useState(0)
   const headingRef = useRef<HTMLHeadingElement>(null)
+  const menuButtonRef = useRef<HTMLButtonElement>(null)
   const firstRender = useRef(true)
   const [page, setPage] = useState<Page>('Overview')
   const [menuOpen, setMenuOpen] = useState(false)
+  useEffect(()=>{
+    if(!menuOpen)return;
+    const drawer=document.getElementById('workspace-navigation');
+    if(drawer&&menuButtonRef.current)return manageDrawerFocus(drawer,menuButtonRef.current,()=>setMenuOpen(false));
+  },[menuOpen])
   const [collections, setCollections] = useState<Collection[]>([])
   const [documents, setDocuments] = useState<DocumentRecord[]>([])
   const [selectedDocument, setSelectedDocument] = useState<DocumentRecord | null>(null)
@@ -278,12 +285,12 @@ export default function App() {
   return <div className="app-shell">
     <a className="skip-link" href="#main-content">Skip to main content</a>
     <aside id="workspace-navigation" className={`sidebar ${menuOpen ? 'open' : ''}`} aria-label="Workspace navigation">
-      {apiBase && <a className="cp-back" href="/" aria-label="Back to the AI Workspace Control Plane"><span aria-hidden="true">←</span> AI Workspace</a>}
       <a className="brand" href="#overview" onClick={event => { event.preventDefault(); setPage('Overview') }}>
-        <span className="brand-mark" aria-hidden="true">K</span>
-        <span><strong>Knowledge</strong><small>WORKSPACE</small></span>
+        <img src={`${import.meta.env.BASE_URL}brand/elenio-logo.png`} alt="Elenio" />
+        <small>KNOWLEDGE HUB</small>
       </a>
-      <div className="tenant-card"><span className="tenant-mark" aria-hidden="true">KW</span><span><strong>Knowledge Workspace</strong><small>{identity ? `Tenant ${identity.tenant_id.slice(0, 8)}` : 'Host workspace'}</small></span><span className="chevron" aria-hidden="true">⌄</span></div>
+      <div className="tenant-card"><span className="tenant-mark" aria-hidden="true">K</span><span><strong>Knowledge workspace</strong><small>{identity ? 'Verified tenant access' : 'Authentication required'}</small></span></div>
+      {apiBase && <a className="cp-back" href="/" aria-label="Back to the AI Workspace Control Plane"><span aria-hidden="true">←</span> AI Workspace</a>}
       <div className="nav-section">WORKSPACE</div>
       <nav className="nav-list" aria-label="Workspace">
         {pages.slice(0, pages.indexOf('Processing')).map(item => <button key={item} className={`nav-item ${page === item ? 'active' : ''}`} onClick={() => { setPage(item); setMenuOpen(false) }} aria-current={page === item ? 'page' : undefined}>
@@ -307,7 +314,7 @@ export default function App() {
     {menuOpen && <button className="scrim" aria-label="Close navigation" onClick={() => setMenuOpen(false)} />}
     <main className="main-area" id="main-content" tabIndex={-1}>
       <header className="topbar">
-        <div className="topbar-leading"><button className="menu-button" aria-label="Open navigation menu" aria-controls="workspace-navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}>☰</button><span className="crumb">Workspace <span>/</span> <strong>{page}</strong></span></div>
+        <div className="topbar-leading"><button ref={menuButtonRef} className="menu-button" aria-label="Open navigation menu" aria-controls="workspace-navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}>☰</button><span className="crumb">Workspace <span>/</span> <strong>{page}</strong></span></div>
         <div className="topbar-actions"><span className="system-state"><i className={sessionState === 'ready' ? 'ready' : ''} /> {phaseLabel}</span><span className="top-avatar" aria-hidden="true">KW</span></div>
       </header>
       <section className="content">

@@ -387,7 +387,7 @@ function SkillsWorkspace(props: {
         {skills.length === 0 ? <div className="records-state">Agent ini belum memiliki skill.</div> : <div className="provider-list">{skills.map((skill) => <button type="button" className={`catalog-item ${skill.id === skillID ? 'selected' : ''}`} key={skill.id} onClick={() => setSkillID(skill.id)}><span className="provider-glyph" aria-hidden="true">S</span><span className="record-main"><strong>{skill.key}</strong><span>{skill.domain}</span><small>{skill.owner_subject ?? 'Owner belum ditetapkan'}</small></span></button>)}</div>}
         <form className="catalog-form" onSubmit={props.onCreateSkill}>
           <h3>Buat skill draft</h3>
-          <label className="field"><span>Skill key</span><input name="skillKey" pattern="[a-z][a-z0-9_.-]{0,62}" required disabled={working} /></label>
+          <label className="field"><span>Skill key</span><input name="skillKey" pattern="[a-z][a-z0-9_.\-]{0,62}" required disabled={working} /></label>
           <label className="field"><span>Domain</span><input name="skillDomain" maxLength={100} required disabled={working} /></label>
           <button className="button primary full" type="submit" disabled={working}>Buat skill</button>
         </form>
