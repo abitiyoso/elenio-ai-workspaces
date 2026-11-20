@@ -112,5 +112,10 @@
     "general Economics ledger and budgets",
     "transitive independently approved solution releases",
     "portable OCI/config releases and actual independent installation; no Docker sandbox"
-  ]
+  ],
+  "delivery": {
+    "implementation_sha": "7284e193d4e92e55bfae219654d29137b9ad639e",
+    "draft_pr": "https://github.com/abitiyoso/elenio-ai-workspaces/pull/11",
+    "base_branch": "feat/elenio-shared-agent-workspace"
+  }
 }
