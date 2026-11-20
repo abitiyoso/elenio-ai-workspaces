@@ -41,6 +41,32 @@ export interface SolutionSession {
   csrf_token: string;
   environment: string;
 }
+export interface SolutionRevision {
+  plan: Solution;
+  content_hash: string;
+  origin: "write" | "migration_current";
+  recorded_by?: string;
+  recorded_at: string;
+}
+export function assertRevision(item: SolutionRevision, plan: Solution, session: SolutionSession) {
+  if (!item || item.plan?.id !== plan.id || !/^[a-f0-9]{64}$/.test(item.content_hash) ||
+    typeof item.recorded_at !== "string" || !Number.isFinite(Date.parse(item.recorded_at)) ||
+    !["write","migration_current"].includes(item.origin) ||
+    (item.origin === "write" ? !uuid.test(item.recorded_by ?? "") : item.recorded_by !== undefined))
+    throw new Error("Invalid or out-of-scope Solution revision.");
+  assertSolution(item.plan, session);
+  return item;
+}
+export async function listSolutionRevisions(session: SolutionSession, plan: Solution, before = 0, signal?: AbortSignal) {
+  assertSolution(plan, session);
+  if (!Number.isSafeInteger(before) || before < 0) throw new Error("Invalid revision cursor.");
+  await currentSolutionScope(session);
+  const page = await request<{items: SolutionRevision[]; next_before?: number}>(`/solutions/${plan.id}/revisions${before ? `?before=${before}` : ""}`, signal ? {signal} : {});
+  if (!Array.isArray(page.items) || page.items.length > 20 ||
+    (page.next_before !== undefined && (!Number.isSafeInteger(page.next_before) || page.next_before < 1)))
+    throw new Error("Invalid Solution revision history.");
+  return {items:page.items.map(item => assertRevision(item, plan, session)), next_before:page.next_before ?? 0};
+}
 export interface SolutionExecution {
   execution: {
     id: string;
@@ -68,7 +94,7 @@ export function assertExecution(item: SolutionExecution, plan: Solution): Soluti
     !Number.isSafeInteger(run.plan_revision) || run.plan_revision < 1 ||
     !/^[a-z][a-z0-9-]{0,62}$/.test(run.workflow_key) ||
     !Number.isSafeInteger(run.workflow_version) || run.workflow_version < 1 ||
-    !Number.isFinite(Date.parse(run.created_at)) ||
+    typeof run.created_at !== "string" || !Number.isFinite(Date.parse(run.created_at)) ||
     (run.case_id !== undefined && !uuid.test(run.case_id)) ||
     (!!run.case_id !== !!item.case) ||
     (item.case && (item.case.id !== run.case_id || item.case.workflow_key !== run.workflow_key ||

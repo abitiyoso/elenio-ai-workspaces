@@ -5,6 +5,7 @@ import {newIdempotencyKey} from "../api/client";
 import {ApplicationComposer, ApplicationPreview} from "./ApplicationComposer";
 import {ArchitectBrief} from "./Architect";
 import {PublisherCandidates} from "./PublisherCandidates";
+import {SolutionHistory} from "./SolutionHistory";
 import {getSolution, parseWorkflowReferences, saveSolution, solutionSession, type Solution, type SolutionDefinition, type SolutionSession} from "./solutionApi";
 
 const stages = [["describe","Describe"],["blueprint","Blueprint"],["build","Configure"],["preview","Preview & Test"],["publish","Publish"]] as const;
@@ -24,6 +25,7 @@ function JourneyDocument({id,stage}:{id:string;stage:string}) {
   const [error,setError]=useState("");
   const [loading,setLoading]=useState(true),[saving,setSaving]=useState(false);
   const [publisher,setPublisher]=useState(false);
+  const [history,setHistory]=useState(false);
   const requestKey=useRef(newIdempotencyKey());
   const dirty=JSON.stringify(definition)!==JSON.stringify(plan?.definition??empty) || references!==(plan?.definition.workflows.map(w=>`${w.key}@${w.version}`).join("\n")??"");
   const blocker=useBlocker(dirty&&!saving);
@@ -64,7 +66,7 @@ function JourneyDocument({id,stage}:{id:string;stage:string}) {
   return <section className="page solution-journey">
     <header className="page-heading"><div><Link to="/solutions">All Solutions</Link><p className="eyebrow">SOLUTION JOURNEY</p>
       <h1>{plan?.definition.name??"Create a solution"}</h1><p>{session.workspace.name} · {plan?`Saved revision ${plan.revision}`:"Save your requirements to begin"}</p></div>
-      <Badge>{plan?"Draft Solution":"New Solution"}</Badge></header>
+      <div className="dialog-actions"><Badge>{plan?"Draft Solution":"New Solution"}</Badge>{plan&&<Button onClick={()=>setHistory(true)}>Version history</Button>}</div></header>
     <nav className="solution-stages" aria-label="Solution stages">{stages.map(([key,label],index)=>plan?
       <Link key={key} to={`/solutions/${plan.id}/${key}`} aria-current={active===key?"step":undefined}><span>{index+1}</span>{label}</Link>:
       <span key={key} aria-current={key==="describe"?"step":undefined}><span>{index+1}</span>{label}</span>)}</nav>
@@ -101,6 +103,7 @@ function JourneyDocument({id,stage}:{id:string;stage:string}) {
     {plan&&active==="publish"&&<section className="surface solution-build-form"><h2>Review delivery readiness</h2><p>Capture immutable review candidates from this saved Solution. Candidates do not grant approval or install a customer environment.</p>
       <Button variant="primary" onClick={()=>setPublisher(true)}>Open Publisher candidates</Button></section>}
     {publisher&&plan&&<PublisherCandidates plan={plan} session={session} onClose={()=>setPublisher(false)}/>}
+    {history&&plan&&<SolutionHistory key={`${plan.id}:${plan.revision}`} plan={plan} session={session} onClose={()=>setHistory(false)}/>}
     {blocker.state==="blocked"&&<DialogPanel title="Unsaved Solution changes" description="Save your requirements or configuration before switching stages, or discard the unsaved edits." onClose={()=>blocker.reset()}>
       <Button onClick={()=>blocker.reset()}>Keep editing</Button><Button variant="danger" onClick={()=>{if(plan){setDefinition(plan.definition);setReferences(plan.definition.workflows.map(w=>`${w.key}@${w.version}`).join("\n"));}blocker.proceed();}}>Discard and continue</Button></DialogPanel>}
   </section>;

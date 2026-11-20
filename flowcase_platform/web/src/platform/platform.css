@@ -2566,6 +2566,10 @@
 .solution-stages>span {opacity:.65;}
 .solution-stage-note {color:var(--e-muted);font-size:14px;}
 .e-field textarea.solution-requirement {font-family:inherit;font-size:14px;}
+.solution-revision {padding:18px;margin:14px 0;}
+.solution-revision summary {cursor:pointer;font-weight:600;}
+.solution-revision-requirement {white-space:pre-wrap;}
+.solution-revision-hash {overflow-wrap:anywhere;font-size:12px;color:var(--e-muted);}
 .solution-build-form {padding:24px;display:grid;gap:20px;max-width:1100px;}
 .solution-build-form fieldset {border:0;padding:0;margin:0;display:grid;gap:20px;min-width:0;}
 .solution-journey .architect-page {padding:0;}

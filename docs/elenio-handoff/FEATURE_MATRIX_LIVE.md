@@ -1,5 +1,9 @@
 # Live capability / acceptance matrix
 
+## Latest update — retained Solution versions
+
+Each successful CP Solution creation/edit retains its full configuration transactionally with audit. Scoped read-only history, SHA-256 wire checksums, bounded pagination and database immutability are implemented; migration labels the observed legacy current version and does not invent missing earlier versions/editors. Existing Journey header opens the history without another menu. Real database upgrade/isolation/immutability tests and native browser proof retain the original requirement after multiple edits. Current checks: 59 CP, 105 frontend, eight native workspace cases; prior PR #13 browser baseline: 42. Release approval and installation remain open. [FINAL_LEAN_STATUS.md](FINAL_LEAN_STATUS.md).
+
 ## Active update — Final Lean guided Solution and development execution
 
 Saved Describe/Blueprint/Configure/Preview/Publish context now extends the original CP Solution registry. Existing Architect proposals are explicitly reviewed/validated before native draft creation and linking to that Solution. Original Application Composer is reused in Configure; its saved intake pages start real cases on exact published workflow pins, retain actor/Solution associations, and open original case actions/evidence. Retry, revision, scope and upstream failure boundaries are tested. This is development execution, not an approved installed customer app or complete Invoice Approval. Current evidence and A–E gaps: [FINAL_LEAN_STATUS.md](FINAL_LEAN_STATUS.md).
