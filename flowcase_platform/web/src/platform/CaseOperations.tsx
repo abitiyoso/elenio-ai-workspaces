@@ -277,14 +277,16 @@ function Intake({ onClose }: { onClose: () => void }) {
     </DialogPanel>
   );
 }
-function IntakeDocument({
+export function IntakeDocument({
   workflow,
   version,
   supported,
+  onStart,
 }: {
   workflow: string;
   version: number;
   supported: string[] | null;
+  onStart?: (input: { title: string; variables: Record<string, unknown> }, requestKey: string) => Promise<void>;
 }) {
   const [resource] = useResource<WorkflowVersion>(
     `/api/v1/workflows/${encodeURIComponent(workflow)}/versions/${version}`,
@@ -354,9 +356,9 @@ function IntakeDocument({
         </Notice>
       ) : null}
       <Notice>
-        Publishing a newer version before Start may change which version the
-        server selects. The resulting case always displays its actual pinned
-        version. External dependency readiness is checked by the server.
+        This request uses {workflow}@{version}. Published dependencies and case
+        permissions are checked by the server. Executions may invoke configured
+        integrations; use approved test inputs.
       </Notice>
       {error && <Notice error>{error}</Notice>}
       <Button
@@ -366,17 +368,22 @@ function IntakeDocument({
           setBusy(true);
           setError("");
           try {
+            const input = { title: title.trim(), variables: inputData(schema, values, json) };
+            if (onStart) {
+              await onStart(input, retryKey);
+              return;
+            }
             const result = (
               await apiRequest<CaseDetail>("POST", "/api/v1/cases", {
                 headers: { "Idempotency-Key": retryKey },
                 body: {
                   workflow_key: workflow,
-                  title: title.trim(),
-                  variables: inputData(schema, values, json),
+                  version,
+                  ...input,
                 },
               })
             ).data;
-            if (!result.id || result.workflow_key !== workflow)
+            if (!result.id || result.workflow_key !== workflow || result.workflow_version !== version)
               throw new Error(
                 "Invalid case response. Check the case list before retrying.",
               );
@@ -405,7 +412,7 @@ export function OperationCase() {
   const { id = "" } = useParams();
   return <CaseDocument key={id} id={id} />;
 }
-function CaseDocument({ id }: { id: string }) {
+export function CaseDocument({ id }: { id: string }) {
   const [resource, reload] = useResource<CaseDetail>(
     `/api/v1/cases/${encodeURIComponent(id)}`,
   );

@@ -126,12 +126,44 @@ test("real workspace: create workflow, compose persisted solution, inspect and c
   await page.getByLabel("Workflow versions").fill(`${key}@1`);
   await page.getByRole("button",{name:"Configure application pages"}).click();
   await page.getByLabel("Application title").fill("Acceptance business workspace");
+  await page.getByRole("button",{name:"Add application page",exact:true}).click();
+  await page.getByLabel("Page 2 title",{exact:true}).fill("Submit request");
+  await page.getByLabel("Page 2 component").selectOption("intake");
+  await page.getByLabel("Page 2 workflow").selectOption(key);
   await page.getByRole("button",{name:"Save solution plan",exact:true}).click();
   const card=page.locator("article.solution-card").filter({hasText:`${key}@1`});
   await expect(card.getByRole("button",{name:"Preview application",exact:true})).toBeVisible();
   await page.reload();
   await card.getByRole("button",{name:"Preview application",exact:true}).click();
   await expect(page.getByRole("heading",{name:"Acceptance business workspace",exact:true})).toBeVisible();
+  await page.getByRole("button",{name:"Submit request",exact:true}).click();
+  await page.getByLabel("Case title",{exact:true}).fill("Real Solution development execution");
+  const started=page.waitForResponse(response=>response.request().method()==="POST"&&/\/api\/v1\/solutions\/[^/]+\/executions$/.test(new URL(response.url()).pathname));
+  await page.getByRole("button",{name:"Start case",exact:true}).click();
+  const startResponse=await started;
+  expect(startResponse.status()).toBe(200);
+  const run=await startResponse.json();
+  expect(run.execution).toMatchObject({workflow_key:key,workflow_version:1,plan_revision:1,case_id:run.case.id});
+  await expect(page.getByRole("heading",{name:"Real Solution development execution",level:1})).toBeVisible();
+  for(const width of [1440,768,390]){
+    await page.setViewportSize({width,height:900});
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+    await page.screenshot({path:`../../docs/elenio-handoff/evidence/solution-execution-${width}.png`,fullPage:false});
+  }
+  const executionAxe=await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21aa","wcag22aa"]).analyze();
+  expect(executionAxe.violations.filter(v=>v.impact==="serious"||v.impact==="critical")).toEqual([]);
+  await page.setViewportSize({width:1440,height:900});
+  await page.getByRole("button",{name:"Close dialog",exact:true}).click();
+  await page.reload();
+  await card.getByRole("button",{name:"Preview application",exact:true}).click();
+  await expect(page.getByRole("heading",{name:"Real Solution development execution",level:4})).toBeVisible();
+  const cp=await (await page.request.get("/api/v1/me")).json();
+  const replay=await page.request.post(`/api/v1/solutions/${run.execution.solution_id}/executions`,{
+    headers:{"Origin":"http://127.0.0.1:8200","X-CSRF-Token":cp.csrf_token,"If-Match":'"1"',"Idempotency-Key":startResponse.request().headers()["idempotency-key"]},
+    data:startResponse.request().postDataJSON(),
+  });
+  expect(replay.status()).toBe(200);
+  expect((await replay.json()).execution.id).toBe(run.execution.id);
   await page.getByRole("button",{name:"Close dialog"}).click();
   await card.getByRole("button",{name:"Publisher candidates",exact:true}).click();
   await page.getByRole("button",{name:"Create review candidate"}).click();
@@ -148,7 +180,67 @@ test("real workspace: create workflow, compose persisted solution, inspect and c
   await page.reload();
   await card.getByRole("button",{name:"Publisher candidates",exact:true}).click();
   await expect(page.getByText("Candidate 1.0.0",{exact:true})).toBeVisible();
+  await page.getByRole("button",{name:"Close dialog",exact:true}).click();
+  await page.setViewportSize({width:1440,height:900});
+  await card.getByRole("link",{name:"Open Solution journey",exact:true}).click();
+  await expect(page.getByRole("navigation",{name:"Solution stages"})).toBeVisible();
+  await page.getByRole("link",{name:/3\s*Configure/}).click();
+  await expect(page.getByLabel("Application title",{exact:true})).toHaveValue("Acceptance business workspace");
+  await page.getByRole("link",{name:/4\s*Preview & Test/}).click();
+  await expect(page.getByRole("heading",{name:"Real Solution development execution",level:4})).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("heading",{name:"Real Solution development execution",level:4})).toBeVisible();
+  for(const width of [1440,768,390]){
+    await page.setViewportSize({width,height:900});
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+    await page.evaluate(()=>window.scrollTo(0,0));
+    await page.screenshot({path:`../../docs/elenio-handoff/evidence/solution-journey-${width}.png`,fullPage:true});
+  }
 });
+test("guided Home saves one Solution across description, Composer and preview without starting a model call",async({page})=>{
+  await signIn(page);
+  let modelCalls=0;
+  page.on("request",request=>{if(request.method()==="POST"&&request.url().includes("/sandbox/runs"))modelCalls++;});
+  const key=unique(),requirement="Review employee equipment requests with independent department approval.";
+  await page.getByLabel("Solution brief",{exact:true}).fill(requirement);
+  await page.screenshot({path:"../../docs/elenio-handoff/evidence/solution-home-1440.png",fullPage:false});
+  await page.getByRole("button",{name:"Create a solution",exact:true}).click();
+  await expect(page.getByRole("textbox",{name:"Business requirement",exact:true})).toHaveValue(requirement);
+  await page.getByLabel("Solution name",{exact:true}).fill("Department request workspace");
+  await page.getByLabel("Solution key",{exact:true}).fill(key);
+  await page.getByRole("button",{name:"Save & continue to Blueprint",exact:true}).click();
+  await expect(page).toHaveURL(/#\/solutions\/[a-f0-9-]{36}\/blueprint$/);
+  const solutionID=page.url().match(/solutions\/([a-f0-9-]{36})\//)?.[1];
+  expect(solutionID).toBeTruthy();
+  await page.getByRole("link",{name:/3\s*Configure/}).click();
+  await page.getByRole("button",{name:"Configure application pages",exact:true}).click();
+  await page.getByLabel("Application title",{exact:true}).fill("Department requests");
+  await page.getByRole("button",{name:"Save Solution",exact:true}).click();
+  await expect(page.getByText("Saved revision 2",{exact:false})).toBeVisible();
+  await page.getByRole("link",{name:/4\s*Preview & Test/}).click();
+  await expect(page.getByRole("heading",{name:"Department requests",exact:true})).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("heading",{name:"Department requests",exact:true})).toBeVisible();
+  await page.getByRole("link",{name:/1\s*Describe/}).click();
+  await page.getByRole("textbox",{name:"Business requirement",exact:true}).fill(requirement+" Track evidence.");
+  await page.getByRole("link",{name:/3\s*Configure/}).click();
+  await expect(page.getByRole("dialog",{name:"Unsaved Solution changes"})).toBeVisible();
+  await page.getByRole("button",{name:"Keep editing",exact:true}).click();
+  await page.getByRole("button",{name:"Save Solution",exact:true}).click();
+  await expect(page.getByText("Saved revision 3",{exact:false})).toBeVisible();
+  const saved=await (await page.request.get(`/api/v1/solutions/${solutionID}`)).json();
+  expect(saved.definition).toMatchObject({key,description:requirement+" Track evidence.",application:{title:"Department requests"}});
+  expect(modelCalls).toBe(0);
+  for(const width of [1440,390]){
+    await page.setViewportSize({width,height:900});
+    await page.evaluate(()=>window.scrollTo(0,0));
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+    await page.screenshot({path:`../../docs/elenio-handoff/evidence/solution-describe-${width}.png`,fullPage:true});
+    const axe=await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21aa","wcag22aa"]).analyze();
+    expect(axe.violations.filter(v=>v.impact==="serious"||v.impact==="critical")).toEqual([]);
+  }
+});
+
 test("real workspace: operator cannot gain builder app or solution rights via browser headers",async({page})=>{
   await signIn(page,"Maya Putri");
   const flow=await (await page.request.get(`${api}/session`)).json();

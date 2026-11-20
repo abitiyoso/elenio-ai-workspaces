@@ -294,12 +294,15 @@ test("kit launchpad uses bundled typography, scenario brief and contextual proje
   await page.getByRole("button", { name: "Recruitment", exact: true }).click();
   await expect(page.getByLabel("Solution brief")).toHaveValue(/HR/);
   await page
-    .getByRole("button", { name: "Create with AI", exact: true })
+    .getByRole("button", { name: "Create a solution", exact: true })
     .click();
+  await expect(page).toHaveURL(/#\/solutions\/new\/describe$/);
+  await expect(page.getByRole("heading",{name:"Connect your Solution workspace",exact:true})).toBeVisible();
+  await page.goto("/elenio.html#/architect");
   await expect(
     page.getByRole("heading", { name: "AI Solution Architect", exact: true }),
   ).toBeVisible();
-  await expect(page.getByLabel("Business requirement")).toHaveValue(/HR/);
+  await page.getByLabel("Business requirement").fill("Create a recruitment workflow and route recommendations to HR.");
   await expect(
     page.getByRole("button", { name: "Generate blueprint" }),
   ).toBeDisabled();

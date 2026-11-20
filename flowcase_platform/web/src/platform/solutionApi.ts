@@ -41,6 +41,71 @@ export interface SolutionSession {
   csrf_token: string;
   environment: string;
 }
+export interface SolutionExecution {
+  execution: {
+    id: string;
+    solution_id: string;
+    plan_revision: number;
+    workflow_key: string;
+    workflow_version: number;
+    case_id?: string;
+    created_at: string;
+  };
+  case?: {
+    id: string;
+    reference: string;
+    title: string;
+    status: string;
+    workflow_key: string;
+    workflow_version: number;
+    definition_hash: string;
+  };
+}
+
+export function assertExecution(item: SolutionExecution, plan: Solution): SolutionExecution {
+  const run = item?.execution;
+  if (!run || !uuid.test(run.id) || run.solution_id !== plan.id ||
+    !Number.isSafeInteger(run.plan_revision) || run.plan_revision < 1 ||
+    !/^[a-z][a-z0-9-]{0,62}$/.test(run.workflow_key) ||
+    !Number.isSafeInteger(run.workflow_version) || run.workflow_version < 1 ||
+    !Number.isFinite(Date.parse(run.created_at)) ||
+    (run.case_id !== undefined && !uuid.test(run.case_id)) ||
+    (!!run.case_id !== !!item.case) ||
+    (item.case && (item.case.id !== run.case_id || item.case.workflow_key !== run.workflow_key ||
+      item.case.workflow_version !== run.workflow_version || !/^[a-f0-9]{64}$/.test(item.case.definition_hash) ||
+      typeof item.case.title !== "string" || typeof item.case.reference !== "string" || typeof item.case.status !== "string")))
+    throw new Error("Invalid or out-of-scope solution execution.");
+  return item;
+}
+
+export async function listSolutionExecutions(session: SolutionSession, plan: Solution, cursor = "", signal?: AbortSignal) {
+  assertSolution(plan, session);
+  if (cursor && !uuid.test(cursor)) throw new Error("Invalid execution cursor.");
+  await currentSolutionScope(session);
+  const page = await request<{items: SolutionExecution[]; next_cursor?: string; scope: string}>(
+    `/solutions/${plan.id}/executions${cursor ? `?cursor=${cursor}` : ""}`, signal ? {signal} : {});
+  if (page.scope !== "current_user_solution_executions" || !Array.isArray(page.items) ||
+    page.items.length > 20 || (page.next_cursor && !uuid.test(page.next_cursor)))
+    throw new Error("Invalid solution execution history.");
+  return {items: page.items.map(item => assertExecution(item, plan)), next_cursor: page.next_cursor ?? ""};
+}
+
+export async function startSolutionExecution(session: SolutionSession, plan: Solution, workflowKey: string,
+  input: {title: string; variables: Record<string, unknown>}, requestKey: string) {
+  assertSolution(plan, session);
+  const current = await currentSolutionScope(session);
+  if (!current.permissions.includes("solution:author")) throw new Error("Solution authoring permission is required.");
+  if (!plan.definition.workflows.some(w => w.key === workflowKey)) throw new Error("Choose a saved workflow pin.");
+  const result = assertExecution(await request<SolutionExecution>(`/solutions/${plan.id}/executions`, {
+    method: "POST", headers: {"Content-Type": "application/json", "X-CSRF-Token": current.csrf_token,
+      "If-Match": `"${plan.revision}"`, "Idempotency-Key": requestKey},
+    body: JSON.stringify({workflow_key: workflowKey, ...input}),
+  }), plan);
+  if (!result.case || result.execution.plan_revision !== plan.revision || result.execution.workflow_key !== workflowKey ||
+    result.execution.workflow_version !== plan.definition.workflows.find(w => w.key === workflowKey)?.version)
+    throw new Error("Execution does not match the requested solution pin. Check history before retrying.");
+  return result;
+}
 export interface SolutionReadiness {
   solution_id: string;
   revision: number;
@@ -404,6 +469,11 @@ export async function listSolutions(
     items: page.items.map((item) => assertSolution(item, session)),
     next_cursor: page.next_cursor ?? "",
   };
+}
+export async function getSolution(session: SolutionSession, id: string, signal?: AbortSignal) {
+  if (!uuid.test(id)) throw new Error("Invalid solution identifier.");
+  await currentSolutionScope(session);
+  return assertSolution(await request<Solution>(`/solutions/${id}`, signal ? {signal} : {}), session);
 }
 export async function saveSolution(
   session: SolutionSession,

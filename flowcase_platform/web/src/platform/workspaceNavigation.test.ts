@@ -24,6 +24,8 @@ describe("development-kit navigation contract",()=>{
     expect(active("/connected/projects/review/1")).toEqual(["studio"]);
     expect(active("/connected/cases/case-1")).toEqual(["operations"]);
     expect(active("/capabilities/releases")).toEqual(["evaluation"]);
+    expect(active("/solutions/solution-1/build")).toEqual(["solutions"]);
+    expect(active("/solutionshack")).toEqual([]);
     expect(active("/projectshack")).toEqual([]);
   });
 });

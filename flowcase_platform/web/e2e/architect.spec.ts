@@ -253,6 +253,37 @@ test("model proposal waits for explicit generation, canonical review, fresh vali
   });
 });
 
+test("reviewed Architect draft returns to the same saved Solution with a pinned workflow",async({page})=>{
+  const state=await fixture(page);
+  const solutionID="00000000-0000-4000-8000-000000000601",workspaceID="00000000-0000-4000-8000-000000000602";
+  let plan={id:solutionID,tenant_id:tenant,workspace_id:workspaceID,revision:1,
+    definition:{key:"review-solution",name:"Review Solution",description:"Review employee requests with a human owner.",delivery_mode:"solution",output:"both",workflows:[] as {key:string;version:number}[]},
+    created_at:"2026-11-20T00:00:00Z",updated_at:"2026-11-20T00:00:00Z"};
+  const mutations:{revision:string|undefined;body:unknown}[]=[];
+  await page.route("**/control-api/v1/**",async route=>{
+    const request=route.request(),path=new URL(request.url()).pathname;
+    if(path.endsWith("/me"))return route.fulfill({json:{user:{id:"00000000-0000-4000-8000-000000000101",display_name:"Contract builder"},tenant:{id:tenant,name:"Contract tenant"},workspace:{id:workspaceID,name:"Contract workspace"},permissions:["solution:view","solution:author"],csrf_token:"fixture-csrf",environment:"test"}});
+    if(request.method()==="PATCH"){
+      mutations.push({revision:request.headers()["if-match"],body:request.postDataJSON()});
+      plan={...plan,revision:plan.revision+1,definition:request.postDataJSON()};
+    }
+    return route.fulfill({json:plan});
+  });
+  await page.goto(`/elenio.html#/solutions/${solutionID}/blueprint`);
+  await page.getByRole("button",{name:"Send requirement",exact:true}).click();
+  await page.getByRole("button",{name:"Preview changes",exact:true}).click();
+  await page.getByRole("button",{name:"Validate proposal",exact:true}).click();
+  await page.getByRole("button",{name:"Confirm create draft",exact:true}).click();
+  await expect(page).toHaveURL(new RegExp(`/solutions/${solutionID}/build$`));
+  expect(state.creations).toHaveLength(1);
+  expect(state.creations[0]?.definition).toMatchObject({metadata:{architect:{solution_id:solutionID,solution_revision:1}}});
+  expect(mutations).toHaveLength(1);
+  expect(mutations[0]?.revision).toBe('"1"');
+  expect(plan.definition.workflows).toEqual([{key:"request-review-00000000",version:1}]);
+  await page.reload();
+  await expect(page.getByRole("textbox",{name:"Workflow versions",exact:true})).toHaveValue("request-review-00000000@1");
+});
+
 test("tenant disagreement cannot generate or apply a proposal", async ({
   page,
 }) => {

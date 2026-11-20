@@ -1,5 +1,7 @@
 # HTML menu and functional-content reconciliation — 2026-11-20
 
+Latest reference is now the owner's [updated guided HTML](v2/Elenio_AI_OS_V10_Updated_Guided.html) under the [Final Lean master](v2/MASTER_PROMPT_FINAL_LEAN.md). Its restored V10 Home is retained; “Create a solution” enters durable contextual Solution stages. Configure reuses the existing Composer; Preview now executes authorized cases from those saved pages. Keep workbenches contextual rather than adding prototype-only menus. Full page-content/UAT parity is still open; [FINAL_LEAN_STATUS.md](FINAL_LEAN_STATUS.md) supersedes historical gaps below only where actual evidence is stated.
+
 The owner explicitly reiterated that every UI/menu must follow the development-kit HTML while reusing existing backends. Source: `references/Elenio_AI_Workspaces_V10_Precision.html`, its `const NAV` and additive V9 navigation mutations; Economics/Business Apps also retain V9 functional guidance. Existing security and the permanent Publisher addendum still apply. Prototype records, local simulations and decorative controls are not evidence of live functionality.
 
 This is an implementation checklist, not a claim of parity. Keep the agreed logo/font/light direction and V10 information hierarchy. Preserve useful existing routes even when the navigation label changes.

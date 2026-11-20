@@ -1,6 +1,9 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
 import {
   assertSolution,
+  assertExecution,
+  listSolutionExecutions,
+  startSolutionExecution,
   assertCandidate,
   createCandidate,
   validApplication,
@@ -49,6 +52,35 @@ const reply = (body: unknown, status = 200) =>
   });
 afterEach(() => vi.unstubAllGlobals());
 describe("solution plans", () => {
+  const execution = {
+    execution: {id: "00000000-0000-4000-8000-000000000401", solution_id: plan.id, plan_revision: 1,
+      workflow_key: "purchase-review", workflow_version: 1, case_id: "00000000-0000-4000-8000-000000000501", created_at: plan.created_at},
+    case: {id: "00000000-0000-4000-8000-000000000501", reference: "CASE-1", title: "Synthetic", status: "active",
+      workflow_key: "purchase-review", workflow_version: 1, definition_hash: "a".repeat(64)},
+  };
+  it("starts exact saved Solution execution with current cookie scope, CSRF and stable retry key", async () => {
+    const fetcher = vi.fn().mockResolvedValueOnce(reply(session)).mockResolvedValueOnce(reply(execution));
+    vi.stubGlobal("fetch", fetcher);
+    expect(await startSolutionExecution(session, plan, "purchase-review", {title: "Synthetic", variables: {}}, "stable-run-01")).toEqual(execution);
+    const options = fetcher.mock.calls[1]?.[1] as RequestInit;
+    expect(options.headers).toMatchObject({"If-Match": '"1"', "Idempotency-Key": "stable-run-01", "X-CSRF-Token": session.csrf_token});
+    expect(options.body).toBe(JSON.stringify({workflow_key:"purchase-review",title:"Synthetic",variables:{}}));
+    expect((options.headers as Record<string,string>).Authorization).toBeUndefined();
+  });
+  it("rejects foreign associations, mismatched source pins, missing cases and stale scope before mutation", async () => {
+    expect(() => assertExecution({...execution,execution:{...execution.execution,solution_id:session.workspace.id}}, plan)).toThrow();
+    expect(() => assertExecution({...execution,case:{...execution.case,workflow_version:2}}, plan)).toThrow();
+    expect(() => assertExecution({execution:execution.execution},plan)).toThrow();
+    const fetcher=vi.fn().mockResolvedValue(reply({...session, workspace:{...session.workspace,id:plan.id}}));
+    vi.stubGlobal("fetch",fetcher);
+    await expect(startSolutionExecution(session,plan,"purchase-review",{title:"Synthetic",variables:{}},"stable-run-01")).rejects.toThrow("changed");
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+  it("lists only explicitly actor-scoped history and preserves older execution pins after a plan edit", async () => {
+    const fetcher=vi.fn().mockResolvedValueOnce(reply(session)).mockResolvedValueOnce(reply({items:[execution],scope:"current_user_solution_executions"}));
+    vi.stubGlobal("fetch",fetcher);
+    expect((await listSolutionExecutions(session,{...plan,revision:2,definition:{...plan.definition,workflows:[{key:"purchase-review",version:2}]}})).items).toEqual([execution]);
+  });
   const candidate: SolutionCandidate = {
     id: "00000000-0000-4000-8000-000000000301",
     solution_id: plan.id,

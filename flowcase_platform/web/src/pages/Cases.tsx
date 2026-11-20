@@ -65,10 +65,11 @@ function NewCaseModal({ onClose }: { onClose: () => void }) {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!shown) return;
     setBusy(true);
     setError(null);
     try {
-      const c = await createCase({ workflow_key: key, title: title.trim(), variables: toData(schema, values) });
+      const c = await createCase({ workflow_key: key, version: shown.version, title: title.trim(), variables: toData(schema, values) });
       toast(`${c.reference} started on ${c.workflow_key} v${c.workflow_version}`);
       navigate(`/cases/${c.id}`);
     } catch (err) {

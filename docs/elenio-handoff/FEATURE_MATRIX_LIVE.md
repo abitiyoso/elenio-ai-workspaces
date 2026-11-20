@@ -1,5 +1,9 @@
 # Live capability / acceptance matrix
 
+## Active update — Final Lean guided Solution and development execution
+
+Saved Describe/Blueprint/Configure/Preview/Publish context now extends the original CP Solution registry. Existing Architect proposals are explicitly reviewed/validated before native draft creation and linking to that Solution. Original Application Composer is reused in Configure; its saved intake pages start real cases on exact published workflow pins, retain actor/Solution associations, and open original case actions/evidence. Retry, revision, scope and upstream failure boundaries are tested. This is development execution, not an approved installed customer app or complete Invoice Approval. Current evidence and A–E gaps: [FINAL_LEAN_STATUS.md](FINAL_LEAN_STATUS.md).
+
 Statuses reflect verified checkpoints, not a live deployment claim. The latest update below supersedes earlier model-absence statements.
 
 ## Latest update — existing KMS/UCW shared workbenches

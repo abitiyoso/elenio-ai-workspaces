@@ -100,6 +100,8 @@ func (s *Server) Handler() http.Handler {
 	authed("POST /api/v1/solutions", s.handleCreateSolution)
 	authed("GET /api/v1/solutions/{id}", s.handleSolution)
 	authed("GET /api/v1/solutions/{id}/readiness", s.handleSolutionReadiness)
+	authed("GET /api/v1/solutions/{id}/executions", s.handleSolutionExecutions)
+	authed("POST /api/v1/solutions/{id}/executions", s.handleCreateSolutionExecution)
 	authed("GET /api/v1/solutions/{id}/candidates", s.handleCandidates)
 	authed("POST /api/v1/solutions/{id}/candidates", s.handleCreateCandidate)
 	authed("GET /api/v1/solutions/{id}/candidates/{candidate_id}", s.handleCandidate)

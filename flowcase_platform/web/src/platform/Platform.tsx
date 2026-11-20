@@ -40,6 +40,7 @@ import { ProjectSections } from "./ProjectSections";
 import { ConnectedWorkspace } from "./ConnectedWorkspace";
 import { Economics } from "./Economics";
 import { Solutions } from "./Solutions";
+import { SolutionJourney } from "./SolutionJourney";
 import {CapabilityWorkspace} from "./CapabilityWorkspace";
 import {WorkspaceIdentity} from "./WorkspaceIdentity";
 import {basePath} from "../api/client";
@@ -68,7 +69,7 @@ export function Platform() {
     [brief, setBrief] = useState("");
   const connectedMode = location.pathname.startsWith("/connected");
   const architectMode = location.pathname === "/architect";
-  const solutionMode = location.pathname === "/solutions";
+  const solutionMode = location.pathname.startsWith("/solutions");
   const capabilityMode = location.pathname.startsWith("/capabilities/");
   const registryMode = ["/business-apps","/deployments","/control-center"].includes(location.pathname)||(["/","/knowledge"].includes(location.pathname)&&basePath==="/apps/flowcase");
   const serviceMode = connectedMode || architectMode || solutionMode || capabilityMode || registryMode;
@@ -426,6 +427,7 @@ export function Platform() {
               <Route path="/connected/*" element={<ConnectedWorkspace />} />
               <Route path="/economics" element={<Economics />} />
               <Route path="/solutions" element={<Solutions />} />
+              <Route path="/solutions/:id/:stage?" element={<SolutionJourney />} />
               <Route path="/business-apps" element={<BusinessApps />} />
               <Route path="/deployments" element={<Deployments />} />
               <Route path="/control-center" element={<ControlCenter />} />
@@ -437,8 +439,7 @@ export function Platform() {
                     onOpen={() => go(basePath==="/apps/flowcase"?"/connected":"/projects/vendor-payment")}
                     onBuild={() => go(basePath==="/apps/flowcase"?"/connected?create=blank":"/projects/vendor-payment/workflow")}
                     onArchitect={(value) => {
-                      setBrief(value);
-                      go("/architect");
+                      navigate("/solutions/new/describe", {state:{brief:value}});
                     }}
                   />
                 }

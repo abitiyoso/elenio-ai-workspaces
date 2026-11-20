@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button, Badge, Notice } from "../../../../packages/ui/primitives";
-import type { ApplicationComposition, SolutionDefinition } from "./solutionApi";
+import type { ApplicationComposition, SolutionDefinition, Solution, SolutionSession } from "./solutionApi";
+import { SolutionRuntime } from "./SolutionRuntime";
 
 const kinds = {
   overview: "Overview",
@@ -148,8 +149,10 @@ export function ApplicationComposer({
 }
 export function ApplicationPreview({
   definition,
+  runtime,
 }: {
   definition: SolutionDefinition;
+  runtime?: {plan: Solution; session: SolutionSession};
 }) {
   const [selected, setSelected] = useState("");
   const app = definition.application;
@@ -175,9 +178,9 @@ export function ApplicationPreview({
       aria-label="Business application preview"
     >
       <header>
-        <Badge tone="amber">Design preview</Badge>
+        <Badge tone="amber">{runtime ? "Development execution" : "Design preview"}</Badge>
         <h2>{app.title}</h2>
-        <p>No live customer data or operational actions are loaded.</p>
+        <p>{runtime ? "Saved application pages connected to authorized workflow cases." : "No live customer data or operational actions are loaded."}</p>
       </header>
       <nav aria-label="Application pages">
         {app.pages.map((p) => (
@@ -199,6 +202,7 @@ export function ApplicationPreview({
             {pin.key}@{pin.version}
           </Badge>
         )}
+        {runtime ? <SolutionRuntime plan={runtime.plan} session={runtime.session} page={page}/> : <>
         {page.kind === "overview" && (
           <>
             <h4>Linked business processes</h4>
@@ -247,6 +251,7 @@ export function ApplicationPreview({
             </p>
           </>
         )}
+        </>}
       </div>
     </section>
   );

@@ -52,5 +52,6 @@ export function isWorkspaceMenuActive(item: WorkspaceMenuItem, pathname: string,
   if(item.id==="projects")return (pathname==="/connected"&&new URLSearchParams(search).get("create")!=="template"&&new URLSearchParams(search).get("view")!=="studio")||((pathname==="/projects"||pathname.startsWith("/projects/"))&&!pathname.endsWith("/workflow"));
   if(item.id==="operations")return pathname==="/connected/operations"||pathname.startsWith("/connected/cases/");
   if(item.id==="evaluation")return ["/capabilities/evaluation","/capabilities/evaluations","/capabilities/releases"].includes(pathname);
+  if(item.id==="solutions")return pathname==="/solutions"||pathname.startsWith("/solutions/");
   return pathname===item.path;
 }
