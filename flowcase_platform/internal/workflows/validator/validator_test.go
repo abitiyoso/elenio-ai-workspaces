@@ -196,6 +196,7 @@ func TestDefectsAreRejected(t *testing.T) {
 		{"unknown context source", "sim_tender_v1.json", func(m map[string]any) { config(m, "intake")["context_sources"] = []any{"internet"} }, "unknown_context_source"},
 		{"embedded endpoint", "sim_tender_v1.json", func(m map[string]any) { config(m, "intake")["url"] = "https://example.com/hook" }, "unsafe_config"},
 		{"unknown config key", "sim_tender_v1.json", func(m map[string]any) { config(m, "g1")["auto_approve"] = true }, "unknown_config"},
+		{"input contract is deployment owned", "sim_tender_v1.json", func(m map[string]any) { config(m, "intake")["input_contract"] = "flowcase.case.v1" }, "unknown_config"},
 		{"author_review not boolean", "sim_tender_v1.json", func(m map[string]any) { config(m, "intake")["author_review"] = "yes" }, "invalid_type"},
 		{"author_review on a gate", "sim_tender_v1.json", func(m map[string]any) { config(m, "g1")["author_review"] = true }, "unknown_config"},
 		{"unregistered connector", "poc_request_v1.json", func(m map[string]any) {

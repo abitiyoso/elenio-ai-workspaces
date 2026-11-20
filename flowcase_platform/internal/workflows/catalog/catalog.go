@@ -43,6 +43,11 @@ type Agent struct {
 	SkillVersion string `json:"skill_version"`
 	// RuntimeAgentID is the identifier in the external AI runtime (defaults to Ref).
 	RuntimeAgentID string `json:"runtime_agent_id"`
+	InputContract  string `json:"input_contract,omitempty"`
+}
+
+func ValidAgentInputContract(contract string) bool {
+	return contract == "" || contract == "sim.v1" || contract == "flowcase.case.v1"
 }
 
 type Connector struct {
@@ -95,6 +100,9 @@ func (s *Static) Merge(o Snapshot) error {
 		s.policies[p.Ref] = p
 	}
 	for _, a := range o.Agents {
+		if !ValidAgentInputContract(a.InputContract) {
+			return fmt.Errorf("agent %q has an unsupported input contract", a.Ref)
+		}
 		if _, dup := s.agents[a.Ref]; dup {
 			return fmt.Errorf("agent %q registered twice", a.Ref)
 		}
