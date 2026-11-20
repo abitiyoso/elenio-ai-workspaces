@@ -61,7 +61,20 @@ type Outcome struct {
 	TokensIn      int
 	TokensOut     int
 	ToolCalls     int
+	UsageReports  int
+	MissingUsage  int
 	Evidence      []postgres.EvidenceRef
+}
+
+func (out *Outcome) observeUsage(usage *schema.TokenUsage) {
+	const maxTokens = 1<<31 - 1
+	if usage == nil || usage.PromptTokens < 0 || usage.CompletionTokens < 0 || usage.PromptTokens > maxTokens-out.TokensIn || usage.CompletionTokens > maxTokens-out.TokensOut {
+		out.MissingUsage++
+		return
+	}
+	out.UsageReports++
+	out.TokensIn += usage.PromptTokens
+	out.TokensOut += usage.CompletionTokens
 }
 
 type manifest struct {
@@ -170,8 +183,9 @@ func (e *Executor) Execute(ctx context.Context, exec postgres.RunExecution, sink
 		}
 		msg := event.Output.MessageOutput.Message
 		if msg.ResponseMeta != nil && msg.ResponseMeta.Usage != nil {
-			out.TokensIn += msg.ResponseMeta.Usage.PromptTokens
-			out.TokensOut += msg.ResponseMeta.Usage.CompletionTokens
+			out.observeUsage(msg.ResponseMeta.Usage)
+		} else if msg.Role == schema.Assistant {
+			out.MissingUsage++
 		}
 		switch msg.Role {
 		case schema.Assistant:
@@ -237,16 +251,18 @@ func (e *Executor) Execute(ctx context.Context, exec postgres.RunExecution, sink
 			state.event(ctx, "run.repair", map[string]any{"error_code": failed.ErrorCode, "repaired": false, "provider_error": redactError(err)})
 		} else {
 			if reply.ResponseMeta != nil && reply.ResponseMeta.Usage != nil {
-				out.TokensIn += reply.ResponseMeta.Usage.PromptTokens
-				out.TokensOut += reply.ResponseMeta.Usage.CompletionTokens
+				out.observeUsage(reply.ResponseMeta.Usage)
+			} else {
+				out.MissingUsage++
 			}
 			check(reply.Content)
 			repaired := out.ErrorCode == ""
 			if !repaired {
 				// The second answer is no better; report the first failure.
-				tokensIn, tokensOut := out.TokensIn, out.TokensOut
+				tokensIn, tokensOut, reports, missing := out.TokensIn, out.TokensOut, out.UsageReports, out.MissingUsage
 				out = failed
 				out.TokensIn, out.TokensOut = tokensIn, tokensOut
+				out.UsageReports, out.MissingUsage = reports, missing
 			}
 			state.event(ctx, "run.repair", map[string]any{"error_code": failed.ErrorCode, "repaired": repaired})
 		}

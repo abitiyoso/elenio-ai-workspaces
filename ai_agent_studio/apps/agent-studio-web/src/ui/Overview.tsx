@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Agent, AgentPage, Deployment, IntegrationStatus, Page, Provider, RunMetrics, Session, api } from '../api';
-import { PermissionNote, StatusBadge, can, statusLabel } from './shared';
+import { PermissionNote, StatusBadge, TableScroll, can, statusLabel } from './shared';
 
 type LoadState = 'loading' | 'ready' | 'error';
 type Summary<T> = { state: LoadState; value?: T; error?: string };
@@ -60,12 +60,15 @@ function MetricsPanel({ metrics }: { metrics: RunMetrics }) {
         <Metric label={`Run (${metrics.window_hours} jam)`} value={totalRuns} hint={Object.entries(metrics.by_kind ?? {}).map(([kind, count]) => `${kind} ${count}`).join(' · ') || 'Belum ada run'} />
         <Metric label="Durasi p50 / p95" value={`${millis(metrics.p50_duration_ms)} / ${millis(metrics.p95_duration_ms)}`} />
         <Metric label="Grounded rate" value={percent(metrics.grounded_rate)} hint="Run tanpa klaim tak didukung atau sitasi tak dikenal" />
-        <Metric label="Token in / out" value={`${metrics.tokens_in.toLocaleString()} / ${metrics.tokens_out.toLocaleString()}`} />
+        <Metric label="Token terlapor · semua mode" value={`${metrics.tokens_in.toLocaleString()} / ${metrics.tokens_out.toLocaleString()}`} hint="Termasuk retry; usage yang tidak dilaporkan bukan nol biaya" />
         <Metric label="Tool denials" value={metrics.tool_denials} tone={metrics.tool_denials ? 'warn' : undefined} />
         <Metric label="Evaluation selesai" value={metrics.eval_runs_completed} hint={`${metrics.eval_gate_blocked} gate blocked`} tone={metrics.eval_gate_blocked ? 'warn' : undefined} />
         <Metric label="Release aktif" value={metrics.active_releases} hint={`${metrics.pending_release_requests} permintaan menunggu · ${metrics.rollbacks} rollback`} />
         <Metric label="Outbox" value={`${metrics.outbox_pending} pending`} hint={`${metrics.outbox_dead} dead`} tone={metrics.outbox_dead ? 'bad' : undefined} />
       </div>
+      {metrics.usage_by_class&&<section className="panel" aria-label="Usage menurut jenis"><h2>Usage menurut jenis</h2><p>Token terlapor dari semua percobaan. Harga belum dihitung; actual, test dan mock tetap dipisahkan.</p>
+        <TableScroll label="Usage menurut jenis"><table><caption className="sr-only">Usage menurut jenis</caption><thead><tr><th>Jenis</th><th>Run</th><th>Token in / out</th><th>Run dengan usage tidak lengkap</th></tr></thead><tbody>{Object.entries(metrics.usage_by_class).map(([kind,usage])=><tr key={kind}><td>{kind}</td><td>{usage.runs}</td><td>{usage.tokens_in} / {usage.tokens_out}</td><td>{usage.incomplete_runs}</td></tr>)}</tbody></table></TableScroll>
+      </section>}
       <div className="status-strip" aria-label="Run per status">
         {statusOrder.filter((status) => metrics.by_status?.[status] !== undefined).map((status) => <span key={status}><StatusBadge value={status} /> {metrics.by_status[status]}</span>)}
         {Object.keys(metrics.by_status ?? {}).length === 0 && <span className="muted-text">Belum ada run pada jendela ini.</span>}

@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Agent Studio Runtime — Flowcase integration
-  version: 0.2.0
+  version: 0.3.0
   description: |
     Implemented by Agent Studio release p1-20261030-04 and matched to Flowcase's
     proposed AgentExecutor contract (flowcase_platform/internal/integrations/agent).
@@ -58,11 +58,12 @@ paths:
         "429": { description: Tenant rate limit or backpressure }
   /runs/{id}:
     get:
-      summary: Run status (only runs this client started)
-      security: [{ serviceToken: [] }]
+      summary: Authorized run detail and observed usage
+      description: Service clients retain the original Run response and ownership boundary. Authorized humans with run.read receive a run/evidence envelope, including immutable per-attempt usage observations. Provider sandbox/evaluation usage is test usage, not production actual. Missing/partial usage and legacy final-attempt totals never imply zero cost. Prices are not computed by this contract. No provider credentials, endpoints, prompts or response text are stored in usage entries.
+      security: [{ serviceToken: [] }, { controlPlaneJWT: [] }]
       parameters: [{ name: id, in: path, required: true, schema: { type: string, format: uuid } }]
       responses:
-        "200": { description: Run, content: { application/json: { schema: { $ref: "#/components/schemas/Run" } } } }
+        "200": { description: Original service response or scoped human detail, content: { application/json: { schema: { oneOf: [{ $ref: "#/components/schemas/Run" }, { $ref: "#/components/schemas/HumanRunDetail" }] } } } }
         "404": { description: Unknown run or started by another client }
   /runs/{id}/cancel:
     post:
@@ -98,11 +99,46 @@ webhooks:
         "202": { description: Acknowledged (applied, duplicate or ignored) }
 components:
   securitySchemes:
+    controlPlaneJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Original trusted human delegation from Control Plane; independent tenant permissions still required. Browser uses the CP cookie proxy, not a provider API key.
     serviceToken:
       type: http
       scheme: bearer
       description: Opaque, tenant-bound, expiring credential stored by Agent Studio as SHA-256; run.invoke/read/cancel only.
   schemas:
+    HumanRunDetail:
+      type: object
+      required: [run, evidence]
+      properties:
+        evidence: {type: array, items: {type: object}}
+        run:
+          type: object
+          required: [id, kind, model_mode, tokens_in, tokens_out, usage, usage_coverage]
+          properties:
+            id: {type: string, format: uuid}
+            kind: {enum: [production, sandbox, evaluation]}
+            model_mode: {enum: [provider, dev_mock]}
+            tokens_in: {type: integer, minimum: 0, description: Sum of retained attempts; legacy last-attempt value only when no ledger exists}
+            tokens_out: {type: integer, minimum: 0}
+            usage_coverage: {enum: [complete, partial, unavailable, legacy_final_attempt]}
+            usage:
+              type: array
+              items:
+                type: object
+                required: [attempt, config_version, tokens_in, tokens_out, tool_calls, usage_reports, missing_usage, recorded_at]
+                properties:
+                  attempt: {type: integer, minimum: 1}
+                  deployment_id: {type: string, format: uuid, description: Actual pinned target; omitted when unavailable or mock}
+                  config_version: {type: integer, minimum: 0}
+                  tokens_in: {type: integer, minimum: 0}
+                  tokens_out: {type: integer, minimum: 0}
+                  tool_calls: {type: integer, minimum: 0}
+                  usage_reports: {type: integer, minimum: 0, description: Number of model replies with valid token counters; a reported zero is distinct from no report}
+                  missing_usage: {type: integer, minimum: 0}
+                  recorded_at: {type: string, format: date-time}
     Run:
       type: object
       required: [run_id, status, agent_id, skill_version]

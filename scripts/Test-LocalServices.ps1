@@ -24,6 +24,10 @@ foreach($name in $Modules){
    $exists=& "$pg/psql.exe" -h 127.0.0.1 -p 55448 -U elenio_test -d agent_tests -Atc "SELECT to_regclass('public.agents') IS NOT NULL"
    if($LASTEXITCODE -ne 0){throw 'Local database check failed'}
    if($exists -eq 'f'){foreach($sql in Get-ChildItem migrations -Filter '*.up.sql'|Sort-Object Name){& "$pg/psql.exe" -h 127.0.0.1 -p 55448 -U elenio_test -d agent_tests -v ON_ERROR_STOP=1 -f $sql.FullName > (Join-Path $state 'agent-migrate.log');if($LASTEXITCODE -ne 0){throw 'Agent migration failed'}}}
+   # shortcut: upgrade the pre-existing disposable fixture's new usage table; centralize fixture migrations when another additive schema is introduced.
+   $usageExists=& "$pg/psql.exe" -h 127.0.0.1 -p 55448 -U elenio_test -d agent_tests -Atc "SELECT to_regclass('public.agent_run_usage') IS NOT NULL"
+   if($LASTEXITCODE -ne 0){throw 'Local usage schema check failed'}
+   if($usageExists -eq 'f'){& "$pg/psql.exe" -h 127.0.0.1 -p 55448 -U elenio_test -d agent_tests -v ON_ERROR_STOP=1 -1 -f migrations/000006_run_usage.up.sql > (Join-Path $state 'agent-migrate.log');if($LASTEXITCODE -ne 0){throw 'Agent usage migration failed'}}
   }
   if($name -eq 'kms'){& $go run ./tools/local-test-migrate; if($LASTEXITCODE -ne 0){throw 'KMS migration failed'}}
   $log=Join-Path $state "$name-tests.jsonl"

@@ -17,6 +17,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cloudwego/eino/schema"
 	"github.com/elenio/agent-studio/internal/repository/postgres"
 )
 
@@ -496,6 +497,7 @@ type retryStore struct {
 	exec     postgres.RunExecution
 	requeued []string
 	finished []postgres.RunResult
+	usage    []postgres.RunUsage
 }
 
 func (s *retryStore) BeginRunExecution(context.Context, string, string) (postgres.RunExecution, error) {
@@ -505,6 +507,10 @@ func (s *retryStore) AppendRunEvents(context.Context, string, string, []postgres
 	return nil
 }
 func (s *retryStore) RecordEvidence(context.Context, string, string, []postgres.EvidenceRef) error {
+	return nil
+}
+func (s *retryStore) RecordRunUsage(_ context.Context, _, _ string, usage postgres.RunUsage) error {
+	s.usage = append(s.usage, usage)
 	return nil
 }
 func (s *retryStore) RequeueRun(_ context.Context, _, _, errorCode, providerError string, _ time.Duration) error {
@@ -541,6 +547,9 @@ func TestWorkerRecordsRedactedProviderError(t *testing.T) {
 	w.processRun(context.Background(), postgres.WorkItem{TenantID: "t1", RefID: "run-1"})
 	if len(store.finished) != 1 || store.finished[0].ErrorCode != "provider_unavailable" || store.finished[0].ProviderError != "provider_status_503" {
 		t.Fatalf("final failure did not record the redacted provider error: %+v", store.finished)
+	}
+	if len(store.usage) != 2 || store.usage[0].Attempt != 1 || store.usage[1].Attempt != 2 || store.usage[0].UsageReports != 0 {
+		t.Fatal("retry attempts or unavailable provider usage were not retained")
 	}
 	if strings.Contains(fmt.Sprint(store.requeued, store.finished), "sk-secret") {
 		t.Fatal("provider text leaked into persisted state")
@@ -637,6 +646,9 @@ func TestExecutorRepairsSchemaInvalidAnswerOnce(t *testing.T) {
 	if len(*seen) != 2 {
 		t.Fatalf("provider calls = %d, want 2", len(*seen))
 	}
+	if out.UsageReports != 2 || out.MissingUsage != 0 {
+		t.Fatalf("repair usage observations were lost: %+v", out)
+	}
 	repair := (*seen)[1]
 	if tools, ok := repair["tools"].([]any); ok && len(tools) > 0 {
 		t.Fatal("repair call offered tools")
@@ -646,6 +658,17 @@ func TestExecutorRepairsSchemaInvalidAnswerOnce(t *testing.T) {
 	}
 	if !sink.hasPayload("run.repair", `"repaired":true`) {
 		t.Fatalf("no repair event: %v", sink.types())
+	}
+}
+
+func TestProviderUsageRejectsNegativeAndOverflowingCountersWithoutLosingKnownUsage(t *testing.T) {
+	out := Outcome{}
+	out.observeUsage(nil)
+	out.observeUsage(&schema.TokenUsage{PromptTokens: -1, CompletionTokens: 3})
+	out.observeUsage(&schema.TokenUsage{PromptTokens: 10, CompletionTokens: 2})
+	out.observeUsage(&schema.TokenUsage{PromptTokens: 1<<31 - 1, CompletionTokens: 0})
+	if out.TokensIn != 10 || out.TokensOut != 2 || out.UsageReports != 1 || out.MissingUsage != 3 {
+		t.Fatalf("invalid provider counters polluted usage: %+v", out)
 	}
 }
 
@@ -659,6 +682,9 @@ func TestExecutorKeepsFirstFailureWhenRepairDoesNotHelp(t *testing.T) {
 	}
 	if len(*seen) != 2 || !sink.hasPayload("run.repair", `"repaired":false`) {
 		t.Fatalf("calls=%d events=%v", len(*seen), sink.types())
+	}
+	if out.UsageReports != 2 || out.MissingUsage != 0 {
+		t.Fatalf("failed repair usage observations were lost: %+v", out)
 	}
 
 	// A provider error on the repair call is not retried as a whole run.

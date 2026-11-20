@@ -30,7 +30,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
-const expectedSchemaVersion = "000005_release_self_approval_exempt"
+const expectedSchemaVersion = "000006_run_usage"
 
 func main() {
 	if err := run(); err != nil {
