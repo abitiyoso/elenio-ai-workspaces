@@ -229,6 +229,16 @@ test("native Publisher observes exact source deployment bindings without invokin
   }
 });
 
+test("native Agent release evidence enforces source routing and validation without inference",async({page})=>{
+  await signIn(page);
+  const path="/apps/agent-studio/api/v1/releases/evidence";
+  const missing=await page.request.get(`${path}?agent_key=${unique()}`);
+  expect(missing.status()).toBe(409);
+  expect(await missing.json()).toMatchObject({error:"agent has no active release in this environment"});
+  const invalid=await page.request.get(`${path}?agent_key=sim.intake&environment=production`);
+  expect(invalid.status()).toBe(400);
+});
+
 test("guided Home saves one Solution across description, Composer and preview without starting a model call",async({page})=>{
   await signIn(page);
   let modelCalls=0;

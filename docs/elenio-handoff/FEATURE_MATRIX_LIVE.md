@@ -1,5 +1,9 @@
 # Live capability / acceptance matrix
 
+## Latest update — source agent release governance evidence
+
+Original Agent human release.read exposes only bounded active-version/request/evaluation/dependency metadata. Independent approval excludes development exemptions; current primary model approval and evaluated config must match. Revocation/config drift and unknown fallback evaluation pins remain blocked in the observation; original runtime behavior is preserved. Approved rollback retains prior request provenance. No prompts, schemas, action-scope values, endpoints or credential references are exported; no run/provider request is created. 97 real-database/unit Agent tests, scoped vet and parsed OpenAPI pass. CP/Publisher consumption remains next implementation work. [FINAL_LEAN_STATUS.md](FINAL_LEAN_STATUS.md).
+
 ## Latest update — observed deployment bindings in Publisher
 
 Original Flowcase reports bounded current catalog metadata for exact authorized published workflows, with a deterministic binding digest separate from immutable workflow identity. CP reuses trusted delegation and validates exact references, scope, checksum, freshness and aggregate bounds before retaining observations in candidates. Current checks cannot overwrite older candidate evidence. One shared disclosure presents source bindings; all domain approval/installation gates stay blocked. 120 Flowcase + 62 CP Go, 106 frontend, 43 browser and ten native workspace cases pass; new native case verifies real source digest equality without inference. Runtime metadata and synthetic Publisher interface screenshots are labeled separately. [FINAL_LEAN_STATUS.md](FINAL_LEAN_STATUS.md).
