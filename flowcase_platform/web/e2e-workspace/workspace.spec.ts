@@ -218,14 +218,22 @@ test("native Publisher observes exact source deployment bindings without invokin
   expect(result.release_ready).toBe(false);
   expect(result.workflows[0].binding_snapshot.content_hash).toBe(source.content_hash);
   expect(result.workflows[0].binding_snapshot.definition_hash).toBe(source.definition_hash);
+  const expectedAgents=[...new Set(source.bindings.filter((b:{kind:string})=>b.kind==="agent").map((b:{runtime_agent_id:string})=>b.runtime_agent_id))].sort();
+  expect(result.agent_releases.map((o:{runtime_agent_id:string})=>o.runtime_agent_id).sort()).toEqual(expectedAgents);
   await card.getByText(/Observed bindings · sim-tender@4/).click();
   await expect(card.getByText(/runtime sim.intake/)).toBeVisible();
+  await card.getByText(`Agent release evidence · ${expectedAgents.length} references`,{exact:true}).click();
+  await expect(card.getByRole("heading",{name:/sim.intake · requested/})).toBeVisible();
   for(const width of [1440,390]){
     await page.setViewportSize({width,height:1000});
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
     const audit=await new AxeBuilder({page}).include(".solution-card").analyze();
     expect(audit.violations.filter(v=>v.impact==="serious"||v.impact==="critical")).toEqual([]);
+    await card.getByText(`Agent release evidence · ${expectedAgents.length} references`,{exact:true}).focus();
     await card.screenshot({path:`../../docs/elenio-handoff/evidence/native-binding-evidence-${width}.png`});
+    await page.setViewportSize({width,height:1800});
+    const releaseEvidence=card.locator("details").filter({hasText:`Agent release evidence · ${expectedAgents.length} references`});
+    await releaseEvidence.screenshot({path:`../../docs/elenio-handoff/evidence/native-publisher-agent-evidence-${width}.png`});
   }
 });
 

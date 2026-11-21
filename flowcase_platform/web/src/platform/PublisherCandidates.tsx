@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { BindingEvidence } from "./BindingEvidence";
+import { AgentReleaseEvidence } from "./AgentReleaseEvidence";
 import {
   Badge,
   Button,
@@ -180,6 +181,7 @@ export function PublisherCandidates({
             {item.snapshot.readiness.workflows.map(workflow => (
               <BindingEvidence key={workflow.key} workflow={workflow} />
             ))}
+            <AgentReleaseEvidence observations={item.snapshot.readiness.agent_releases} />
           </article>
         ))}
       </div>

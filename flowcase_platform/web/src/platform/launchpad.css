@@ -666,4 +666,4 @@
 .application-preview{border:1px solid var(--e-line);border-radius:12px;background:white;overflow:hidden}
 .application-preview header,.application-preview-content{padding:24px}.application-preview h2{font-size:24px;margin:12px 0}.application-preview h3{font-size:21px}.application-preview nav{padding:12px 24px;display:flex;flex-wrap:wrap;gap:8px;background:var(--e-canvas)}
 .publisher-create{display:flex;align-items:end;flex-wrap:wrap;gap:16px;margin:24px 0}.publisher-create .e-field{flex:1;min-width:160px}.publisher-history{display:grid;gap:16px}.publisher-history article{border:1px solid var(--e-line);border-radius:12px;padding:20px}.publisher-hash{overflow-wrap:anywhere;font-size:13px;line-height:1.7}
-.binding-evidence>summary{min-height:44px;padding:12px 0;box-sizing:border-box;cursor:pointer}.binding-evidence li{overflow-wrap:anywhere}
+.binding-evidence>summary{min-height:44px;padding:12px 0;box-sizing:border-box;cursor:pointer}.binding-evidence li,.binding-evidence h4{overflow-wrap:anywhere}

@@ -132,6 +132,18 @@ export async function startSolutionExecution(session: SolutionSession, plan: Sol
     throw new Error("Execution does not match the requested solution pin. Check history before retrying.");
   return result;
 }
+interface SourceDependencyPin {id:string;version:string;checksum:string;state:string;scope_hash?:string}
+interface SourceModelPin {id:string;config_version:number;approved:boolean}
+export interface AgentReleaseObservation {
+  runtime_agent_id:string; expected_version:string; reason:string;
+  evidence?: {
+    schema:"elenio.agent-release-evidence.v1";agent_key:string;environment:"production"|"staging";
+    release_id:string;agent_version:SourceDependencyPin;fingerprint:string;request_id?:string;evaluation_id?:string;evaluation_gate:string;
+    independent_approval:boolean;self_approval_exempt:boolean;evaluation_primary_config_matches:boolean;
+    primary_model?:SourceModelPin;fallback_model?:SourceModelPin;skills:SourceDependencyPin[];tools:SourceDependencyPin[];
+    blockers:string[];state:"blocked"|"verified";content_hash:string;observed_at:string;
+  };
+}
 export interface SolutionReadiness {
   solution_id: string;
   revision: number;
@@ -160,6 +172,7 @@ export interface SolutionReadiness {
   }[];
   blockers: string[];
   application_issues?: string[];
+  agent_releases?: AgentReleaseObservation[];
 }
 export interface SolutionCandidate {
   id: string;
@@ -176,10 +189,36 @@ export interface SolutionCandidate {
     limitations: string[];
   };
 }
+function agentObservationValid(o:AgentReleaseObservation):boolean{
+  if(!o||typeof o.runtime_agent_id!=="string"||o.runtime_agent_id.length>128||typeof o.expected_version!=="string"||
+    o.expected_version.length>128||typeof o.reason!=="string"||o.reason.length>1000)return false;
+  const e=o.evidence;
+  if(e===undefined)return true;
+  const digest=(v:unknown)=>typeof v==="string"&&/^[a-f0-9]{64}$/.test(v);
+  const pin=(p:SourceDependencyPin)=>!!p&&uuid.test(p.id)&&typeof p.version==="string"&&p.version.length<=40&&typeof p.state==="string"&&p.state.length<=96&&
+    (p.checksum===""||digest(p.checksum))&&(p.scope_hash===undefined||digest(p.scope_hash));
+  if(!e||e.schema!=="elenio.agent-release-evidence.v1"||e.agent_key!==o.runtime_agent_id||!["production","staging"].includes(e.environment)||
+    !uuid.test(e.release_id)||!pin(e.agent_version)||!["verified","blocked"].includes(e.state)||!digest(e.content_hash)||
+    typeof e.observed_at!=="string"||!Number.isFinite(Date.parse(e.observed_at))||
+    typeof e.independent_approval!=="boolean"||typeof e.self_approval_exempt!=="boolean"||typeof e.evaluation_primary_config_matches!=="boolean"||
+    typeof e.evaluation_gate!=="string"||(e.fingerprint!==""&&!digest(e.fingerprint))||
+    (e.request_id!==undefined&&!uuid.test(e.request_id))||(e.evaluation_id!==undefined&&!uuid.test(e.evaluation_id))||
+    !Array.isArray(e.blockers)||e.blockers.length>30||!e.blockers.every(c=>typeof c==="string"&&/^[a-z][a-z0-9_]{0,95}$/.test(c))||
+    !Array.isArray(e.skills)||e.skills.length>100||!e.skills.every(pin)||!Array.isArray(e.tools)||e.tools.length>100||!e.tools.every(pin))return false;
+  if(o.expected_version&&o.expected_version!=="unpinned"&&o.expected_version!==e.agent_version.id&&o.expected_version!==e.agent_version.version)return false;
+  for(const m of [e.primary_model,e.fallback_model])if(m!==undefined&&(!m||!uuid.test(m.id)||!Number.isInteger(m.config_version)||m.config_version<1||typeof m.approved!=="boolean"))return false;
+  if(e.state==="verified"&&(e.blockers.length||e.agent_version.state!=="published"||!digest(e.agent_version.checksum)||
+    !digest(e.fingerprint)||!e.request_id||!e.evaluation_id||e.evaluation_gate!=="pass"||!e.independent_approval||e.self_approval_exempt||
+    !e.evaluation_primary_config_matches||!e.primary_model?.approved||e.fallback_model))return false;
+  if(e.state==="verified"&&(!e.skills.every(p=>p.state==="published"&&digest(p.checksum)&&p.scope_hash===undefined)||
+    !e.tools.every(p=>p.state==="active"&&digest(p.checksum)&&digest(p.scope_hash))))return false;
+  return e.state==="verified"||e.blockers.length>0;
+}
 function readinessDetailsValid(report: SolutionReadiness): boolean {
   return (
     !!report &&
     typeof report.checked_at === "string" &&
+    (report.agent_releases===undefined||(Array.isArray(report.agent_releases)&&report.agent_releases.length<=20&&report.agent_releases.every(agentObservationValid))) &&
     Number.isFinite(Date.parse(report.checked_at)) &&
     Array.isArray(report.blockers) &&
     report.blockers.length <= 100 &&

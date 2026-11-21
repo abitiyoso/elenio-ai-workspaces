@@ -28,13 +28,14 @@ type solutionDependency struct {
 	BindingReason     string                         `json:"binding_reason,omitempty"`
 }
 type solutionReadiness struct {
-	SolutionID        string               `json:"solution_id"`
-	Revision          int                  `json:"revision"`
-	CheckedAt         time.Time            `json:"checked_at"`
-	Workflows         []solutionDependency `json:"workflows"`
-	Blockers          []string             `json:"blockers"`
-	ReleaseReady      bool                 `json:"release_ready"`
-	ApplicationIssues []string             `json:"application_issues"`
+	SolutionID        string                     `json:"solution_id"`
+	Revision          int                        `json:"revision"`
+	CheckedAt         time.Time                  `json:"checked_at"`
+	Workflows         []solutionDependency       `json:"workflows"`
+	Blockers          []string                   `json:"blockers"`
+	ReleaseReady      bool                       `json:"release_ready"`
+	ApplicationIssues []string                   `json:"application_issues"`
+	AgentReleases     []solutionAgentObservation `json:"agent_releases,omitempty"`
 }
 
 var workflowHash = regexp.MustCompile(`^[0-9a-f]{64}$`)
@@ -127,6 +128,8 @@ func (s *Server) collectSolutionReadiness(ctx context.Context, p principal.Princ
 	if truncated {
 		out.Blockers = append(out.Blockers, "Reference inventory exceeds the 200-resource report limit; the remaining dependencies are unresolved.")
 	}
+	s.observeSolutionAgentReleases(ctx, p, client, &out)
+	boundAgentReport(&out)
 	return out, nil
 }
 func (s *Server) checkSolutionWorkflow(ctx context.Context, client *http.Client, target, token, key string, version, bindingLimit int) solutionDependency {
