@@ -1,0 +1,15 @@
+{
+  "date": "2026-11-21",
+  "database": "PostgreSQL 16.16, loopback-only disposable databases",
+  "test_kind": "real database integration; provider/IdP doubles remain where existing tests specify them",
+  "modules": [
+    {
+      "module": "flowcase",
+      "exit_code": 0,
+      "passed": 125,
+      "failed": 0,
+      "skipped": 0,
+      "failures": []
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"regexp"
 	"slices"
@@ -14,10 +15,12 @@ import (
 
 // Bindings is the external, deployment-owned configuration of a domain pack (PACKS_CONFIG): which
 // runtime agent and skill version each registered agent maps to, and how each approval policy is
-// enforced. It can only refine registrations the packs declare; it cannot add new refs.
+// enforced. Global bindings only refine embedded registrations. Configure also loads isolated,
+// deployment-owned tenant additions; definitions and browser requests cannot register references.
 type Bindings struct {
-	Agents   map[string]AgentBinding  `json:"agents"`
-	Policies map[string]PolicyBinding `json:"policies"`
+	Agents   map[string]AgentBinding     `json:"agents"`
+	Policies map[string]PolicyBinding    `json:"policies"`
+	Tenants  map[string]catalog.Snapshot `json:"tenant_catalogs,omitempty"`
 }
 
 type AgentBinding struct {
@@ -43,15 +46,23 @@ func LoadBindings(path string) (*Bindings, error) {
 	if path == "" {
 		return nil, nil
 	}
-	raw, err := os.ReadFile(path)
+	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("PACKS_CONFIG: %w", err)
+	}
+	defer f.Close()
+	raw, err := io.ReadAll(io.LimitReader(f, (4<<20)+1))
+	if err != nil || len(raw) > 4<<20 {
+		return nil, fmt.Errorf("PACKS_CONFIG: unreadable or exceeds 4 MiB")
 	}
 	dec := json.NewDecoder(bytes.NewReader(raw))
 	dec.DisallowUnknownFields()
 	var b Bindings
 	if err := dec.Decode(&b); err != nil {
 		return nil, fmt.Errorf("PACKS_CONFIG: %w", err)
+	}
+	if err := dec.Decode(new(any)); err != io.EOF {
+		return nil, fmt.Errorf("PACKS_CONFIG: expected exactly one JSON document")
 	}
 	return &b, nil
 }

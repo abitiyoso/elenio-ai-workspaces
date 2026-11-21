@@ -4,12 +4,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/elenio/flowcase/internal/app"
 	"github.com/elenio/flowcase/internal/cases"
 	"github.com/elenio/flowcase/internal/integrations/agent"
+	"github.com/elenio/flowcase/internal/packs"
 	"github.com/elenio/flowcase/internal/platform/auth"
 	"github.com/elenio/flowcase/internal/workflows/catalog"
 	"github.com/elenio/flowcase/internal/workflows/registry"
@@ -33,11 +36,27 @@ func TestStructuredBusinessInputUsesSameEngineWithIndependentReview(t *testing.T
 	} {
 		t.Run(tc.key, func(t *testing.T) {
 			e := newEnv(t)
-			cat := e.eng.Catalog.(*catalog.Static)
+			base := e.eng.Catalog.(*catalog.Static)
 			ref := tc.key + ".extract"
-			if err := cat.Merge(catalog.Snapshot{Agents: []catalog.Agent{{Ref: ref, Name: "Contract extraction", SkillVersion: "1.0.0", InputContract: "flowcase.case.v1"}}, ArtifactTypes: []string{tc.key + ".draft"}}); err != nil {
+			policy := tc.key + ".approval"
+			bindings := packs.Bindings{Tenants: map[string]catalog.Snapshot{e.tenant: {
+				Agents:        []catalog.Agent{{Ref: ref, Name: "Contract extraction", RuntimeAgentID: ref + "-runtime", SkillVersion: "1.0.0", InputContract: "flowcase.case.v1"}},
+				ArtifactTypes: []string{tc.key + ".draft"}, Policies: []catalog.Policy{{Ref: policy, Name: "Independent business fixture review"}},
+			}}}
+			configPath := filepath.Join(t.TempDir(), "packs.json")
+			raw, _ := json.Marshal(bindings)
+			if err := os.WriteFile(configPath, raw, 0o600); err != nil {
 				t.Fatal(err)
 			}
+			configured, _, err := app.NewRegistry(e.pool, configPath)
+			if err != nil {
+				t.Fatal(err)
+			}
+			e.eng.Catalog, e.reg = configured.Catalog, configured.Service
+			if _, found := base.Agent(ref); found {
+				t.Fatal("tenant registration escaped to shared catalog")
+			}
+			e.exec(`INSERT INTO policy_delegations (tenant_id, policy_ref, user_id) VALUES ($1, $2, $3)`, e.tenant, policy, e.approver.UserID)
 			studio := &studioServer{runs: map[string]string{}, polls: map[string]int{}}
 			srv := httptest.NewServer(studio)
 			defer srv.Close()
@@ -51,13 +70,18 @@ func TestStructuredBusinessInputUsesSameEngineWithIndependentReview(t *testing.T
 			tc.properties["kms_source_ids"] = map[string]any{"type": "array", "items": map[string]any{"type": "string"}}
 			doc := cases.RawJSON(map[string]any{"schema_version": "1.0", "key": tc.key, "name": "Typed input fixture", "version": 1,
 				"input_schema": map[string]any{"type": "object", "additionalProperties": false, "properties": tc.properties},
-				"policy_refs":  []any{"poc.budget"}, "nodes": []any{
+				"policy_refs":  []any{policy}, "nodes": []any{
 					map[string]any{"id": "start", "type": "start", "name": "Start", "next": []any{"extract"}},
 					map[string]any{"id": "extract", "type": "agent_task", "name": "Extract", "config": map[string]any{"agent_ref": ref, "output_artifact_type": tc.key + ".draft", "author_review": true}, "next": []any{"review"}},
-					map[string]any{"id": "review", "type": "human_approval", "name": "Independent review", "config": map[string]any{"policy_ref": "poc.budget"}, "next": []any{"end"}},
+					map[string]any{"id": "review", "type": "human_approval", "name": "Independent review", "config": map[string]any{"policy_ref": policy}, "next": []any{"end"}},
 					map[string]any{"id": "end", "type": "end", "name": "End", "next": []any{}},
 				}})
 			designer := e.user("business-designer", auth.KindHuman, auth.RoleWorkflowDesigner, auth.RoleWorkflowPublisher)
+			foreign := designer
+			foreign.TenantID = "00000000-0000-4000-8000-000000000099"
+			if report, err := e.reg.ValidateDocument(e.ctx, foreign, doc); err != nil || report.Valid {
+				t.Fatalf("foreign tenant accepted business references: %+v %v", report, err)
+			}
 			created, err := e.reg.CreateDefinition(e.ctx, designer, registry.Idempotency{Key: tc.key, Hash: h(tc.key)}, registry.CreateInput{Key: tc.key, Definition: doc})
 			if err != nil || !created.Report.Valid {
 				t.Fatalf("create definition: %v %+v", err, created.Report)
@@ -80,6 +104,12 @@ func TestStructuredBusinessInputUsesSameEngineWithIndependentReview(t *testing.T
 			}
 			req := studio.requests[0]
 			studio.mu.Unlock()
+			var runtimeID, skillVersion string
+			_ = json.Unmarshal(req["agent_id"], &runtimeID)
+			_ = json.Unmarshal(req["skill_version"], &skillVersion)
+			if runtimeID != ref+"-runtime" || skillVersion != "1.0.0" {
+				t.Fatal("runtime ignored the tenant's explicit agent/version binding")
+			}
 			var input struct {
 				CaseData       json.RawMessage `json:"case_data"`
 				EvidencePolicy string          `json:"evidence_policy"`
@@ -113,6 +143,12 @@ func TestStructuredBusinessInputUsesSameEngineWithIndependentReview(t *testing.T
 			}
 			e.drain()
 			approval := pendingApproval(t, e.detail(id))
+			if approval.PolicyName != "Independent business fixture review" || !approval.Provisional {
+				t.Fatal("tenant policy metadata or provisional status lost")
+			}
+			if err = e.eng.Decide(e.ctx, e.outsider, approval.ID, approval.VersionNum, cases.DecisionInput{Decision: "approve", Rationale: "No delegation"}); err == nil {
+				t.Fatal("catalog registration granted approval authority")
+			}
 			if err = e.eng.Decide(e.ctx, e.owner, approval.ID, approval.VersionNum, cases.DecisionInput{Decision: "approve", Rationale: "Owner must not approve"}); err == nil {
 				t.Fatal("case owner bypassed segregation of duties")
 			}
@@ -126,6 +162,20 @@ func TestStructuredBusinessInputUsesSameEngineWithIndependentReview(t *testing.T
 			var contract string
 			if err = e.pool.QueryRow(e.ctx, `SELECT data->>'input_contract' FROM audit_events WHERE tenant_id=$1 AND action='agent.started' ORDER BY seq DESC LIMIT 1`, e.tenant).Scan(&contract); err != nil || contract != "flowcase.case.v1" {
 				t.Fatalf("contract provenance not retained: %q %v", contract, err)
+			}
+			// A removed deployment registration must not fall back to an arbitrary runtime key.
+			second := e.createCase(tc.key, tc.vars)
+			e.eng.Catalog = base
+			e.drain()
+			studio.mu.Lock()
+			count := len(studio.requests)
+			studio.mu.Unlock()
+			if count != 1 {
+				t.Fatal("removed tenant registration still reached Agent runtime")
+			}
+			var state string
+			if err = e.pool.QueryRow(e.ctx, `SELECT status FROM node_executions WHERE case_id=$1 AND node_id='extract'`, second).Scan(&state); err != nil || state != "failed" {
+				t.Fatalf("missing registration did not fail closed: %s %v", state, err)
 			}
 		})
 	}

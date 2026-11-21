@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/elenio/flowcase/internal/platform/auth"
+	"github.com/elenio/flowcase/internal/workflows/catalog"
 	"github.com/elenio/flowcase/internal/workflows/definition"
 )
 
@@ -50,7 +51,8 @@ func (s *Service) ObserveBindings(ctx context.Context, a auth.Identity, key stri
 	if err = json.Unmarshal(v.Definition, &d); err != nil {
 		return BindingSnapshot{}, err
 	}
-	if s.Catalog == nil || len(d.Nodes) > 500 {
+	cat := catalog.ForTenant(s.Catalog, a.TenantID)
+	if cat == nil || len(d.Nodes) > 500 {
 		return BindingSnapshot{}, fmt.Errorf("deployment catalog is unavailable or outside supported bounds")
 	}
 	out := BindingSnapshot{Schema: "elenio.workflow-bindings.v1", WorkflowKey: key, Version: version, DefinitionHash: *v.DefinitionHash, Bindings: []BindingObservation{}, ObservedAt: time.Now().UTC()}
@@ -59,7 +61,7 @@ func (s *Service) ObserveBindings(ctx context.Context, a auth.Identity, key stri
 		switch n.Type {
 		case definition.AgentTask:
 			b.Kind, b.Ref = "agent", n.ConfigString("agent_ref")
-			if a, ok := s.Catalog.Agent(b.Ref); ok {
+			if a, ok := cat.Agent(b.Ref); ok {
 				b.Registered = true
 				b.RuntimeAgentID = a.RuntimeAgentID
 				if b.RuntimeAgentID == "" {
@@ -73,17 +75,17 @@ func (s *Service) ObserveBindings(ctx context.Context, a auth.Identity, key stri
 			}
 		case definition.HumanApproval:
 			b.Kind, b.Ref = "approval_policy", n.ConfigString("policy_ref")
-			if p, ok := s.Catalog.Policy(b.Ref); ok {
+			if p, ok := cat.Policy(b.Ref); ok {
 				b.Registered = true
 				b.Provisional = &p.Provisional
 				b.SoD = slices.Clone(p.SoD)
 			}
 		case definition.HumanTask:
 			b.Kind, b.Ref = "assignee_role", n.ConfigString("assignee_role")
-			b.Registered = s.Catalog.HasAssigneeRole(b.Ref)
+			b.Registered = cat.HasAssigneeRole(b.Ref)
 		case definition.ServiceTask:
 			b.Kind, b.Ref, b.Operation = "connector", n.ConfigString("connector_ref"), n.ConfigString("operation")
-			if c, ok := s.Catalog.Connector(b.Ref); ok {
+			if c, ok := cat.Connector(b.Ref); ok {
 				b.Registered = slices.Contains(c.Operations, b.Operation)
 			}
 		default:

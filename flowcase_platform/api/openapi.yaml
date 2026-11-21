@@ -365,11 +365,18 @@ paths:
     get:
       tags: [workflows]
       summary: Registered policies, agents, connectors, assignee roles and artifact types
-      description: Definitions may only reference registered entries. Policies marked provisional await business sign-off.
+      description: |
+        Definitions may only reference registered entries. The server resolves deployment-owned
+        tenant additions using the authenticated source directory tenant, never query/header overrides.
+        Shared embedded entries remain available; other tenants' additions are excluded. Registrations
+        do not grant domain roles, policy delegation or Agent release approval. Policies without a
+        cited deployment-owned business decision remain provisional. Response is no-store.
       operationId: getWorkflowCatalog
       responses:
         "200":
           description: Catalog snapshot
+          headers:
+            Cache-Control: { schema: { type: string, const: no-store } }
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Catalog" }

@@ -120,6 +120,48 @@ Two database/HTTP transport fixtures exercise invoice and access-request input,
 owner draft review, independent approval and KMS exclusion using the same
 engine. They do not prove PDF extraction, live inference or two installed apps.
 
+#### Tenant business registrations (deployment-owned)
+
+`PACKS_CONFIG` additionally accepts `tenant_catalogs`, keyed by canonical UUIDs
+from the **Flowcase source tenant directory**, not CP workspace keys or browser
+tenant headers. See `config/tenant-catalog.example.json`; its UUIDs, agent keys,
+versions and policy names are illustrative and provide no actual releases or
+business signoffs. Merge the needed additions into an operator-controlled file,
+keep the same file on the API and every worker, then restart both. The existing
+global `agents`/`policies` refinements remain compatible. There is no browser
+registration endpoint or hot configuration mutation.
+
+Each tenant may add agents, approval policies, assignee role names and artifact
+type names. Shared embedded refs cannot be replaced. The same new alias may map
+to different runtime IDs in separate tenants. New agents require an explicit
+runtime key, numeric `major.minor.patch` or UUID version pin, and the structured
+`flowcase.case.v1` envelope. Agent input/output schemas and publication remain
+owned by the original Agent service; artifact type registration is not a new
+data/schema authority. New arbitrary connector implementations are rejected.
+
+`GET /api/v1/workflow-catalog`, draft/validate/publish/replay, dependency evidence,
+runtime agent selection and approval policy reads all resolve the same tenant
+view. The case worker uses the **stored case tenant**. A removed agent
+registration fails before an external request; it cannot fall back to the alias
+as an arbitrary runtime key. The unscoped/unknown-tenant view contains shared
+embedded registrations only. The catalog response is `no-store`.
+
+Registration creates **no** directory membership, domain role assignment,
+policy delegation, KMS permission, model approval or Agent release. New policy
+SoD retains both case-owner and task-submitter separation. A false provisional
+flag alone has no effect: only a complete operator-supplied business decision
+citation marks a policy ratified, following the existing deployment trust
+boundary. Actual decisions still require independent original human authority.
+Development-only `seed-dev` retains its explicit development behavior and uses
+the configured source tenant snapshot; it is never a production grant flow.
+
+Strict file/entry/tenant limits are technical safeguards, not license quotas.
+Malformed/unknown/trailing JSON, shared-reference collisions, unsupported
+contracts, unpinned agents and weakened SoD fail startup. This configuration
+extension is not a signed portable release or mutable builder-managed catalog.
+All running instances must share the same reviewed deployment configuration;
+full immutable delivery/installer governance remains a separate open gate.
+
 #### Published workflow binding evidence
 
 `GET /api/v1/workflows/{key}/versions/{version}/dependencies` uses the original

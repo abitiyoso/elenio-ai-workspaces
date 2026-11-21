@@ -398,7 +398,8 @@ func (s *server) getCatalog(w http.ResponseWriter, r *http.Request) {
 		s.registryError(w, r, registry.ErrForbidden)
 		return
 	}
-	writeJSON(w, http.StatusOK, s.deps.Registry.Catalog.Snapshot())
+	w.Header().Set("Cache-Control", "no-store")
+	writeJSON(w, http.StatusOK, catalog.ForTenant(s.deps.Registry.Catalog, identity(r).TenantID).Snapshot())
 }
 
 func (s *server) listAuditEvents(w http.ResponseWriter, r *http.Request) {

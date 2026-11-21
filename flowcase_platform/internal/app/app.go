@@ -135,15 +135,16 @@ func NewRegistry(pool *pgxpool.Pool, packsConfig string) (*api.Registry, []packs
 	if err != nil {
 		return nil, nil, err
 	}
-	if err := bindings.Apply(cat); err != nil {
+	configured, err := bindings.Configure(cat)
+	if err != nil {
 		return nil, nil, err
 	}
 	tpls, err := packs.Templates(ps)
 	if err != nil {
 		return nil, nil, err
 	}
-	svc := &registry.Service{DB: pool, Catalog: cat, Templates: tpls}
-	return &api.Registry{Service: svc, Catalog: cat, Templates: tpls}, ps, nil
+	svc := &registry.Service{DB: pool, Catalog: configured, Templates: tpls}
+	return &api.Registry{Service: svc, Catalog: configured, Templates: tpls}, ps, nil
 }
 
 func parseRoles(names []string) ([]auth.Role, error) {

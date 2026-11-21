@@ -13,6 +13,7 @@ import (
 	"github.com/elenio/flowcase/internal/integrations/agent"
 	"github.com/elenio/flowcase/internal/integrations/connector"
 	"github.com/elenio/flowcase/internal/integrations/kms"
+	"github.com/elenio/flowcase/internal/workflows/catalog"
 	"github.com/elenio/flowcase/internal/workflows/definition"
 )
 
@@ -229,17 +230,19 @@ func (e *Engine) startAgent(ctx context.Context, tx pgx.Tx, c *caseRow, x *execR
 	if e.Agents.Provider() == agent.ProviderAgentStudio {
 		inputContract = "sim.v1"
 	}
-	if e.Catalog != nil {
-		if a, ok := e.Catalog.Agent(agentRef); ok {
-			if a.InputContract != "" {
-				inputContract = a.InputContract
-			}
-			if skill == "" {
-				skill = a.SkillVersion
-			}
-			if a.RuntimeAgentID != "" {
-				runtimeID = a.RuntimeAgentID // external binding (PACKS_CONFIG)
-			}
+	if cat := catalog.ForTenant(e.Catalog, c.TenantID); cat != nil {
+		a, ok := cat.Agent(agentRef)
+		if !ok {
+			return fmt.Errorf("%w: agent is not registered for the case tenant", errPermanent)
+		}
+		if a.InputContract != "" {
+			inputContract = a.InputContract
+		}
+		if skill == "" {
+			skill = a.SkillVersion
+		}
+		if a.RuntimeAgentID != "" {
+			runtimeID = a.RuntimeAgentID // external binding (PACKS_CONFIG)
 		}
 	}
 	input, ev, items, err := e.agentInput(ctx, tx, c, p, x, node)
