@@ -43,6 +43,18 @@ async function fixture(
     revision: plan?.revision ?? 1,
     checked_at: "2026-11-19T00:00:00Z",
     release_ready: false,
+    agent_releases:[{
+      runtime_agent_id:"finance.extract",expected_version:"1.0.0",reason:"Explicit source governance contract fixture",
+      evidence:{
+        schema:"elenio.agent-release-evidence.v1",agent_key:"finance.extract",environment:"production",
+        release_id:"00000000-0000-4000-8000-000000000701",
+        agent_version:{id:"00000000-0000-4000-8000-000000000702",version:"1.0.0",state:"published",checksum:"a".repeat(64)},
+        fingerprint:"b".repeat(64),request_id:"00000000-0000-4000-8000-000000000703",evaluation_id:"00000000-0000-4000-8000-000000000704",
+        evaluation_gate:"pass",independent_approval:true,self_approval_exempt:false,evaluation_primary_config_matches:true,
+        primary_model:{id:"00000000-0000-4000-8000-000000000705",config_version:3,approved:true},skills:[],tools:[],blockers:[],
+        state:"verified",content_hash:"c".repeat(64),observed_at:"2026-11-19T00:00:00Z",
+      },
+    }],
     blockers: ["Solution approval and target installation are unverified."],
     application_issues: [
       "Runtime page/schema mapping and business permissions require verification.",
@@ -255,6 +267,20 @@ test("compose business pages, preview responsive views, capture an immutable can
     await page.screenshot({path:`../../docs/elenio-handoff/evidence/publisher-bindings-contract-${width}.png`,fullPage:true});
   }
   await page.setViewportSize({ width: 1440, height: 900 });
+  const agentSummary=page.getByText("Agent release evidence · 1 reference",{exact:true});
+  await agentSummary.focus();await page.keyboard.press("Enter");
+  await expect(page.getByText("Source checks verified",{exact:true})).toBeVisible();
+  await expect(page.getByText("Independent approval: verified",{exact:true})).toBeVisible();
+  await expect(page.getByText("Not approved for deployment.",{exact:false})).toBeVisible();
+  for(const width of [1440,390]){
+    await page.setViewportSize({width,height:1000});
+    await page.getByText(/Source checksum:/).last().scrollIntoViewIfNeeded();
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+    const audit=await new AxeBuilder({page}).include('[role="dialog"]').analyze();
+    expect(audit.violations.filter(v=>v.impact==="serious"||v.impact==="critical")).toEqual([]);
+    await page.screenshot({path:`../../docs/elenio-handoff/evidence/publisher-agent-evidence-contract-${width}.png`,fullPage:true});
+  }
+  await page.setViewportSize({width:1440,height:900});
   await page.screenshot({
     path: "../../docs/elenio-handoff/evidence/publisher-candidate-1440.png",
     fullPage: true,

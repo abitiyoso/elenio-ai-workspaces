@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Elenio AI OS solution planning registry
-  version: 1.3.0
+  version: 1.4.0
   description: Workspace-scoped Solution plans, review candidates and delegated development executions. Flowcase remains case, data and domain approval authority. No customer installation or release approval is implied. Cookie session and same-origin CSRF protect writes.
 security:
   - session: []
@@ -261,6 +261,11 @@ paths:
                   release_ready: {const: false}
                   blockers: {type: array, items: {type: string}}
                   application_issues: {type: array, items: {type: string}}
+                  agent_releases:
+                    type: array
+                    maxItems: 20
+                    description: Deduplicated current source observations per trusted runtime agent/version pin; at most 64 KiB of retained Agent metadata and 180 KiB aggregate readiness. Unavailable, unauthorized or over-limit facts remain explicit. No provider call or solution approval.
+                    items: {$ref: '#/components/schemas/AgentReleaseObservation'}
                   workflows:
                     type: array
                     items:
@@ -298,6 +303,55 @@ components:
     ID: {name: id, in: path, required: true, schema: {type: string, format: uuid}}
     Csrf: {name: X-CSRF-Token, in: header, required: true, schema: {type: string}}
   schemas:
+    AgentReleaseObservation:
+      type: object
+      required: [runtime_agent_id, expected_version, reason]
+      properties:
+        runtime_agent_id: {type: string, maxLength: 128}
+        expected_version: {type: string, maxLength: 128}
+        reason: {type: string}
+        evidence: {$ref: '#/components/schemas/AgentReleaseEvidence'}
+    AgentReleaseEvidence:
+      type: object
+      description: Metadata from the original human release.read Agent source, validated against exact runtime/version binding, fresh observation and canonical checksum. No prompts, schemas, scope values, endpoints or credentials. Historical candidate/list/replay reads require current Agent app access and original source release.read independently of CP planning rights; metadata is not redacted under an unchanged checksum. Source unavailability fails closed. Source verified does not grant Solution approval or install authority.
+      required: [schema, agent_key, environment, release_id, agent_version, fingerprint, evaluation_gate, independent_approval, self_approval_exempt, evaluation_primary_config_matches, skills, tools, blockers, state, content_hash, observed_at]
+      properties:
+        schema: {const: elenio.agent-release-evidence.v1}
+        agent_key: {type: string}
+        environment: {enum: [staging, production]}
+        release_id: {type: string, format: uuid}
+        agent_version: {$ref: '#/components/schemas/SourceDependencyPin'}
+        fingerprint: {type: string}
+        request_id: {type: string, format: uuid}
+        evaluation_id: {type: string, format: uuid}
+        evaluation_gate: {enum: ["", pass, blocked]}
+        independent_approval: {type: boolean}
+        self_approval_exempt: {type: boolean}
+        evaluation_primary_config_matches: {type: boolean}
+        primary_model: {$ref: '#/components/schemas/SourceModelPin'}
+        fallback_model: {$ref: '#/components/schemas/SourceModelPin'}
+        skills: {type: array, maxItems: 100, items: {$ref: '#/components/schemas/SourceDependencyPin'}}
+        tools: {type: array, maxItems: 100, items: {$ref: '#/components/schemas/SourceDependencyPin'}}
+        blockers: {type: array, maxItems: 30, items: {type: string, pattern: '^[a-z][a-z0-9_]{0,95}$'}}
+        state: {enum: [verified, blocked]}
+        content_hash: {type: string, pattern: '^[0-9a-f]{64}$'}
+        observed_at: {type: string, format: date-time}
+    SourceDependencyPin:
+      type: object
+      required: [id, version, checksum, state]
+      properties:
+        id: {type: string, format: uuid}
+        version: {type: string, maxLength: 40}
+        checksum: {type: string}
+        state: {type: string}
+        scope_hash: {type: string}
+    SourceModelPin:
+      type: object
+      required: [id, config_version, approved]
+      properties:
+        id: {type: string, format: uuid}
+        config_version: {type: integer, minimum: 1}
+        approved: {type: boolean}
     BindingSnapshot:
       type: object
       description: Fresh authorized source catalog metadata observed for this exact published workflow. Snapshot checksum validated server-side; exact refs/kinds/node IDs, bounded count and freshness checked. Not a transitive release, policy authority, signature or installation. At most 200 source bindings across a report, within the direct resource limit. Historical candidates retain original observation time and digest.

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/elenio/control-plane/internal/identity/principal"
+	"github.com/elenio/control-plane/internal/solutions"
 )
 
 func solutionRevision(w http.ResponseWriter, r *http.Request) (int, bool) {
@@ -43,6 +44,10 @@ func (s *Server) handleCreateCandidate(w http.ResponseWriter, r *http.Request, p
 		return
 	}
 	if found {
+		if err = s.requireCandidateAgentRead(ctx, p, []solutions.Candidate{replay}); err != nil {
+			s.fail(w, r, err)
+			return
+		}
 		writeJSON(w, 200, replay)
 		return
 	}
@@ -62,6 +67,10 @@ func (s *Server) handleCreateCandidate(w http.ResponseWriter, r *http.Request, p
 		return
 	}
 	status := 200
+	if err = s.requireCandidateAgentRead(ctx, p, []solutions.Candidate{item}); err != nil {
+		s.fail(w, r, err)
+		return
+	}
 	if created {
 		status = 201
 	}
@@ -73,11 +82,19 @@ func (s *Server) handleCandidates(w http.ResponseWriter, r *http.Request, p prin
 		s.fail(w, r, err)
 		return
 	}
+	if err = s.requireCandidateAgentRead(r.Context(), p, page.Items); err != nil {
+		s.fail(w, r, err)
+		return
+	}
 	writeJSON(w, 200, page)
 }
 func (s *Server) handleCandidate(w http.ResponseWriter, r *http.Request, p principal.Principal) {
 	item, err := s.solutionService().GetCandidate(r.Context(), p, r.PathValue("id"), r.PathValue("candidate_id"))
 	if err != nil {
+		s.fail(w, r, err)
+		return
+	}
+	if err = s.requireCandidateAgentRead(r.Context(), p, []solutions.Candidate{item}); err != nil {
 		s.fail(w, r, err)
 		return
 	}

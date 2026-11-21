@@ -1,5 +1,9 @@
 # Live capability / acceptance matrix
 
+## Latest update — Publisher consumes Agent source governance
+
+Exact Flowcase runtime/version bindings drive bounded, deduplicated CP→Agent observations under current app and original release.read permissions. Candidate history retains source facts immutably, with current source authorization enforced again on list/detail/replay. Invalid/stale/tampered/private/redirected data supplies no evidence; negative source states remain visible. One shared disclosure distinguishes source checks from Solution approval, preserving design/brand. Current checks: 65 CP + focused final bounds, 107 frontend, 43 browser and 11 native cases, plus vet/build/lint/API-ref checks. No live inference, installed approval or full-product completion is claimed. [FINAL_LEAN_STATUS.md](FINAL_LEAN_STATUS.md).
+
 ## Latest update — source agent release governance evidence
 
 Original Agent human release.read exposes only bounded active-version/request/evaluation/dependency metadata. Independent approval excludes development exemptions; current primary model approval and evaluated config must match. Revocation/config drift and unknown fallback evaluation pins remain blocked in the observation; original runtime behavior is preserved. Approved rollback retains prior request provenance. No prompts, schemas, action-scope values, endpoints or credential references are exported; no run/provider request is created. 97 real-database/unit Agent tests, scoped vet and parsed OpenAPI pass. CP/Publisher consumption remains next implementation work. [FINAL_LEAN_STATUS.md](FINAL_LEAN_STATUS.md).

@@ -54,6 +54,29 @@ const reply = (body: unknown, status = 200) =>
   });
 afterEach(() => vi.unstubAllGlobals());
 describe("solution plans", () => {
+  it("retains historical agent governance and rejects mismatched or waived verified evidence",async()=>{
+    const evidence={schema:"elenio.agent-release-evidence.v1",agent_key:"finance.extract",environment:"production",
+      release_id:"00000000-0000-4000-8000-000000000701",agent_version:{id:"00000000-0000-4000-8000-000000000702",version:"1.0.0",checksum:"a".repeat(64),state:"published"},
+      fingerprint:"b".repeat(64),request_id:"00000000-0000-4000-8000-000000000703",evaluation_id:"00000000-0000-4000-8000-000000000704",evaluation_gate:"pass",
+      independent_approval:true,self_approval_exempt:false,evaluation_primary_config_matches:true,
+      primary_model:{id:"00000000-0000-4000-8000-000000000705",config_version:3,approved:true},
+      skills:[],tools:[],blockers:[],state:"verified",content_hash:"c".repeat(64),observed_at:"2026-11-19T00:00:00Z"};
+    const observation={runtime_agent_id:"finance.extract",expected_version:"1.0.0",reason:"Source contract fixture",evidence};
+    const report={solution_id:plan.id,revision:plan.revision,checked_at:"2026-11-19T00:00:00Z",release_ready:false,blockers:["Installation unresolved"],
+      workflows:[{key:"purchase-review",version:1,state:"verified",reason:"Published",definition_hash:"a".repeat(64)}],agent_releases:[observation]};
+    const fetch=vi.fn();vi.stubGlobal("fetch",fetch);
+    fetch.mockResolvedValueOnce(reply(session)).mockResolvedValueOnce(reply(report));
+    expect(await checkSolution(session,plan)).toEqual(report);
+    for(const invalid of [
+      {...observation,evidence:null},{...observation,expected_version:"2.0.0"},{...observation,evidence:{...evidence,agent_key:"other.agent"}},
+      {...observation,evidence:{...evidence,self_approval_exempt:true}},{...observation,evidence:{...evidence,independent_approval:false}},
+      {...observation,evidence:{...evidence,primary_model:{...evidence.primary_model,approved:false}}},
+      {...observation,evidence:{...evidence,evaluation_primary_config_matches:false}},{...observation,evidence:{...evidence,skills:{}}},
+    ]){
+      fetch.mockResolvedValueOnce(reply(session)).mockResolvedValueOnce(reply({...report,agent_releases:[invalid]}));
+      await expect(checkSolution(session,plan)).rejects.toThrow("Readiness does not match");
+    }
+  });
   it("rejects mismatched or malformed binding evidence while retaining historical observations",async()=>{
     const source={schema:"elenio.workflow-bindings.v1",workflow_key:"purchase-review",version:1,
       definition_hash:"a".repeat(64),content_hash:"b".repeat(64),observed_at:"2026-11-19T00:00:00Z",

@@ -11,6 +11,7 @@ import { newIdempotencyKey } from "../api/client";
 import { ApplicationComposer, ApplicationPreview } from "./ApplicationComposer";
 import { PublisherCandidates } from "./PublisherCandidates";
 import { BindingEvidence } from "./BindingEvidence";
+import { AgentReleaseEvidence } from "./AgentReleaseEvidence";
 import {
   listSolutions,
   checkSolution,
@@ -350,6 +351,7 @@ export function Solutions() {
                         Solution release is not verified.{" "}
                         {checks[item.id]?.blockers.join(" ")}
                       </Notice>
+                      <AgentReleaseEvidence observations={checks[item.id]?.agent_releases} />
                       <details className="binding-evidence">
                         <summary>Unresolved releases &amp; permissions</summary>
                         <ul>
