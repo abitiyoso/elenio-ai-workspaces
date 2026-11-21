@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Agent Studio Runtime — Flowcase integration
-  version: 0.4.0
+  version: 0.5.0
   description: |
     Implemented by Agent Studio release p1-20261030-04 and matched to Flowcase's
     proposed AgentExecutor contract (flowcase_platform/internal/integrations/agent).
@@ -13,6 +13,20 @@ info:
 servers:
   - url: http://127.0.0.1:8190/api/v1
 paths:
+  /releases/evidence:
+    get:
+      summary: Observe active agent release, independent governance and current dependency pins
+      description: Human release.read only; service run clients cannot use this endpoint. Environment is deployment-selected, never a query override. Read-only/no-store; does not create a run, probe a provider, change routing, approve or install. Verified source metadata is not a Solution release or business acceptance. Primary evaluation config must match current approved config; legacy fallback evaluation config remains explicitly unverified. No prompts, schemas, instructions, tool scope values, endpoints, credential references or secrets are exported.
+      security: [{controlPlaneJWT: []}]
+      parameters:
+        - {name: agent_key, in: query, required: true, schema: {type: string, pattern: '^[a-z][a-z0-9_.-]{0,62}$'}}
+        - {name: skill_version, in: query, schema: {type: string}, description: Optional expected active agent semver or UUID; unpinned observes current active release}
+      responses:
+        '200': {description: Bounded metadata observation with checksum ETag, content: {application/json: {schema: {$ref: '#/components/schemas/ReleaseEvidence'}}}}
+        '400': {description: Invalid/duplicate/unknown query parameters}
+        '401': {description: Verified identity required}
+        '403': {description: Human release.read is required independently of CP app access}
+        '409': {description: No active release, wrong version pin or unsupported source environment}
   /runs:
     post:
       summary: Invoke the active production release of an agent
@@ -109,6 +123,46 @@ components:
       scheme: bearer
       description: Opaque, tenant-bound, expiring credential stored by Agent Studio as SHA-256; run.invoke/read/cancel only.
   schemas:
+    ReleaseEvidence:
+      type: object
+      required: [schema, agent_key, environment, release_id, agent_version, fingerprint, evaluation_gate, independent_approval, self_approval_exempt, evaluation_primary_config_matches, skills, tools, blockers, state, content_hash, observed_at]
+      properties:
+        schema: {const: elenio.agent-release-evidence.v1}
+        agent_key: {type: string}
+        environment: {enum: [staging, production]}
+        release_id: {type: string, format: uuid, description: Current routing record; approved restored version retains its original request provenance after rollback}
+        agent_version: {$ref: '#/components/schemas/ReleaseDependencyPin'}
+        fingerprint: {type: string, description: Original domain configuration/evaluation fingerprint; unavailable for an over-limit inventory}
+        request_id: {type: string, format: uuid}
+        evaluation_id: {type: string, format: uuid}
+        evaluation_gate: {type: string}
+        independent_approval: {type: boolean, description: Original request/domain/ops identities are distinct and no development exemption was used}
+        self_approval_exempt: {type: boolean}
+        evaluation_primary_config_matches: {type: boolean, description: All retained evaluation run primary target IDs/config versions match current primary; not vendor billing or fallback validation}
+        primary_model: {$ref: '#/components/schemas/ReleaseModelPin'}
+        fallback_model: {$ref: '#/components/schemas/ReleaseModelPin'}
+        skills: {type: array, maxItems: 100, items: {$ref: '#/components/schemas/ReleaseDependencyPin'}}
+        tools: {type: array, maxItems: 100, items: {$ref: '#/components/schemas/ReleaseDependencyPin'}}
+        blockers: {type: array, items: {type: string, description: Stable metadata gate code, never raw provider/config output}}
+        state: {enum: [blocked, verified], description: Source metadata check only; customer permissions/installation/solution approval remain separate}
+        content_hash: {type: string, pattern: '^[0-9a-f]{64}$', description: SHA-256 of canonical response object excluding content_hash and observed_at; checksum only, not signature}
+        observed_at: {type: string, format: date-time}
+    ReleaseDependencyPin:
+      type: object
+      required: [id, version, checksum, state]
+      properties:
+        id: {type: string, format: uuid}
+        version: {type: string}
+        checksum: {type: string}
+        state: {type: string}
+        scope_hash: {type: string, description: Tool action-scope checksum; no raw scope or parameter values}
+    ReleaseModelPin:
+      type: object
+      required: [id, config_version, approved]
+      properties:
+        id: {type: string, format: uuid}
+        config_version: {type: integer, minimum: 1}
+        approved: {type: boolean, description: Existing tenant/environment approval plus current capability verification and active provider/deployment}
     HumanRunDetail:
       type: object
       required: [run, evidence]

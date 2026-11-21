@@ -48,6 +48,7 @@ type RuntimeStore interface {
 	RollbackRelease(context.Context, string, string, string, string) (postgres.Release, error)
 	ListReleaseRequests(context.Context, string, string) ([]postgres.ReleaseRequest, error)
 	ListReleases(context.Context, string, string) ([]postgres.Release, error)
+	ObserveRelease(context.Context, string, string, string, string) (postgres.ReleaseEvidence, error)
 	CreateFeedback(context.Context, string, string, string, string, string, bool, string) (postgres.FeedbackItem, error)
 	ListFeedback(context.Context, string, string) ([]postgres.FeedbackItem, error)
 	RunMetrics(context.Context, string, time.Duration) (postgres.RunMetrics, error)
@@ -608,6 +609,30 @@ func (c call) decision() (decisionBody, bool) {
 
 func (c call) releases(parts []string) {
 	switch {
+	case len(parts) == 1 && parts[0] == "evidence":
+		if !c.method(http.MethodGet) || !c.allow("release.read") {
+			return
+		}
+		query := c.r.URL.Query()
+		for key, values := range query {
+			if (key != "agent_key" && key != "skill_version") || len(values) != 1 {
+				writeError(c.w, http.StatusBadRequest, "supply only one agent_key and optional skill_version")
+				return
+			}
+		}
+		key, pin := query.Get("agent_key"), query.Get("skill_version")
+		if !keyPattern.MatchString(key) || (pin != "" && !refPattern.MatchString(pin)) {
+			writeError(c.w, http.StatusBadRequest, "agent_key and optional skill_version must be valid references")
+			return
+		}
+		evidence, err := c.h.Store.ObserveRelease(c.r.Context(), c.p.TenantID, key, pin, c.h.ReleaseEnvironment)
+		if err != nil {
+			c.runError(err)
+			return
+		}
+		c.w.Header().Set("Cache-Control", "no-store")
+		c.w.Header().Set("ETag", strconv.Quote(evidence.ContentHash))
+		writeJSON(c.w, http.StatusOK, evidence)
 	case len(parts) == 0:
 		if !c.method(http.MethodGet) || !c.allow("release.read") {
 			return

@@ -118,12 +118,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 2367,
+                  "duration": 3745,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T23:46:30.893Z",
+                  "startTime": "2026-11-21T00:01:44.304Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -152,12 +152,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 8227,
+                  "duration": 11894,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T23:46:33.507Z",
+                  "startTime": "2026-11-21T00:01:48.625Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -186,12 +186,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 3652,
+                  "duration": 6373,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T23:46:41.752Z",
+                  "startTime": "2026-11-21T00:02:00.542Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -202,6 +202,40 @@
           "id": "b163ed09f68681248ada-714baf62e7c87815cdd7",
           "file": "workspace.spec.ts",
           "line": 200,
+          "column": 1
+        },
+        {
+          "title": "native Agent release evidence enforces source routing and validation without inference",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 855,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-21T00:02:06.937Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b163ed09f68681248ada-fc1546310fc9c10d345d",
+          "file": "workspace.spec.ts",
+          "line": 232,
           "column": 1
         },
         {
@@ -220,12 +254,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 4196,
+                  "duration": 6001,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T23:46:45.415Z",
+                  "startTime": "2026-11-21T00:02:07.813Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -235,7 +269,7 @@
           ],
           "id": "b163ed09f68681248ada-6c3ce37b5aa1618107f9",
           "file": "workspace.spec.ts",
-          "line": 232,
+          "line": 242,
           "column": 1
         },
         {
@@ -254,12 +288,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 582,
+                  "duration": 819,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T23:46:49.620Z",
+                  "startTime": "2026-11-21T00:02:13.834Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -269,7 +303,7 @@
           ],
           "id": "b163ed09f68681248ada-df2b7c7df8652ce4ae74",
           "file": "workspace.spec.ts",
-          "line": 295,
+          "line": 305,
           "column": 1
         },
         {
@@ -288,12 +322,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 5294,
+                  "duration": 7210,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T23:46:50.216Z",
+                  "startTime": "2026-11-21T00:02:14.671Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -303,7 +337,7 @@
           ],
           "id": "b163ed09f68681248ada-f1eb16b030dec3a81fdd",
           "file": "workspace.spec.ts",
-          "line": 310,
+          "line": 320,
           "column": 1
         },
         {
@@ -322,12 +356,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 1706,
+                  "duration": 2181,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T23:46:55.521Z",
+                  "startTime": "2026-11-21T00:02:21.899Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -337,7 +371,7 @@
           ],
           "id": "b163ed09f68681248ada-7e45a40d5798e870bd31",
           "file": "workspace.spec.ts",
-          "line": 354,
+          "line": 364,
           "column": 1
         },
         {
@@ -356,12 +390,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 6512,
+                  "duration": 9063,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T23:46:57.243Z",
+                  "startTime": "2026-11-21T00:02:24.096Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -371,7 +405,7 @@
           ],
           "id": "b163ed09f68681248ada-69d95386842edcc15916",
           "file": "workspace.spec.ts",
-          "line": 382,
+          "line": 392,
           "column": 1
         },
         {
@@ -390,12 +424,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 2831,
+                  "duration": 2827,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T23:47:03.768Z",
+                  "startTime": "2026-11-21T00:02:33.181Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -405,7 +439,7 @@
           ],
           "id": "b163ed09f68681248ada-cdc3d34dd7aa02be9b55",
           "file": "workspace.spec.ts",
-          "line": 434,
+          "line": 444,
           "column": 1
         },
         {
@@ -424,12 +458,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 3366,
+                  "duration": 3767,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-11-20T23:47:06.614Z",
+                  "startTime": "2026-11-21T00:02:36.026Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -439,7 +473,7 @@
           ],
           "id": "b163ed09f68681248ada-97d09db179247822e8f1",
           "file": "workspace.spec.ts",
-          "line": 454,
+          "line": 464,
           "column": 1
         }
       ]
@@ -447,9 +481,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-11-20T23:46:30.325Z",
-    "duration": 39909.257000000005,
-    "expected": 10,
+    "startTime": "2026-11-21T00:01:43.152Z",
+    "duration": 56949.898,
+    "expected": 11,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0
