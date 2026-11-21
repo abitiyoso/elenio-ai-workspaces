@@ -17,6 +17,7 @@ import (
 	"github.com/elenio/flowcase/internal/platform/auth"
 	"github.com/elenio/flowcase/internal/platform/config"
 	"github.com/elenio/flowcase/internal/platform/postgres"
+	"github.com/elenio/flowcase/internal/workflows/catalog"
 )
 
 func main() {
@@ -80,7 +81,7 @@ func run(args []string) error {
 		if err != nil {
 			return err
 		}
-		snap := reg.Catalog.Snapshot()
+		snap := catalog.ForTenant(reg.Catalog, cfg.Auth.DevTenantID).Snapshot()
 		seed := postgres.DevSeed{TenantID: cfg.Auth.DevTenantID, UserID: cfg.Auth.DevUserID, DisplayName: cfg.Auth.DevDisplayName,
 			Roles: cfg.Auth.DevRoles, DomainRoles: snap.AssigneeRoles}
 		for _, p := range snap.Policies {

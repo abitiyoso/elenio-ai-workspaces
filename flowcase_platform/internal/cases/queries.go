@@ -11,6 +11,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/elenio/flowcase/internal/platform/auth"
+	"github.com/elenio/flowcase/internal/workflows/catalog"
 )
 
 // Case visibility: members, owner/creator, tenant admins, and people with work in the case (holders
@@ -369,8 +370,8 @@ func (e *Engine) approvals(ctx context.Context, a auth.Identity, extra string, a
 		if r.decided != nil {
 			r.ap.Decision = &Decision{Decision: *r.decided, Rationale: *rationale, DecidedByName: deref(decider), DecisionHash: *dhash, DecidedAt: *decidedAt}
 		}
-		if e.Catalog != nil {
-			if p, ok := e.Catalog.Policy(r.ap.PolicyRef); ok {
+		if cat := catalog.ForTenant(e.Catalog, a.TenantID); cat != nil {
+			if p, ok := cat.Policy(r.ap.PolicyRef); ok {
 				r.ap.PolicyName, r.ap.Provisional = p.Name, p.Provisional
 			}
 		}
@@ -388,7 +389,7 @@ func (e *Engine) approvals(ctx context.Context, a auth.Identity, extra string, a
 				&c.ID, &c.OwnerID, &c.CreatedBy, &c.Status); err != nil {
 				return nil, err
 			}
-			_, denied, err := authority(ctx, e.DB, a, &c, ap.PolicyRef, e.sodRules(ap.PolicyRef))
+			_, denied, err := authority(ctx, e.DB, a, &c, ap.PolicyRef, e.sodRules(a.TenantID, ap.PolicyRef))
 			if err != nil {
 				return nil, err
 			}

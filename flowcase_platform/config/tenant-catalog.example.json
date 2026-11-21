@@ -1,0 +1,24 @@
+{
+  "tenant_catalogs": {
+    "00000000-0000-4000-8000-000000000041": {
+      "agents": [
+        {"ref": "business.extract", "name": "Invoice extraction", "runtime_agent_id": "finance.extract", "skill_version": "1.2.0", "input_contract": "flowcase.case.v1"}
+      ],
+      "policies": [
+        {"ref": "finance.approve", "name": "Independent Finance review", "provisional": true, "description": "Illustrative registration only; requires a real business decision and separate directory delegation."}
+      ],
+      "assignee_roles": ["finance-reviewer"],
+      "artifact_types": ["invoice.draft"]
+    },
+    "00000000-0000-4000-8000-000000000042": {
+      "agents": [
+        {"ref": "business.extract", "name": "Access request analysis", "runtime_agent_id": "access.analyze", "skill_version": "2.0.0", "input_contract": "flowcase.case.v1"}
+      ],
+      "policies": [
+        {"ref": "access.approve", "name": "Independent access review", "provisional": true}
+      ],
+      "assignee_roles": ["access-reviewer"],
+      "artifact_types": ["access.draft"]
+    }
+  }
+}

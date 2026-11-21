@@ -79,8 +79,9 @@ type override struct {
 
 // prepare enforces structural validity, pins key and version to server values, strips the
 // server-managed status, and returns canonical content plus the semantic report.
-func (s *Service) prepare(raw []byte, key string, version int, o override) ([]byte, definition.Report, error) {
-	res := validator.Validate(raw, s.Catalog)
+func (s *Service) prepare(tenant string, raw []byte, key string, version int, o override) ([]byte, definition.Report, error) {
+	cat := catalog.ForTenant(s.Catalog, tenant)
+	res := validator.Validate(raw, cat)
 	if res.Definition == nil {
 		return nil, res.Report, &ValidationError{Report: res.Report}
 	}
@@ -108,7 +109,7 @@ func (s *Service) prepare(raw []byte, key string, version int, o override) ([]by
 	if err != nil {
 		return nil, definition.Report{}, err
 	}
-	return content, validator.ValidateDefinition(d, s.Catalog).Report, nil
+	return content, validator.ValidateDefinition(d, cat).Report, nil
 }
 
 // decodeStored parses stored content into a typed definition.
@@ -132,8 +133,8 @@ func present(raw []byte, status string) (json.RawMessage, error) {
 	return json.Marshal(d)
 }
 
-func (s *Service) report(v Version) definition.Report {
-	return validator.Validate(v.Definition, s.Catalog).Report
+func (s *Service) report(tenant string, v Version) definition.Report {
+	return validator.Validate(v.Definition, catalog.ForTenant(s.Catalog, tenant)).Report
 }
 
 // --- reads --------------------------------------------------------------------------------------
@@ -305,7 +306,7 @@ func (s *Service) replay(ctx context.Context, tx pgx.Tx, tenant, ref string) (Sa
 	if err != nil {
 		return SaveResult{}, err
 	}
-	return SaveResult{Version: v, Report: s.report(v)}, nil
+	return SaveResult{Version: v, Report: s.report(tenant, v)}, nil
 }
 
 // --- commands -----------------------------------------------------------------------------------
@@ -331,7 +332,7 @@ func (s *Service) template(key string) (packs.Template, bool) {
 }
 
 func (s *Service) createDefinitionTx(ctx context.Context, tx pgx.Tx, a auth.Identity, key string, doc []byte, o override, domainPack *string, data map[string]any) (SaveResult, error) {
-	content, report, err := s.prepare(doc, key, 1, o)
+	content, report, err := s.prepare(a.TenantID, doc, key, 1, o)
 	if err != nil {
 		return SaveResult{}, err
 	}
@@ -506,7 +507,7 @@ func (s *Service) CreateDraftVersion(ctx context.Context, a auth.Identity, idem 
 			return &ConflictError{Code: "invalid_state", Message: "new versions fork from a published or deprecated version"}
 		}
 		next := maxVersion + 1
-		content, report, err := s.prepare(src.Definition, key, next, override{})
+		content, report, err := s.prepare(a.TenantID, src.Definition, key, next, override{})
 		if err != nil {
 			return err
 		}
@@ -554,7 +555,7 @@ func (s *Service) UpdateDraft(ctx context.Context, a auth.Identity, key string, 
 		if cur.VersionNum != ifMatch {
 			return ErrPreconditionFailed
 		}
-		content, report, err := s.prepare(in.Definition, key, version, override{strictIdentity: true})
+		content, report, err := s.prepare(a.TenantID, in.Definition, key, version, override{strictIdentity: true})
 		if err != nil {
 			return err
 		}
@@ -590,7 +591,7 @@ func (s *Service) ValidateVersion(ctx context.Context, a auth.Identity, key stri
 		if err != nil {
 			return err
 		}
-		report := s.report(cur)
+		report := s.report(a.TenantID, cur)
 		out = SaveResult{Version: cur, Report: report}
 		if cur.Status == StatusPublished || cur.Status == StatusDeprecated {
 			return nil
@@ -620,7 +621,7 @@ func (s *Service) ValidateDocument(_ context.Context, a auth.Identity, raw []byt
 	if err := requireAny(a, auth.RoleWorkflowDesigner, auth.RoleWorkflowPublisher); err != nil {
 		return definition.Report{}, err
 	}
-	return validator.Validate(raw, s.Catalog).Report, nil
+	return validator.Validate(raw, catalog.ForTenant(s.Catalog, a.TenantID)).Report, nil
 }
 
 // Publish re-validates on the server, freezes the content hash and makes the version available for
@@ -641,7 +642,7 @@ func (s *Service) Publish(ctx context.Context, a auth.Identity, key string, vers
 		if cur.VersionNum != ifMatch {
 			return ErrPreconditionFailed
 		}
-		res := validator.Validate(cur.Definition, s.Catalog)
+		res := validator.Validate(cur.Definition, catalog.ForTenant(s.Catalog, a.TenantID))
 		if !res.Report.Valid {
 			return &ValidationError{Report: res.Report}
 		}
@@ -705,7 +706,7 @@ func (s *Service) Deprecate(ctx context.Context, a auth.Identity, key string, ve
 			return err
 		}
 		out.Version, err = s.versionByID(ctx, tx, a.TenantID, cur.ID)
-		out.Report = s.report(out.Version)
+		out.Report = s.report(a.TenantID, out.Version)
 		return err
 	})
 	return out, err

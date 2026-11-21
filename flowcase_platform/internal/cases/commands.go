@@ -255,9 +255,9 @@ type approvalRow struct {
 // authority applies the approval rules: human principal, domain_approver role, an active delegation
 // for the gate's policy, and default segregation of duties (no approving your own case or work).
 // sodRules returns the segregation-of-duties rules configured for a policy (all rules by default).
-func (e *Engine) sodRules(policyRef string) []string {
-	if e.Catalog != nil {
-		if p, ok := e.Catalog.Policy(policyRef); ok && p.SoD != nil {
+func (e *Engine) sodRules(tenant, policyRef string) []string {
+	if cat := catalog.ForTenant(e.Catalog, tenant); cat != nil {
+		if p, ok := cat.Policy(policyRef); ok && p.SoD != nil {
 			return p.SoD
 		}
 	}
@@ -333,7 +333,7 @@ func (e *Engine) Decide(ctx context.Context, a auth.Identity, approvalID string,
 			&ap.ID, &ap.CaseID, &ap.ExecID, &ap.NodeID, &ap.PolicyRef, &ap.SubjectHash, &ap.Status, &ap.Kind, &ap.ReturnTo, &ap.Iteration, &ap.VersionNum); err != nil {
 			return err
 		}
-		authz, denied, err := authority(ctx, tx, a, c, ap.PolicyRef, e.sodRules(ap.PolicyRef))
+		authz, denied, err := authority(ctx, tx, a, c, ap.PolicyRef, e.sodRules(c.TenantID, ap.PolicyRef))
 		if err != nil {
 			return err
 		}

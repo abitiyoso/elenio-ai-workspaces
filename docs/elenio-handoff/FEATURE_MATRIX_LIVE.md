@@ -1,5 +1,9 @@
 # Live capability / acceptance matrix
 
+## Latest update — reusable source tenant business catalog
+
+Operator-owned configuration adds isolated reusable agent/policy/role/artifact references; original validation, publication, source observations, runtime and approval reads share the verified source tenant. No automatic roles, delegations or releases; strict pins and independent-review rules remain. 125 Flowcase checks, Go vet, mounted builds, 11 native cases and 209 parsed API refs pass. Deployment restart/configuration remains necessary; this is not a mutable builder catalog or installed business-app proof. [FINAL_LEAN_STATUS.md](FINAL_LEAN_STATUS.md).
+
 ## Latest update — Publisher consumes Agent source governance
 
 Exact Flowcase runtime/version bindings drive bounded, deduplicated CP→Agent observations under current app and original release.read permissions. Candidate history retains source facts immutably, with current source authorization enforced again on list/detail/replay. Invalid/stale/tampered/private/redirected data supplies no evidence; negative source states remain visible. One shared disclosure distinguishes source checks from Solution approval, preserving design/brand. Current checks: 65 CP + focused final bounds, 107 frontend, 43 browser and 11 native cases, plus vet/build/lint/API-ref checks. No live inference, installed approval or full-product completion is claimed. [FINAL_LEAN_STATUS.md](FINAL_LEAN_STATUS.md).
